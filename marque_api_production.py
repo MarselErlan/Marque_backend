@@ -70,7 +70,7 @@ else:
         logger.warning("⚠️ TWILIO_ACCOUNT_SID not set")
 
 # Debug logging
-    logger.info(f"🔍 Twilio Config Debug (v1.0.6):")
+    logger.info(f"🔍 Twilio Config Debug (v1.0.7):")
 logger.info(f"  - TWILIO_ACCOUNT_SID: {'✅ Set' if TWILIO_ACCOUNT_SID else '❌ Missing'}")
 logger.info(f"  - TWILIO_AUTH_TOKEN: {'✅ Set' if TWILIO_AUTH_TOKEN else '❌ Missing'}")
 logger.info(f"  - TWILIO_VERIFY_SERVICE_SID: {'✅ Set' if TWILIO_VERIFY_SERVICE_SID else '❌ Missing'}")
@@ -81,7 +81,7 @@ logger.info(f"  - TWILIO_READY: {TWILIO_READY}")
 app = FastAPI(
     title="Marque API",
     description="Marque E-commerce Platform - Phone Authentication & User Management",
-    version="1.0.6",
+    version="1.0.7",
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json"
@@ -96,7 +96,25 @@ SECRET_KEY = settings.security.secret_key
 ALGORITHM = settings.security.jwt_algorithm
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.security.access_token_expire_minutes
 
-# In-memory storage (use database in production)
+# Market detection function
+def detect_market_from_phone(phone_number: str) -> str:
+    """Detect market from phone number"""
+    if phone_number.startswith("+996"):
+        return "kg"
+    elif phone_number.startswith("+1"):
+        return "us"
+    else:
+        raise ValueError(f"Cannot detect market for phone number: {phone_number}")
+
+# Import database components
+from src.app_01.db.market_db import Market, MarketDatabaseManager, detect_market_from_phone as db_detect_market
+from src.app_01.models.users.market_user import get_user_model, get_user_by_phone_with_market_detection
+from src.app_01.models.users.market_phone_verification import get_verification_model
+
+# Initialize database manager
+db_manager = MarketDatabaseManager()
+
+# In-memory storage (fallback for demo)
 users = {}
 sessions = {}
 
@@ -173,12 +191,13 @@ class SessionInfo(BaseModel):
     is_active: bool = Field(..., description="Whether session is active")
 
 # Utility Functions
-def create_access_token(user_id: str, role: str = "customer") -> str:
+def create_access_token(user_id: str, role: str = "customer", market: str = None) -> str:
     """Create JWT access token"""
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode = {
         "sub": user_id,
         "role": role,
+        "market": market,
         "exp": expire,
         "iat": datetime.utcnow(),
         "type": "access"
@@ -288,11 +307,21 @@ async def debug_env():
           response_model=AuthResponse,
           tags=["Authentication"],
           summary="Send SMS Verification Code",
-          description="Send a 6-digit verification code to the provided US phone number")
+          description="Send a 6-digit verification code to the provided phone number (+1 US or +996 KG)")
 async def send_verification_code(request: PhoneRequest):
     """Send SMS verification code to phone number"""
     try:
         phone = request.phone
+        
+        # Detect market from phone number
+        try:
+            market = db_detect_market(phone)
+            logger.info(f"🌍 Detected market: {market.value} for phone: {phone}")
+        except ValueError as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid phone number format: {str(e)}"
+            )
         
         # Send verification via Twilio Verify
         sms_sent = send_verification_via_twilio_verify(phone)
@@ -307,7 +336,8 @@ async def send_verification_code(request: PhoneRequest):
             success=True,
             message="Verification code sent successfully",
             data={
-                "phone": format_us_phone(phone),
+                "phone": phone,
+                "market": market.value,
                 "expires_in_minutes": 10,
                 "sms_provider": "Twilio Verify" if TWILIO_READY else "Demo"
             }
@@ -336,6 +366,16 @@ async def verify_phone_code(request: VerificationRequest):
         phone = request.phone
         code = request.code
         
+        # Detect market from phone number
+        try:
+            market = db_detect_market(phone)
+            logger.info(f"🌍 Detected market: {market.value} for phone: {phone}")
+        except ValueError as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid phone number format: {str(e)}"
+            )
+        
         # Verify code via Twilio Verify
         is_valid = verify_code_via_twilio_verify(phone, code)
         
@@ -345,36 +385,44 @@ async def verify_phone_code(request: VerificationRequest):
                 detail="Invalid or expired verification code"
             )
         
-        # Check if user exists or create new user
-        user_id = f"user_{phone}"
-        is_new_user = user_id not in users
+        # Get database session for the detected market
+        session_factory = db_manager.get_session_factory(market)
         
-        if is_new_user:
-            users[user_id] = {
-                "id": user_id,
-                "phone": phone,
-                "is_verified": True,
-                "role": "customer",
-                "created_at": datetime.utcnow().isoformat(),
-                "last_login": datetime.utcnow().isoformat(),
-                "metadata": {}
+        with session_factory() as db:
+            # Get user model for the market
+            user_model = get_user_model(market)
+            
+            # Check if user exists in database
+            user = user_model.get_by_phone(db, phone)
+            is_new_user = False
+            
+            if not user:
+                # Create new user in the correct market database
+                user = user_model.create_user(db, phone)
+                is_new_user = True
+                logger.info(f"✅ Created new user in {market.value} database: {user.id}")
+            else:
+                # Update existing user
+                user.is_verified = True
+                user.update_last_login()
+                logger.info(f"✅ Updated existing user in {market.value} database: {user.id}")
+            
+            db.commit()
+            
+            # Create access token with market info
+            user_id = str(user.id)
+            access_token = create_access_token(user_id, "customer", market.value)
+            
+            # Create session (still in-memory for now, can be moved to database later)
+            session_id = secrets.token_urlsafe(32)
+            sessions[session_id] = {
+                "session_id": session_id,
+                "user_id": user_id,
+                "market": market.value,
+                "created_at": datetime.utcnow(),
+                "expires_at": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
+                "is_active": True
             }
-        else:
-            users[user_id]["last_login"] = datetime.utcnow().isoformat()
-            users[user_id]["is_verified"] = True
-        
-        # Create access token
-        access_token = create_access_token(user_id, users[user_id]["role"])
-        
-        # Create session
-        session_id = secrets.token_urlsafe(32)
-        sessions[session_id] = {
-            "session_id": session_id,
-            "user_id": user_id,
-            "created_at": datetime.utcnow(),
-            "expires_at": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
-            "is_active": True
-        }
         
         return AuthResponse(
             success=True,
@@ -384,13 +432,15 @@ async def verify_phone_code(request: VerificationRequest):
                 "token_type": "bearer",
                 "expires_in_minutes": ACCESS_TOKEN_EXPIRE_MINUTES,
                 "user": {
-                    "id": users[user_id]["id"],
-                    "phone": format_us_phone(users[user_id]["phone"]),
-                    "is_verified": users[user_id]["is_verified"],
-                    "role": users[user_id]["role"],
-                    "is_new_user": is_new_user
+                    "id": user_id,
+                    "phone": phone,
+                    "is_verified": True,
+                    "role": "customer",
+                    "is_new_user": is_new_user,
+                    "market": market.value
                 },
-                "session_id": session_id
+                "session_id": session_id,
+                "market": market.value
             }
         )
         
