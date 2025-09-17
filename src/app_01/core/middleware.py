@@ -224,14 +224,15 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         
-        # Add CSP header in production
+        # Add CSP header in production (allow Swagger UI)
         if self.settings.is_production():
             response.headers["Content-Security-Policy"] = (
                 "default-src 'self'; "
-                "script-src 'self' 'unsafe-inline'; "
-                "style-src 'self' 'unsafe-inline'; "
+                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; "
+                "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
                 "img-src 'self' data: https:; "
-                "font-src 'self' data:;"
+                "font-src 'self' data: https://cdn.jsdelivr.net; "
+                "connect-src 'self' https://api.twilio.com https://verify.twilio.com;"
             )
         
         return response

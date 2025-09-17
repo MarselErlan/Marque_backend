@@ -30,3 +30,5 @@ requests==2.31.0
 
 # Additional utilities
 python-multipart==0.0.6
+
+twilio==8.10.0
