@@ -70,7 +70,7 @@ else:
         logger.warning("⚠️ TWILIO_ACCOUNT_SID not set")
 
 # Debug logging
-    logger.info(f"🔍 Twilio Config Debug (v1.0.7):")
+    logger.info(f"🔍 Twilio Config Debug (v1.0.8):")
 logger.info(f"  - TWILIO_ACCOUNT_SID: {'✅ Set' if TWILIO_ACCOUNT_SID else '❌ Missing'}")
 logger.info(f"  - TWILIO_AUTH_TOKEN: {'✅ Set' if TWILIO_AUTH_TOKEN else '❌ Missing'}")
 logger.info(f"  - TWILIO_VERIFY_SERVICE_SID: {'✅ Set' if TWILIO_VERIFY_SERVICE_SID else '❌ Missing'}")
@@ -81,7 +81,7 @@ logger.info(f"  - TWILIO_READY: {TWILIO_READY}")
 app = FastAPI(
     title="Marque API",
     description="Marque E-commerce Platform - Phone Authentication & User Management",
-    version="1.0.7",
+    version="1.0.8",
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json"
@@ -106,10 +106,8 @@ def detect_market_from_phone(phone_number: str) -> str:
     else:
         raise ValueError(f"Cannot detect market for phone number: {phone_number}")
 
-# Import database components
+# Import database components (avoid table conflicts)
 from src.app_01.db.market_db import Market, MarketDatabaseManager, detect_market_from_phone as db_detect_market
-from src.app_01.models.users.market_user import get_user_model, get_user_by_phone_with_market_detection
-from src.app_01.models.users.market_phone_verification import get_verification_model
 
 # Initialize database manager
 db_manager = MarketDatabaseManager()
@@ -385,44 +383,42 @@ async def verify_phone_code(request: VerificationRequest):
                 detail="Invalid or expired verification code"
             )
         
-        # Get database session for the detected market
-        session_factory = db_manager.get_session_factory(market)
+        # For now, use in-memory storage with market detection
+        # TODO: Implement proper database integration once table conflicts are resolved
+        user_id = f"user_{phone}"
+        is_new_user = user_id not in users
         
-        with session_factory() as db:
-            # Get user model for the market
-            user_model = get_user_model(market)
-            
-            # Check if user exists in database
-            user = user_model.get_by_phone(db, phone)
-            is_new_user = False
-            
-            if not user:
-                # Create new user in the correct market database
-                user = user_model.create_user(db, phone)
-                is_new_user = True
-                logger.info(f"✅ Created new user in {market.value} database: {user.id}")
-            else:
-                # Update existing user
-                user.is_verified = True
-                user.update_last_login()
-                logger.info(f"✅ Updated existing user in {market.value} database: {user.id}")
-            
-            db.commit()
-            
-            # Create access token with market info
-            user_id = str(user.id)
-            access_token = create_access_token(user_id, "customer", market.value)
-            
-            # Create session (still in-memory for now, can be moved to database later)
-            session_id = secrets.token_urlsafe(32)
-            sessions[session_id] = {
-                "session_id": session_id,
-                "user_id": user_id,
+        if is_new_user:
+            users[user_id] = {
+                "id": user_id,
+                "phone": phone,
                 "market": market.value,
-                "created_at": datetime.utcnow(),
-                "expires_at": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
-                "is_active": True
+                "is_verified": True,
+                "role": "customer",
+                "created_at": datetime.utcnow().isoformat(),
+                "last_login": datetime.utcnow().isoformat(),
+                "metadata": {}
             }
+            logger.info(f"✅ Created new user for {market.value} market: {user_id}")
+        else:
+            users[user_id]["last_login"] = datetime.utcnow().isoformat()
+            users[user_id]["is_verified"] = True
+            users[user_id]["market"] = market.value
+            logger.info(f"✅ Updated existing user for {market.value} market: {user_id}")
+        
+        # Create access token with market info
+        access_token = create_access_token(user_id, "customer", market.value)
+        
+        # Create session (still in-memory for now, can be moved to database later)
+        session_id = secrets.token_urlsafe(32)
+        sessions[session_id] = {
+            "session_id": session_id,
+            "user_id": user_id,
+            "market": market.value,
+            "created_at": datetime.utcnow(),
+            "expires_at": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
+            "is_active": True
+        }
         
         return AuthResponse(
             success=True,
@@ -432,12 +428,12 @@ async def verify_phone_code(request: VerificationRequest):
                 "token_type": "bearer",
                 "expires_in_minutes": ACCESS_TOKEN_EXPIRE_MINUTES,
                 "user": {
-                    "id": user_id,
-                    "phone": phone,
-                    "is_verified": True,
-                    "role": "customer",
+                    "id": users[user_id]["id"],
+                    "phone": users[user_id]["phone"],
+                    "is_verified": users[user_id]["is_verified"],
+                    "role": users[user_id]["role"],
                     "is_new_user": is_new_user,
-                    "market": market.value
+                    "market": users[user_id]["market"]
                 },
                 "session_id": session_id,
                 "market": market.value
