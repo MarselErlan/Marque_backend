@@ -226,14 +226,26 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         
         # Add CSP header in production (allow Swagger UI)
         if self.settings.is_production():
-            response.headers["Content-Security-Policy"] = (
-                "default-src 'self'; "
-                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; "
-                "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
-                "img-src 'self' data: https:; "
-                "font-src 'self' data: https://cdn.jsdelivr.net; "
-                "connect-src 'self' https://api.twilio.com https://verify.twilio.com;"
-            )
+            # Skip CSP for documentation endpoints to allow Swagger UI
+            if not request.url.path.startswith(("/docs", "/redoc", "/openapi.json")):
+                response.headers["Content-Security-Policy"] = (
+                    "default-src 'self'; "
+                    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; "
+                    "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+                    "img-src 'self' data: https:; "
+                    "font-src 'self' data: https://cdn.jsdelivr.net; "
+                    "connect-src 'self' https://api.twilio.com https://verify.twilio.com;"
+                )
+            else:
+                # Allow everything for documentation endpoints
+                response.headers["Content-Security-Policy"] = (
+                    "default-src *; "
+                    "script-src * 'unsafe-inline' 'unsafe-eval'; "
+                    "style-src * 'unsafe-inline'; "
+                    "img-src * data:; "
+                    "font-src *; "
+                    "connect-src *;"
+                )
         
         return response
 

@@ -70,7 +70,7 @@ else:
         logger.warning("⚠️ TWILIO_ACCOUNT_SID not set")
 
 # Debug logging
-    logger.info(f"🔍 Twilio Config Debug (v1.0.5):")
+    logger.info(f"🔍 Twilio Config Debug (v1.0.6):")
 logger.info(f"  - TWILIO_ACCOUNT_SID: {'✅ Set' if TWILIO_ACCOUNT_SID else '❌ Missing'}")
 logger.info(f"  - TWILIO_AUTH_TOKEN: {'✅ Set' if TWILIO_AUTH_TOKEN else '❌ Missing'}")
 logger.info(f"  - TWILIO_VERIFY_SERVICE_SID: {'✅ Set' if TWILIO_VERIFY_SERVICE_SID else '❌ Missing'}")
@@ -81,7 +81,7 @@ logger.info(f"  - TWILIO_READY: {TWILIO_READY}")
 app = FastAPI(
     title="Marque API",
     description="Marque E-commerce Platform - Phone Authentication & User Management",
-    version="1.0.5",
+    version="1.0.6",
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json"
