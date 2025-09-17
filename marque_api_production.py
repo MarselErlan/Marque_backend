@@ -44,6 +44,13 @@ TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
 TWILIO_VERIFY_SERVICE_SID = os.getenv("TWILIO_VERIFY_SERVICE_SID")
 
+# Debug logging
+logger.info(f"🔍 Twilio Config Debug:")
+logger.info(f"  - TWILIO_ACCOUNT_SID: {'✅ Set' if TWILIO_ACCOUNT_SID else '❌ Missing'}")
+logger.info(f"  - TWILIO_AUTH_TOKEN: {'✅ Set' if TWILIO_AUTH_TOKEN else '❌ Missing'}")
+logger.info(f"  - TWILIO_VERIFY_SERVICE_SID: {'✅ Set' if TWILIO_VERIFY_SERVICE_SID else '❌ Missing'}")
+logger.info(f"  - TWILIO_AVAILABLE: {TWILIO_AVAILABLE}")
+
 # Initialize Twilio client
 if TWILIO_AVAILABLE and TWILIO_ACCOUNT_SID:
     try:
@@ -249,6 +256,17 @@ async def health_check():
         "sms_provider": "Twilio Verify" if TWILIO_READY else "Demo",
         "sms_configured": TWILIO_READY,
         "timestamp": datetime.utcnow().isoformat()
+    }
+
+@app.get("/debug/env")
+async def debug_env():
+    """Debug endpoint to check environment variables"""
+    return {
+        "TWILIO_ACCOUNT_SID": "✅ Set" if os.getenv("TWILIO_ACCOUNT_SID") else "❌ Missing",
+        "TWILIO_AUTH_TOKEN": "✅ Set" if os.getenv("TWILIO_AUTH_TOKEN") else "❌ Missing", 
+        "TWILIO_VERIFY_SERVICE_SID": "✅ Set" if os.getenv("TWILIO_VERIFY_SERVICE_SID") else "❌ Missing",
+        "TWILIO_READY": TWILIO_READY,
+        "TWILIO_AVAILABLE": TWILIO_AVAILABLE
     }
 
 # Authentication Endpoints
