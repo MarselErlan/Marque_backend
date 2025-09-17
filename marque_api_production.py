@@ -70,7 +70,7 @@ else:
         logger.warning("⚠️ TWILIO_ACCOUNT_SID not set")
 
 # Debug logging
-    logger.info(f"🔍 Twilio Config Debug (v1.1.2):")
+    logger.info(f"🔍 Twilio Config Debug (v1.2.0):")
 logger.info(f"  - TWILIO_ACCOUNT_SID: {'✅ Set' if TWILIO_ACCOUNT_SID else '❌ Missing'}")
 logger.info(f"  - TWILIO_AUTH_TOKEN: {'✅ Set' if TWILIO_AUTH_TOKEN else '❌ Missing'}")
 logger.info(f"  - TWILIO_VERIFY_SERVICE_SID: {'✅ Set' if TWILIO_VERIFY_SERVICE_SID else '❌ Missing'}")
@@ -81,7 +81,7 @@ logger.info(f"  - TWILIO_READY: {TWILIO_READY}")
 app = FastAPI(
     title="Marque API",
     description="Marque E-commerce Platform - Phone Authentication & User Management",
-    version="1.1.2",
+    version="1.2.0",
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json"
@@ -597,33 +597,67 @@ async def verify_phone_code(request: VerificationRequest):
         
         with session_factory() as db:
             try:
-                # Import models dynamically to avoid table conflicts
-                if market == Market.KG:
-                    from src.app_01.models.users.market_user import UserKG as UserModel
-                elif market == Market.US:
-                    from src.app_01.models.users.market_user import UserUS as UserModel
-                else:
-                    raise ValueError(f"Unsupported market: {market}")
+                from sqlalchemy import text
                 
-                # Check if user exists in database
-                user = UserModel.get_by_phone(db, phone)
+                # Check if user exists in database using raw SQL
+                result = db.execute(text("SELECT * FROM users WHERE phone_number = :phone"), {"phone": phone})
+                user_row = result.fetchone()
                 is_new_user = False
                 
-                if not user:
-                    # Create new user in the correct market database
-                    user = UserModel.create_user(db, phone)
-                    is_new_user = True
-                    logger.info(f"✅ Created new user in {market.value} database: {user.id}")
-                else:
-                    # Update existing user
-                    user.is_verified = True
-                    user.update_last_login()
+                if not user_row:
+                    # Create new user in the correct market database using raw SQL
+                    insert_sql = text("""
+                        INSERT INTO users (phone_number, is_verified, market, language, country, created_at)
+                        VALUES (:phone, :verified, :market, :language, :country, NOW())
+                        RETURNING id, phone_number, is_verified, market, language, country, created_at
+                    """)
+                    
+                    language = "ru" if market.value == "kg" else "en"
+                    country = "Kyrgyzstan" if market.value == "kg" else "United States"
+                    
+                    result = db.execute(insert_sql, {
+                        "phone": phone,
+                        "verified": True,
+                        "market": market.value,
+                        "language": language,
+                        "country": country
+                    })
+                    user_row = result.fetchone()
                     db.commit()
-                    logger.info(f"✅ Updated existing user in {market.value} database: {user.id}")
+                    is_new_user = True
+                    logger.info(f"✅ Created new user in {market.value} database: {user_row[0]}")
+                else:
+                    # Update existing user using raw SQL
+                    update_sql = text("""
+                        UPDATE users 
+                        SET is_verified = :verified, last_login = NOW()
+                        WHERE phone_number = :phone
+                        RETURNING id, phone_number, is_verified, market, language, country, created_at
+                    """)
+                    
+                    result = db.execute(update_sql, {
+                        "verified": True,
+                        "phone": phone
+                    })
+                    user_row = result.fetchone()
+                    db.commit()
+                    logger.info(f"✅ Updated existing user in {market.value} database: {user_row[0]}")
                 
                 # Create access token with market info
-                user_id = str(user.id)
+                user_id = str(user_row[0])  # Use the database ID
                 access_token = create_access_token(user_id, "customer", market.value)
+                
+                # Prepare user data for response using database row
+                user_data = {
+                    "id": str(user_row[0]),  # Database ID
+                    "phone": user_row[1],    # phone_number
+                    "is_verified": user_row[2],  # is_verified
+                    "role": "customer",
+                    "is_new_user": is_new_user,
+                    "market": user_row[3],   # market
+                    "language": user_row[4], # language
+                    "country": user_row[5]   # country
+                }
                 
             except Exception as db_error:
                 logger.error(f"Database error: {db_error}")
@@ -651,6 +685,16 @@ async def verify_phone_code(request: VerificationRequest):
                 
                 # Create access token with market info
                 access_token = create_access_token(user_id, "customer", market.value)
+                
+                # Prepare fallback user data
+                user_data = {
+                    "id": user_id,
+                    "phone": phone,
+                    "is_verified": True,
+                    "role": "customer",
+                    "is_new_user": is_new_user,
+                    "market": market.value
+                }
         
         # Create session (still in-memory for now, can be moved to database later)
         session_id = secrets.token_urlsafe(32)
@@ -663,29 +707,8 @@ async def verify_phone_code(request: VerificationRequest):
             "is_active": True
         }
         
-        # Prepare user data for response
-        if 'user' in locals() and hasattr(user, 'id'):
-            # User was created/updated in database
-            user_data = {
-                "id": str(user.id),
-                "phone": user.phone_number,
-                "is_verified": user.is_verified,
-                "role": "customer",
-                "is_new_user": is_new_user,
-                "market": market.value,
-                "language": user.language,
-                "country": user.country
-            }
-        else:
-            # Fallback to in-memory user data
-            user_data = {
-                "id": user_id,
-                "phone": phone,
-                "is_verified": True,
-                "role": "customer",
-                "is_new_user": is_new_user,
-                "market": market.value
-            }
+        # user_data was already prepared in the database section above
+        # If we reach here, either database worked (user_data exists) or fallback was used
         
         return AuthResponse(
             success=True,
