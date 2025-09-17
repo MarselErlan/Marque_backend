@@ -24,8 +24,13 @@ try:
     from twilio.rest import Client
     from twilio.base.exceptions import TwilioException
     TWILIO_AVAILABLE = True
-except ImportError:
+    logger.info("✅ Twilio library imported successfully")
+except ImportError as e:
     TWILIO_AVAILABLE = False
+    logger.error(f"❌ Failed to import Twilio library: {e}")
+except Exception as e:
+    TWILIO_AVAILABLE = False
+    logger.error(f"❌ Unexpected error importing Twilio: {e}")
 
 # Import new architecture components
 from src.app_01.core.config import get_settings, Market, MarketConfig
@@ -48,16 +53,24 @@ TWILIO_VERIFY_SERVICE_SID = os.getenv("TWILIO_VERIFY_SERVICE_SID")
 if TWILIO_AVAILABLE and TWILIO_ACCOUNT_SID:
     try:
         twilio_client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+        # Test the client by getting account info
+        account = twilio_client.api.accounts(TWILIO_ACCOUNT_SID).fetch()
         TWILIO_READY = True
-        logger.info("✅ Twilio Verify service initialized")
+        logger.info(f"✅ Twilio Verify service initialized for account: {account.friendly_name}")
     except Exception as e:
         TWILIO_READY = False
         logger.error(f"❌ Failed to initialize Twilio: {e}")
+        logger.error(f"❌ TWILIO_ACCOUNT_SID: {TWILIO_ACCOUNT_SID[:10]}...")
+        logger.error(f"❌ TWILIO_AUTH_TOKEN: {TWILIO_AUTH_TOKEN[:10] if TWILIO_AUTH_TOKEN else 'None'}...")
 else:
     TWILIO_READY = False
+    if not TWILIO_AVAILABLE:
+        logger.warning("⚠️ Twilio library not available")
+    if not TWILIO_ACCOUNT_SID:
+        logger.warning("⚠️ TWILIO_ACCOUNT_SID not set")
 
 # Debug logging
-logger.info(f"🔍 Twilio Config Debug (v1.0.2):")
+logger.info(f"🔍 Twilio Config Debug (v1.0.3):")
 logger.info(f"  - TWILIO_ACCOUNT_SID: {'✅ Set' if TWILIO_ACCOUNT_SID else '❌ Missing'}")
 logger.info(f"  - TWILIO_AUTH_TOKEN: {'✅ Set' if TWILIO_AUTH_TOKEN else '❌ Missing'}")
 logger.info(f"  - TWILIO_VERIFY_SERVICE_SID: {'✅ Set' if TWILIO_VERIFY_SERVICE_SID else '❌ Missing'}")
@@ -68,7 +81,7 @@ logger.info(f"  - TWILIO_READY: {TWILIO_READY}")
 app = FastAPI(
     title="Marque API",
     description="Marque E-commerce Platform - Phone Authentication & User Management",
-    version="1.0.2",
+    version="1.0.3",
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json"
