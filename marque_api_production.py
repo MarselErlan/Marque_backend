@@ -70,7 +70,7 @@ else:
         logger.warning("⚠️ TWILIO_ACCOUNT_SID not set")
 
 # Debug logging
-    logger.info(f"🔍 Twilio Config Debug (v1.0.8):")
+    logger.info(f"🔍 Twilio Config Debug (v1.0.9):")
 logger.info(f"  - TWILIO_ACCOUNT_SID: {'✅ Set' if TWILIO_ACCOUNT_SID else '❌ Missing'}")
 logger.info(f"  - TWILIO_AUTH_TOKEN: {'✅ Set' if TWILIO_AUTH_TOKEN else '❌ Missing'}")
 logger.info(f"  - TWILIO_VERIFY_SERVICE_SID: {'✅ Set' if TWILIO_VERIFY_SERVICE_SID else '❌ Missing'}")
@@ -81,7 +81,7 @@ logger.info(f"  - TWILIO_READY: {TWILIO_READY}")
 app = FastAPI(
     title="Marque API",
     description="Marque E-commerce Platform - Phone Authentication & User Management",
-    version="1.0.8",
+    version="1.0.9",
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json"
@@ -111,6 +111,20 @@ from src.app_01.db.market_db import Market, MarketDatabaseManager, detect_market
 
 # Initialize database manager
 db_manager = MarketDatabaseManager()
+
+# Import database models directly to avoid table conflicts
+def get_user_model_for_market(market: Market):
+    """Get user model for specific market without importing the module"""
+    if market == Market.KG:
+        # Import KG model directly
+        from src.app_01.models.users.market_user import UserKG
+        return UserKG
+    elif market == Market.US:
+        # Import US model directly
+        from src.app_01.models.users.market_user import UserUS
+        return UserUS
+    else:
+        raise ValueError(f"Unsupported market: {market}")
 
 # In-memory storage (fallback for demo)
 users = {}
@@ -383,31 +397,65 @@ async def verify_phone_code(request: VerificationRequest):
                 detail="Invalid or expired verification code"
             )
         
-        # For now, use in-memory storage with market detection
-        # TODO: Implement proper database integration once table conflicts are resolved
-        user_id = f"user_{phone}"
-        is_new_user = user_id not in users
+        # Get database session for the detected market
+        session_factory = db_manager.get_session_factory(market)
         
-        if is_new_user:
-            users[user_id] = {
-                "id": user_id,
-                "phone": phone,
-                "market": market.value,
-                "is_verified": True,
-                "role": "customer",
-                "created_at": datetime.utcnow().isoformat(),
-                "last_login": datetime.utcnow().isoformat(),
-                "metadata": {}
-            }
-            logger.info(f"✅ Created new user for {market.value} market: {user_id}")
-        else:
-            users[user_id]["last_login"] = datetime.utcnow().isoformat()
-            users[user_id]["is_verified"] = True
-            users[user_id]["market"] = market.value
-            logger.info(f"✅ Updated existing user for {market.value} market: {user_id}")
-        
-        # Create access token with market info
-        access_token = create_access_token(user_id, "customer", market.value)
+        with session_factory() as db:
+            try:
+                # Import models dynamically to avoid table conflicts
+                if market == Market.KG:
+                    from src.app_01.models.users.market_user import UserKG as UserModel
+                elif market == Market.US:
+                    from src.app_01.models.users.market_user import UserUS as UserModel
+                else:
+                    raise ValueError(f"Unsupported market: {market}")
+                
+                # Check if user exists in database
+                user = UserModel.get_by_phone(db, phone)
+                is_new_user = False
+                
+                if not user:
+                    # Create new user in the correct market database
+                    user = UserModel.create_user(db, phone)
+                    is_new_user = True
+                    logger.info(f"✅ Created new user in {market.value} database: {user.id}")
+                else:
+                    # Update existing user
+                    user.is_verified = True
+                    user.update_last_login()
+                    db.commit()
+                    logger.info(f"✅ Updated existing user in {market.value} database: {user.id}")
+                
+                # Create access token with market info
+                user_id = str(user.id)
+                access_token = create_access_token(user_id, "customer", market.value)
+                
+            except Exception as db_error:
+                logger.error(f"Database error: {db_error}")
+                # Fallback to in-memory storage if database fails
+                user_id = f"user_{phone}"
+                is_new_user = user_id not in users
+                
+                if is_new_user:
+                    users[user_id] = {
+                        "id": user_id,
+                        "phone": phone,
+                        "market": market.value,
+                        "is_verified": True,
+                        "role": "customer",
+                        "created_at": datetime.utcnow().isoformat(),
+                        "last_login": datetime.utcnow().isoformat(),
+                        "metadata": {}
+                    }
+                    logger.info(f"✅ Created new user in memory for {market.value} market: {user_id}")
+                else:
+                    users[user_id]["last_login"] = datetime.utcnow().isoformat()
+                    users[user_id]["is_verified"] = True
+                    users[user_id]["market"] = market.value
+                    logger.info(f"✅ Updated existing user in memory for {market.value} market: {user_id}")
+                
+                # Create access token with market info
+                access_token = create_access_token(user_id, "customer", market.value)
         
         # Create session (still in-memory for now, can be moved to database later)
         session_id = secrets.token_urlsafe(32)
@@ -420,6 +468,30 @@ async def verify_phone_code(request: VerificationRequest):
             "is_active": True
         }
         
+        # Prepare user data for response
+        if 'user' in locals() and hasattr(user, 'id'):
+            # User was created/updated in database
+            user_data = {
+                "id": str(user.id),
+                "phone": user.phone_number,
+                "is_verified": user.is_verified,
+                "role": "customer",
+                "is_new_user": is_new_user,
+                "market": market.value,
+                "language": user.language,
+                "country": user.country
+            }
+        else:
+            # Fallback to in-memory user data
+            user_data = {
+                "id": user_id,
+                "phone": phone,
+                "is_verified": True,
+                "role": "customer",
+                "is_new_user": is_new_user,
+                "market": market.value
+            }
+        
         return AuthResponse(
             success=True,
             message="Phone number verified successfully",
@@ -427,14 +499,7 @@ async def verify_phone_code(request: VerificationRequest):
                 "access_token": access_token,
                 "token_type": "bearer",
                 "expires_in_minutes": ACCESS_TOKEN_EXPIRE_MINUTES,
-                "user": {
-                    "id": users[user_id]["id"],
-                    "phone": users[user_id]["phone"],
-                    "is_verified": users[user_id]["is_verified"],
-                    "role": users[user_id]["role"],
-                    "is_new_user": is_new_user,
-                    "market": users[user_id]["market"]
-                },
+                "user": user_data,
                 "session_id": session_id,
                 "market": market.value
             }
