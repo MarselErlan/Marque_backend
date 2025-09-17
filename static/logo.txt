@@ -1,0 +1,3 @@
+# Marque Logo Placeholder
+# Replace this with your actual logo file (PNG, SVG, etc.)
+# Recommended size: 200x50 pixels
