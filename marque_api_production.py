@@ -19,6 +19,10 @@ import os
 from typing import Optional, List
 from enum import Enum
 
+# Setup logging first
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Twilio Verify integration
 try:
     from twilio.rest import Client
@@ -36,10 +40,6 @@ except Exception as e:
 from src.app_01.core.config import get_settings, Market, MarketConfig
 from src.app_01.core.exceptions import create_market_error, ErrorCode
 from src.app_01.core.middleware import setup_middleware
-
-# Setup logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # Get settings
 settings = get_settings()
@@ -70,7 +70,7 @@ else:
         logger.warning("⚠️ TWILIO_ACCOUNT_SID not set")
 
 # Debug logging
-logger.info(f"🔍 Twilio Config Debug (v1.0.3):")
+logger.info(f"🔍 Twilio Config Debug (v1.0.4):")
 logger.info(f"  - TWILIO_ACCOUNT_SID: {'✅ Set' if TWILIO_ACCOUNT_SID else '❌ Missing'}")
 logger.info(f"  - TWILIO_AUTH_TOKEN: {'✅ Set' if TWILIO_AUTH_TOKEN else '❌ Missing'}")
 logger.info(f"  - TWILIO_VERIFY_SERVICE_SID: {'✅ Set' if TWILIO_VERIFY_SERVICE_SID else '❌ Missing'}")
@@ -81,7 +81,7 @@ logger.info(f"  - TWILIO_READY: {TWILIO_READY}")
 app = FastAPI(
     title="Marque API",
     description="Marque E-commerce Platform - Phone Authentication & User Management",
-    version="1.0.3",
+    version="1.0.4",
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json"
