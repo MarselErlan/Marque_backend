@@ -70,7 +70,7 @@ else:
         logger.warning("⚠️ TWILIO_ACCOUNT_SID not set")
 
 # Debug logging
-    logger.info(f"🔍 Twilio Config Debug (v1.1.0):")
+    logger.info(f"🔍 Twilio Config Debug (v1.1.1):")
 logger.info(f"  - TWILIO_ACCOUNT_SID: {'✅ Set' if TWILIO_ACCOUNT_SID else '❌ Missing'}")
 logger.info(f"  - TWILIO_AUTH_TOKEN: {'✅ Set' if TWILIO_AUTH_TOKEN else '❌ Missing'}")
 logger.info(f"  - TWILIO_VERIFY_SERVICE_SID: {'✅ Set' if TWILIO_VERIFY_SERVICE_SID else '❌ Missing'}")
@@ -81,7 +81,7 @@ logger.info(f"  - TWILIO_READY: {TWILIO_READY}")
 app = FastAPI(
     title="Marque API",
     description="Marque E-commerce Platform - Phone Authentication & User Management",
-    version="1.1.0",
+    version="1.1.1",
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json"
@@ -343,6 +343,105 @@ async def debug_env():
         "TWILIO_READY": TWILIO_READY,
         "TWILIO_AVAILABLE": TWILIO_AVAILABLE
     }
+
+@app.post("/debug/init-db")
+async def init_database():
+    """Initialize database tables for both markets"""
+    try:
+        from sqlalchemy import text
+        
+        results = {}
+        
+        # Initialize KG database
+        try:
+            kg_session_factory = db_manager.get_session_factory(Market.KG)
+            with kg_session_factory() as db:
+                # Create users table
+                create_users_sql = """
+                CREATE TABLE IF NOT EXISTS users (
+                    id SERIAL PRIMARY KEY,
+                    phone_number VARCHAR(20) UNIQUE NOT NULL,
+                    full_name VARCHAR(255),
+                    profile_image_url VARCHAR(500),
+                    is_active BOOLEAN DEFAULT TRUE,
+                    is_verified BOOLEAN DEFAULT FALSE,
+                    last_login TIMESTAMP WITH TIME ZONE,
+                    market VARCHAR(10) DEFAULT 'kg' NOT NULL,
+                    language VARCHAR(10) DEFAULT 'ru' NOT NULL,
+                    country VARCHAR(100) DEFAULT 'Kyrgyzstan' NOT NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                    email VARCHAR(255) UNIQUE,
+                    username VARCHAR(100) UNIQUE,
+                    hashed_password VARCHAR(255)
+                );
+                
+                CREATE INDEX IF NOT EXISTS idx_users_phone_number ON users(phone_number);
+                CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+                CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+                """
+                
+                db.execute(text(create_users_sql))
+                db.commit()
+                results["kg"] = "✅ KG database table created successfully"
+                logger.info("✅ KG database table created successfully")
+                
+        except Exception as e:
+            results["kg"] = f"❌ KG database error: {str(e)}"
+            logger.error(f"❌ KG database error: {e}")
+        
+        # Initialize US database
+        try:
+            us_session_factory = db_manager.get_session_factory(Market.US)
+            with us_session_factory() as db:
+                # Create users table
+                create_users_sql = """
+                CREATE TABLE IF NOT EXISTS users (
+                    id SERIAL PRIMARY KEY,
+                    phone_number VARCHAR(20) UNIQUE NOT NULL,
+                    full_name VARCHAR(255),
+                    profile_image_url VARCHAR(500),
+                    is_active BOOLEAN DEFAULT TRUE,
+                    is_verified BOOLEAN DEFAULT FALSE,
+                    last_login TIMESTAMP WITH TIME ZONE,
+                    market VARCHAR(10) DEFAULT 'us' NOT NULL,
+                    language VARCHAR(10) DEFAULT 'en' NOT NULL,
+                    country VARCHAR(100) DEFAULT 'United States' NOT NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                    email VARCHAR(255) UNIQUE,
+                    username VARCHAR(100) UNIQUE,
+                    hashed_password VARCHAR(255)
+                );
+                
+                CREATE INDEX IF NOT EXISTS idx_users_phone_number ON users(phone_number);
+                CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+                CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+                """
+                
+                db.execute(text(create_users_sql))
+                db.commit()
+                results["us"] = "✅ US database table created successfully"
+                logger.info("✅ US database table created successfully")
+                
+        except Exception as e:
+            results["us"] = f"❌ US database error: {str(e)}"
+            logger.error(f"❌ US database error: {e}")
+        
+        return {
+            "success": True,
+            "message": "Database initialization completed",
+            "results": results,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Database initialization failed: {e}")
+        return {
+            "success": False,
+            "message": f"Database initialization failed: {str(e)}",
+            "timestamp": datetime.utcnow().isoformat()
+        }
 
 # Authentication Endpoints
 @app.post("/api/v1/auth/send-verification", 
