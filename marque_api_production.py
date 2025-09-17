@@ -70,7 +70,7 @@ else:
         logger.warning("⚠️ TWILIO_ACCOUNT_SID not set")
 
 # Debug logging
-    logger.info(f"🔍 Twilio Config Debug (v1.0.9):")
+    logger.info(f"🔍 Twilio Config Debug (v1.1.0):")
 logger.info(f"  - TWILIO_ACCOUNT_SID: {'✅ Set' if TWILIO_ACCOUNT_SID else '❌ Missing'}")
 logger.info(f"  - TWILIO_AUTH_TOKEN: {'✅ Set' if TWILIO_AUTH_TOKEN else '❌ Missing'}")
 logger.info(f"  - TWILIO_VERIFY_SERVICE_SID: {'✅ Set' if TWILIO_VERIFY_SERVICE_SID else '❌ Missing'}")
@@ -81,7 +81,7 @@ logger.info(f"  - TWILIO_READY: {TWILIO_READY}")
 app = FastAPI(
     title="Marque API",
     description="Marque E-commerce Platform - Phone Authentication & User Management",
-    version="1.0.9",
+    version="1.1.0",
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json"
@@ -144,38 +144,68 @@ class UserRole(str, Enum):
 # Pydantic Models
 class PhoneRequest(BaseModel):
     """Phone number request model"""
-    phone: str = Field(..., description="US phone number (10 digits or +1XXXXXXXXXX)", example="+13473926894")
+    phone: str = Field(..., description="Phone number (+1 for US or +996 for KG)", example="+13473926894")
     
     @validator('phone')
     def validate_phone(cls, v):
-        """Validate US phone number format"""
+        """Validate phone number format for US or KG"""
         clean_phone = re.sub(r'\D', '', v)
         
-        if len(clean_phone) == 10:
-            return f"+1{clean_phone}"
-        elif len(clean_phone) == 11 and clean_phone.startswith('1'):
-            return f"+{clean_phone}"
-        elif v.startswith('+1') and len(clean_phone) == 11:
-            return v
+        # US number validation
+        if v.startswith('+1') or (len(clean_phone) == 10) or (len(clean_phone) == 11 and clean_phone.startswith('1')):
+            if len(clean_phone) == 10:
+                return f"+1{clean_phone}"
+            elif len(clean_phone) == 11 and clean_phone.startswith('1'):
+                return f"+{clean_phone}"
+            elif v.startswith('+1') and len(clean_phone) == 11:
+                return v
+            else:
+                raise ValueError("Phone number must be a valid US number (10 digits or +1XXXXXXXXXX)")
+        
+        # KG number validation
+        elif v.startswith('+996') or (len(clean_phone) == 12 and clean_phone.startswith('996')):
+            if v.startswith('+996') and len(clean_phone) == 12:
+                return v
+            elif len(clean_phone) == 12 and clean_phone.startswith('996'):
+                return f"+{clean_phone}"
+            else:
+                raise ValueError("Phone number must be a valid KG number (+996XXXXXXXXX)")
+        
         else:
-            raise ValueError("Phone number must be a valid US number (10 digits or +1XXXXXXXXXX)")
+            raise ValueError("Phone number must be a valid US number (+1XXXXXXXXXX) or KG number (+996XXXXXXXXX)")
 
 class VerificationRequest(BaseModel):
     """SMS verification request model"""
-    phone: str = Field(..., description="US phone number", example="+13473926894")
+    phone: str = Field(..., description="Phone number (+1 for US or +996 for KG)", example="+13473926894")
     code: str = Field(..., description="6-digit verification code", example="123456", min_length=6, max_length=6)
     
     @validator('phone')
     def validate_phone(cls, v):
+        """Validate phone number format for US or KG"""
         clean_phone = re.sub(r'\D', '', v)
-        if len(clean_phone) == 10:
-            return f"+1{clean_phone}"
-        elif len(clean_phone) == 11 and clean_phone.startswith('1'):
-            return f"+{clean_phone}"
-        elif v.startswith('+1') and len(clean_phone) == 11:
-            return v
+        
+        # US number validation
+        if v.startswith('+1') or (len(clean_phone) == 10) or (len(clean_phone) == 11 and clean_phone.startswith('1')):
+            if len(clean_phone) == 10:
+                return f"+1{clean_phone}"
+            elif len(clean_phone) == 11 and clean_phone.startswith('1'):
+                return f"+{clean_phone}"
+            elif v.startswith('+1') and len(clean_phone) == 11:
+                return v
+            else:
+                raise ValueError("Phone number must be a valid US number (10 digits or +1XXXXXXXXXX)")
+        
+        # KG number validation
+        elif v.startswith('+996') or (len(clean_phone) == 12 and clean_phone.startswith('996')):
+            if v.startswith('+996') and len(clean_phone) == 12:
+                return v
+            elif len(clean_phone) == 12 and clean_phone.startswith('996'):
+                return f"+{clean_phone}"
+            else:
+                raise ValueError("Phone number must be a valid KG number (+996XXXXXXXXX)")
+        
         else:
-            raise ValueError("Phone number must be a valid US number")
+            raise ValueError("Phone number must be a valid US number (+1XXXXXXXXXX) or KG number (+996XXXXXXXXX)")
 
 class AuthResponse(BaseModel):
     """Authentication response model"""
