@@ -70,7 +70,7 @@ else:
         logger.warning("⚠️ TWILIO_ACCOUNT_SID not set")
 
 # Debug logging
-    logger.info(f"🔍 Twilio Config Debug (v1.1.1):")
+    logger.info(f"🔍 Twilio Config Debug (v1.1.2):")
 logger.info(f"  - TWILIO_ACCOUNT_SID: {'✅ Set' if TWILIO_ACCOUNT_SID else '❌ Missing'}")
 logger.info(f"  - TWILIO_AUTH_TOKEN: {'✅ Set' if TWILIO_AUTH_TOKEN else '❌ Missing'}")
 logger.info(f"  - TWILIO_VERIFY_SERVICE_SID: {'✅ Set' if TWILIO_VERIFY_SERVICE_SID else '❌ Missing'}")
@@ -81,7 +81,7 @@ logger.info(f"  - TWILIO_READY: {TWILIO_READY}")
 app = FastAPI(
     title="Marque API",
     description="Marque E-commerce Platform - Phone Authentication & User Management",
-    version="1.1.1",
+    version="1.1.2",
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json"
@@ -440,6 +440,72 @@ async def init_database():
         return {
             "success": False,
             "message": f"Database initialization failed: {str(e)}",
+            "timestamp": datetime.utcnow().isoformat()
+        }
+
+@app.get("/debug/check-us-db")
+async def check_us_database():
+    """Check what's stored in the US database"""
+    try:
+        from sqlalchemy import text
+        
+        us_session_factory = db_manager.get_session_factory(Market.US)
+        with us_session_factory() as db:
+            # Check if users table exists
+            result = db.execute(text("""
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables 
+                    WHERE table_schema = 'public' 
+                    AND table_name = 'users'
+                );
+            """))
+            table_exists = result.scalar()
+            
+            if not table_exists:
+                return {
+                    "success": False,
+                    "message": "Users table does not exist in US database",
+                    "timestamp": datetime.utcnow().isoformat()
+                }
+            
+            # Get all users
+            result = db.execute(text("SELECT * FROM users ORDER BY id"))
+            users = result.fetchall()
+            
+            # Get table structure
+            result = db.execute(text("""
+                SELECT column_name, data_type 
+                FROM information_schema.columns 
+                WHERE table_name = 'users' 
+                ORDER BY ordinal_position;
+            """))
+            columns = result.fetchall()
+            
+            # Convert users to list of dictionaries
+            users_list = []
+            for user in users:
+                user_dict = {}
+                for i, column in enumerate(columns):
+                    user_dict[column[0]] = user[i]
+                users_list.append(user_dict)
+            
+            return {
+                "success": True,
+                "message": "US database checked successfully",
+                "data": {
+                    "table_exists": table_exists,
+                    "total_users": len(users_list),
+                    "columns": [col[0] for col in columns],
+                    "users": users_list
+                },
+                "timestamp": datetime.utcnow().isoformat()
+            }
+            
+    except Exception as e:
+        logger.error(f"Failed to check US database: {e}")
+        return {
+            "success": False,
+            "message": f"Failed to check US database: {str(e)}",
             "timestamp": datetime.utcnow().isoformat()
         }
 
