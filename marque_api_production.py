@@ -44,13 +44,6 @@ TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
 TWILIO_VERIFY_SERVICE_SID = os.getenv("TWILIO_VERIFY_SERVICE_SID")
 
-# Debug logging
-logger.info(f"🔍 Twilio Config Debug:")
-logger.info(f"  - TWILIO_ACCOUNT_SID: {'✅ Set' if TWILIO_ACCOUNT_SID else '❌ Missing'}")
-logger.info(f"  - TWILIO_AUTH_TOKEN: {'✅ Set' if TWILIO_AUTH_TOKEN else '❌ Missing'}")
-logger.info(f"  - TWILIO_VERIFY_SERVICE_SID: {'✅ Set' if TWILIO_VERIFY_SERVICE_SID else '❌ Missing'}")
-logger.info(f"  - TWILIO_AVAILABLE: {TWILIO_AVAILABLE}")
-
 # Initialize Twilio client
 if TWILIO_AVAILABLE and TWILIO_ACCOUNT_SID:
     try:
@@ -63,11 +56,19 @@ if TWILIO_AVAILABLE and TWILIO_ACCOUNT_SID:
 else:
     TWILIO_READY = False
 
+# Debug logging
+logger.info(f"🔍 Twilio Config Debug (v1.0.2):")
+logger.info(f"  - TWILIO_ACCOUNT_SID: {'✅ Set' if TWILIO_ACCOUNT_SID else '❌ Missing'}")
+logger.info(f"  - TWILIO_AUTH_TOKEN: {'✅ Set' if TWILIO_AUTH_TOKEN else '❌ Missing'}")
+logger.info(f"  - TWILIO_VERIFY_SERVICE_SID: {'✅ Set' if TWILIO_VERIFY_SERVICE_SID else '❌ Missing'}")
+logger.info(f"  - TWILIO_AVAILABLE: {TWILIO_AVAILABLE}")
+logger.info(f"  - TWILIO_READY: {TWILIO_READY}")
+
 # Create FastAPI app
 app = FastAPI(
     title="Marque API",
     description="Marque E-commerce Platform - Phone Authentication & User Management",
-    version="1.0.0",
+    version="1.0.2",
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json"
