@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Marque Production API - Phone Authentication
-Production-ready phone authentication API with enhanced endpoints
+Marque Production API - Phone Authentication v2
+Production-ready phone authentication API with enhanced endpoints and Twilio integration
 """
 
 from fastapi import FastAPI, HTTPException, Request, Depends, status
