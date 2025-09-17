@@ -231,7 +231,7 @@ async def root():
     """API root endpoint with information"""
     return {
         "name": "Marque API",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "description": "Marque E-commerce Platform - Phone Authentication & User Management",
         "documentation": "/docs",
         "health": "/health",
@@ -244,7 +244,7 @@ async def health_check():
     return {
         "status": "healthy",
         "service": "marque-api",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "environment": settings.environment.value,
         "sms_provider": "Twilio Verify" if TWILIO_READY else "Demo",
         "sms_configured": TWILIO_READY,
