@@ -323,7 +323,8 @@ class CORSHeadersMiddleware(BaseHTTPMiddleware):
 def setup_middleware(app: ASGIApp) -> ASGIApp:
     """Setup all middleware components"""
     # Add middleware in reverse order (last added is first executed)
-    app.add_middleware(CORSHeadersMiddleware)
+    # Note: CORSHeadersMiddleware is commented out because we use FastAPI's CORSMiddleware
+    # app.add_middleware(CORSHeadersMiddleware)
     app.add_middleware(ErrorHandlingMiddleware)
     app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(RateLimitMiddleware)

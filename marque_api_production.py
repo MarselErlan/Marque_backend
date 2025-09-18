@@ -524,12 +524,6 @@ async def check_us_database():
             "timestamp": datetime.utcnow().isoformat()
         }
 
-# CORS preflight handler for auth endpoints
-@app.options("/api/v1/auth/{path:path}", tags=["CORS"])
-async def auth_cors_preflight(path: str):
-    """Handle CORS preflight requests for auth endpoints"""
-    return {"message": "OK"}
-
 # Authentication Endpoints
 @app.post("/api/v1/auth/send-verification", 
           response_model=AuthResponse,
