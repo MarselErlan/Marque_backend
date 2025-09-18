@@ -87,7 +87,22 @@ app = FastAPI(
     openapi_url="/openapi.json"
 )
 
-# Setup middleware
+# Configure CORS for frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",      # Local Next.js dev
+        "http://localhost:8000",      # Local test server
+        "https://marque.website",     # Production frontend
+        "https://marque.website/",    # Production frontend (with trailing slash)
+        "*"                           # Allow all for now (remove in production)
+    ],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],  # Allow all headers including X-Market, X-Request-ID
+)
+
+# Setup custom middleware
 app = setup_middleware(app)
 
 # Security
@@ -508,6 +523,12 @@ async def check_us_database():
             "message": f"Failed to check US database: {str(e)}",
             "timestamp": datetime.utcnow().isoformat()
         }
+
+# CORS preflight handler for auth endpoints
+@app.options("/api/v1/auth/{path:path}", tags=["CORS"])
+async def auth_cors_preflight(path: str):
+    """Handle CORS preflight requests for auth endpoints"""
+    return {"message": "OK"}
 
 # Authentication Endpoints
 @app.post("/api/v1/auth/send-verification", 

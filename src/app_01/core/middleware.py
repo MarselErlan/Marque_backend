@@ -312,8 +312,13 @@ class CORSHeadersMiddleware(BaseHTTPMiddleware):
     
     def _is_allowed_origin(self, origin: str) -> bool:
         """Check if origin is allowed"""
-        # In production, implement proper origin checking
-        return True
+        allowed_origins = [
+            "http://localhost:3000",      # Local Next.js dev
+            "http://localhost:8000",      # Local test server
+            "https://marque.website",     # Production frontend
+            "https://marque.website/",    # Production frontend (with trailing slash)
+        ]
+        return origin in allowed_origins
 
 def setup_middleware(app: ASGIApp) -> ASGIApp:
     """Setup all middleware components"""
