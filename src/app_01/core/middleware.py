@@ -311,13 +311,46 @@ class CORSHeadersMiddleware(BaseHTTPMiddleware):
         return response
     
     def _is_allowed_origin(self, origin: str) -> bool:
-        """Check if origin is allowed"""
+        """Check if origin is allowed - Comprehensive frontend origins"""
         allowed_origins = [
-            "http://localhost:3000",      # Local Next.js dev
-            "http://localhost:8000",      # Local test server
-            "https://marque.website",     # Production frontend
-            "https://marque.website/",    # Production frontend (with trailing slash)
+            # Local development
+            "http://localhost:3000",                    # Local Next.js dev
+            "http://localhost:8000",                    # Local test server
+            "http://127.0.0.1:3000",                   # Local IP variant
+            "http://127.0.0.1:8000",                   # Local IP variant
+            
+            # Production frontend - Main domain
+            "https://marque.website",                   # Production frontend
+            "https://www.marque.website",              # With www subdomain
+            
+            # Production frontend - All possible variations
+            "https://marque.website/",                  # With trailing slash (though this is unusual)
+            "https://www.marque.website/",             # With www and trailing slash
+            
+            # Railway deployment URLs (if any)
+            "https://marque-frontend.up.railway.app",  # If deployed on Railway
+            "https://marque-frontend.railway.app",     # Alternative Railway URL
+            
+            # Development/staging URLs
+            "https://staging.marque.website",          # Staging environment
+            "https://dev.marque.website",              # Dev environment
+            
+            # Vercel deployment URLs (common pattern)
+            "https://marque-frontend.vercel.app",      # Vercel deployment
+            "https://marque-website.vercel.app",       # Alternative Vercel
         ]
+        
+        # For development, also allow pattern matching for common dev URLs
+        if origin and (
+            origin.startswith("http://localhost:") or
+            origin.startswith("http://127.0.0.1:") or
+            origin.endswith(".marque.website") or
+            origin.endswith(".vercel.app") or
+            origin.endswith(".railway.app") or
+            origin.endswith(".up.railway.app")
+        ):
+            return True
+            
         return origin in allowed_origins
 
 def setup_middleware(app: ASGIApp) -> ASGIApp:

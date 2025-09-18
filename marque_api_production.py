@@ -87,19 +87,61 @@ app = FastAPI(
     openapi_url="/openapi.json"
 )
 
-# Configure CORS for frontend
+# Configure CORS for frontend - Comprehensive origins list
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",      # Local Next.js dev
-        "http://localhost:8000",      # Local test server
-        "https://marque.website",     # Production frontend
-        "https://marque.website/",    # Production frontend (with trailing slash)
-        "*"                           # Allow all for now (remove in production)
+        # Local development
+        "http://localhost:3000",                    # Local Next.js dev
+        "http://localhost:8000",                    # Local test server
+        "http://127.0.0.1:3000",                   # Local IP variant
+        "http://127.0.0.1:8000",                   # Local IP variant
+        
+        # Production frontend - Main domain
+        "https://marque.website",                   # Production frontend
+        "https://www.marque.website",              # With www subdomain
+        
+        # Production frontend - All possible variations
+        "https://marque.website/",                  # With trailing slash
+        "https://www.marque.website/",             # With www and trailing slash
+        
+        # Railway deployment URLs (if any)
+        "https://marque-frontend.up.railway.app",  # If deployed on Railway
+        "https://marque-frontend.railway.app",     # Alternative Railway URL
+        
+        # Development/staging URLs
+        "https://staging.marque.website",          # Staging environment
+        "https://dev.marque.website",              # Dev environment
+        
+        # Vercel deployment URLs (common pattern)
+        "https://marque-frontend.vercel.app",      # Vercel deployment
+        "https://marque-website.vercel.app",       # Alternative Vercel
+        
+        # For testing purposes (remove in production)
+        "*"                                        # Allow all for development
     ],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["*"],  # Allow all headers including X-Market, X-Request-ID
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],
+    allow_headers=[
+        "*",                           # Allow all headers
+        "Content-Type",               # Standard content type
+        "Authorization",              # Auth tokens
+        "Accept",                     # Accept header
+        "Origin",                     # Origin header
+        "X-Requested-With",          # AJAX requests
+        "X-Market",                  # Custom market header
+        "X-Request-ID",              # Custom request ID
+        "User-Agent",                # User agent
+        "Referer",                   # Referer header
+        "Cache-Control",             # Cache control
+    ],
+    expose_headers=[
+        "X-Request-ID",              # Expose custom headers to frontend
+        "X-Process-Time",            # Expose processing time
+        "X-Market",                  # Expose market info
+        "X-Currency",                # Expose currency info
+        "X-Language",                # Expose language info
+    ]
 )
 
 # Setup custom middleware
