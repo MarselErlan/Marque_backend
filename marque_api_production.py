@@ -15,7 +15,7 @@ from fastapi.responses import JSONResponse
 import logging
 import uvicorn
 
-from src.app_01.presentation.api.v1.routes import api_router
+from src.app_01.presentation.api.v1.routes import router as api_router
 from src.app_01.services.auth_service import auth_service
 
 # Setup logging

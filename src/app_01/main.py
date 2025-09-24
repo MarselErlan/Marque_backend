@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 import logging
 import uvicorn
 
-from .presentation.api.v1.routes import api_router
+from .presentation.api.v1.routes import router as api_router
 from .services.auth_service import auth_service
 
 # Setup logging
