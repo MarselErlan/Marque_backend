@@ -59,12 +59,6 @@ class UserProfileUpdateRequest(BaseModel):
     last_name: Optional[str] = Field(None, min_length=2, max_length=50)
     email: Optional[EmailStr] = None
     language: Optional[str] = Field(None, pattern="^(ru|en)$")
-    
-    @validator('full_name')
-    def validate_full_name(cls, v):
-        if v and len(v.strip()) < 2:
-            raise ValueError('Full name must be at least 2 characters')
-        return v.strip() if v else v
 
 class UserAddressCreateRequest(BaseModel):
     """User address creation request"""
