@@ -55,9 +55,10 @@ class PhoneVerificationRequest(BaseModel):
 
 class UserProfileUpdateRequest(BaseModel):
     """User profile update request"""
-    full_name: Optional[str] = Field(None, min_length=2, max_length=255)
+    first_name: Optional[str] = Field(None, min_length=2, max_length=50)
+    last_name: Optional[str] = Field(None, min_length=2, max_length=50)
     email: Optional[EmailStr] = None
-    language: Optional[str] = Field(None, regex="^(ru|en)$")
+    language: Optional[str] = Field(None, pattern="^(ru|en)$")
     
     @validator('full_name')
     def validate_full_name(cls, v):
