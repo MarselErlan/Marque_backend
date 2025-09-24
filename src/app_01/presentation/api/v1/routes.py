@@ -6,9 +6,6 @@ Main API endpoints organized by feature
 from fastapi import APIRouter, Depends, HTTPException, Request
 from typing import Dict, Any
 
-from fastapi import APIRouter
-
-
 from ....routers.auth_router import router as auth_router
 from ....routers.product_router import router as product_router
 from ....routers.category_router import router as category_router
@@ -23,48 +20,17 @@ from ..schemas.auth import (
 from ...core.config import Market
 from ...core.container import get_container
 from ...application.services import (
-    AuthService, UserService, PhoneVerificationService, MarketService
+    UserService, MarketService
 )
 
 router = APIRouter()
 
-router.include_router(auth_router, prefix="/auth", tags=["authentication"])
-router.include_router(product_router, prefix="/products", tags=["products"])
-router.include_router(category_router, prefix="/categories", tags=["categories"])
-router.include_router(cart_router, prefix="/cart", tags=["cart"])
-router.include_router(wishlist_router, prefix="/wishlist", tags=["wishlist"])
-
-# Authentication routes
-@router.post("/auth/login")
-async def login_with_phone(request: PhoneLoginRequest, market: Market = Depends(get_market_from_request)):
-    """Login with phone number (sends verification code)"""
-    container = get_container()
-    auth_service = container.get(AuthService)
-    
-    return await auth_service.login_with_phone(request.phone, market)
-
-@router.post("/auth/verify")
-async def verify_phone_code(request: PhoneVerificationRequest, market: Market = Depends(get_market_from_request)):
-    """Verify phone code and complete login"""
-    container = get_container()
-    auth_service = container.get(AuthService)
-    
-    return await auth_service.verify_and_login(request.phone, request.code, market)
-
-@router.post("/auth/refresh")
-async def refresh_token(request: Request):
-    """Refresh access token"""
-    container = get_container()
-    auth_service = container.get(AuthService)
-    
-    # Extract refresh token from request
-    body = await request.json()
-    refresh_token = body.get("refresh_token")
-    
-    if not refresh_token:
-        raise HTTPException(status_code=400, detail="Refresh token required")
-    
-    return await auth_service.refresh_token(refresh_token)
+# Include the new, frontend-aligned routers
+router.include_router(auth_router)
+router.include_router(product_router, tags=["products"])
+router.include_router(category_router, tags=["categories"])
+router.include_router(cart_router)
+router.include_router(wishlist_router)
 
 # User routes
 @router.get("/users/profile", response_model=UserProfileResponse)
@@ -101,23 +67,6 @@ async def deactivate_user(
     user_service = container.get(UserService)
     
     return await user_service.deactivate_user(current_user["id"], market)
-
-# Phone verification routes
-@router.post("/phone/send-code")
-async def send_verification_code(request: PhoneLoginRequest, market: Market = Depends(get_market_from_request)):
-    """Send phone verification code"""
-    container = get_container()
-    phone_service = container.get(PhoneVerificationService)
-    
-    return await phone_service.send_verification_code(request.phone, market)
-
-@router.post("/phone/verify")
-async def verify_phone_code(request: PhoneVerificationRequest, market: Market = Depends(get_market_from_request)):
-    """Verify phone code"""
-    container = get_container()
-    phone_service = container.get(PhoneVerificationService)
-    
-    return await phone_service.verify_code(request.phone, request.code, market)
 
 # Market routes
 @router.get("/markets")
@@ -182,14 +131,6 @@ async def create_user_address(
     repo_manager = container.get(RepositoryManager)
     
     body = await request.json()
-    
-    # This would need proper address model creation
-    # address_data = {
-    #     "user_id": current_user["id"],
-    #     "market": market.value,
-    #     **body
-    # }
-    # address = await address_repo.create(address_data)
     
     return {
         "success": True,
