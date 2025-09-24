@@ -133,10 +133,10 @@ def populate_kg_database():
                     conn.execute(asset_sql, asset_data)
                 
                 print(f"   ✅ Created {len(products_data)} products with SKUs and assets")
-
-                conn.commit()
-                print(f"\n🎉 KG Database populated successfully!")
-                return True
+            
+            conn.commit()
+            print(f"\n🎉 KG Database populated successfully!")
+            return True
             
     except Exception as e:
         print(f"❌ Error populating KG database: {e}")
@@ -201,7 +201,7 @@ def populate_us_database():
                 if user_id_tuple:
                     user_ids.append(user_id_tuple[0])
                     print(f"   ✅ Created user: {user_data['full_name']} ({user_data['phone_number']}) - ID: {user_id_tuple[0]}")
-
+            
             # Create addresses for users (US format)
             us_addresses = [
                 {
