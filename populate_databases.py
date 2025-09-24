@@ -156,6 +156,13 @@ def populate_us_database():
         engine = create_engine(us_url)
         
         with engine.connect() as conn:
+            # Truncate tables to start fresh
+            conn.execute(text("DELETE FROM user_notifications;"))
+            conn.execute(text("DELETE FROM user_payment_methods;"))
+            conn.execute(text("DELETE FROM user_addresses;"))
+            conn.execute(text("DELETE FROM users;"))
+            print("   🗑️ Cleared existing user data")
+
             # Create real US users
             us_users = [
                 {
@@ -184,15 +191,17 @@ def populate_us_database():
                 insert_query = text("""
                     INSERT INTO users (phone_number, full_name, is_active, is_verified, created_at)
                     VALUES (:phone_number, :full_name, :is_active, :is_verified, :created_at)
+                    ON CONFLICT (phone_number) DO NOTHING
                     RETURNING id
                 """)
                 
                 user_data['created_at'] = datetime.now()
                 result = conn.execute(insert_query, user_data)
-                user_id = result.fetchone()[0]
-                user_ids.append(user_id)
-                print(f"   ✅ Created user: {user_data['full_name']} ({user_data['phone_number']}) - ID: {user_id}")
-            
+                user_id_tuple = result.fetchone()
+                if user_id_tuple:
+                    user_ids.append(user_id_tuple[0])
+                    print(f"   ✅ Created user: {user_data['full_name']} ({user_data['phone_number']}) - ID: {user_id_tuple[0]}")
+
             # Create addresses for users (US format)
             us_addresses = [
                 {
@@ -200,14 +209,11 @@ def populate_us_database():
                     'address_type': 'home',
                     'title': 'Home',
                     'full_address': '123 Main St, New York, NY 10001',
-                    'street_address': '123 Main St',
-                    'street_number': '123',
-                    'street_name': 'Main St',
+                    'street': '123 Main St',
+                    'building': 'Apt 4B',
                     'city': 'New York',
-                    'state': 'NY',
                     'postal_code': '10001',
                     'country': 'United States',
-                    'market': 'US',
                     'is_default': True,
                     'is_active': True
                 },
@@ -216,14 +222,11 @@ def populate_us_database():
                     'address_type': 'work',
                     'title': 'Office',
                     'full_address': '456 Broadway, Los Angeles, CA 90210',
-                    'street_address': '456 Broadway',
-                    'street_number': '456',
-                    'street_name': 'Broadway',
+                    'street': '456 Broadway',
+                    'building': 'Suite 500',
                     'city': 'Los Angeles',
-                    'state': 'CA',
                     'postal_code': '90210',
                     'country': 'United States',
-                    'market': 'US',
                     'is_default': True,
                     'is_active': True
                 }
@@ -249,8 +252,6 @@ def populate_us_database():
                     'card_type': 'visa',
                     'card_number_masked': '****9999',
                     'card_holder_name': 'John Smith',
-                    'bank_name': 'Chase Bank',
-                    'market': 'US',
                     'is_default': True,
                     'is_active': True
                 },
@@ -260,8 +261,6 @@ def populate_us_database():
                     'card_type': 'mastercard',
                     'card_number_masked': '****8888',
                     'card_holder_name': 'Sarah Johnson',
-                    'bank_name': 'Bank of America',
-                    'market': 'US',
                     'is_default': True,
                     'is_active': True
                 }
