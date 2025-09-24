@@ -6,55 +6,50 @@ Main API endpoints organized by feature
 from fastapi import APIRouter, Depends, HTTPException, Request
 from typing import Dict, Any
 
-from src.app_01.routers.auth_router import router as auth_router
-from src.app_01.routers.product_router import router as product_router
-from src.app_01.routers.category_router import router as category_router
-from src.app_01.routers.cart_router import router as cart_router
-from src.app_01.routers.wishlist_router import router as wishlist_router
-
-from src.app_01.presentation.schemas.auth import (
-    PhoneVerificationRequest,
-    PhoneVerificationResponse,
-    UserRegistrationRequest,
-    UserRegistrationResponse,
-    UserLoginRequest,
-    UserLoginResponse,
-    RefreshTokenRequest,
-    TokenResponse,
-    UserResponse,
-    ErrorResponse
-)
-from src.app_01.presentation.schemas.user import UserUpdate, UserAddressUpdate, UserPaymentUpdate
-from src.app_01.presentation.schemas.phone_verification import VerificationRequest
-from src.app_01.logic.auth.authentication import (
-    send_phone_verification_code,
-    verify_phone_code_and_get_tokens,
-    register_user,
-    login_user,
-    refresh_user_token
-)
-from src.app_01.logic.user.profile import get_user_profile, update_user_profile, update_user_address, update_user_payment
-from src.app_01.logic.phone_verification.verification import verify_user_phone_number
-
-from src.app_01.presentation.dependencies import get_current_user, get_market_from_request
-from src.app_01.presentation.schemas.auth import (
+from ..dependencies import get_current_user, get_market_from_request
+from ..schemas.auth import (
     PhoneLoginRequest, PhoneVerificationRequest, 
     UserProfileResponse, UserProfileUpdateRequest
 )
-from src.app_01.core.config import Market
-from src.app_01.core.container import get_container
-from src.app_01.application.services import (
-    UserService, MarketService
+from ...core.config import Market
+from ...core.container import get_container
+from ...application.services import (
+    AuthService, UserService, PhoneVerificationService, MarketService
 )
 
 router = APIRouter()
 
-# Include the new, frontend-aligned routers
-router.include_router(auth_router)
-router.include_router(product_router, tags=["products"])
-router.include_router(category_router, tags=["categories"])
-router.include_router(cart_router)
-router.include_router(wishlist_router)
+# Authentication routes
+@router.post("/auth/login")
+async def login_with_phone(request: PhoneLoginRequest, market: Market = Depends(get_market_from_request)):
+    """Login with phone number (sends verification code)"""
+    container = get_container()
+    auth_service = container.get(AuthService)
+    
+    return await auth_service.login_with_phone(request.phone, market)
+
+@router.post("/auth/verify")
+async def verify_phone_code(request: PhoneVerificationRequest, market: Market = Depends(get_market_from_request)):
+    """Verify phone code and complete login"""
+    container = get_container()
+    auth_service = container.get(AuthService)
+    
+    return await auth_service.verify_and_login(request.phone, request.code, market)
+
+@router.post("/auth/refresh")
+async def refresh_token(request: Request):
+    """Refresh access token"""
+    container = get_container()
+    auth_service = container.get(AuthService)
+    
+    # Extract refresh token from request
+    body = await request.json()
+    refresh_token = body.get("refresh_token")
+    
+    if not refresh_token:
+        raise HTTPException(status_code=400, detail="Refresh token required")
+    
+    return await auth_service.refresh_token(refresh_token)
 
 # User routes
 @router.get("/users/profile", response_model=UserProfileResponse)
@@ -92,6 +87,23 @@ async def deactivate_user(
     
     return await user_service.deactivate_user(current_user["id"], market)
 
+# Phone verification routes
+@router.post("/phone/send-code")
+async def send_verification_code(request: PhoneLoginRequest, market: Market = Depends(get_market_from_request)):
+    """Send phone verification code"""
+    container = get_container()
+    phone_service = container.get(PhoneVerificationService)
+    
+    return await phone_service.send_verification_code(request.phone, market)
+
+@router.post("/phone/verify")
+async def verify_phone_code(request: PhoneVerificationRequest, market: Market = Depends(get_market_from_request)):
+    """Verify phone code"""
+    container = get_container()
+    phone_service = container.get(PhoneVerificationService)
+    
+    return await phone_service.verify_code(request.phone, request.code, market)
+
 # Market routes
 @router.get("/markets")
 async def get_supported_markets():
@@ -123,7 +135,7 @@ async def get_user_addresses(
 ):
     """Get user addresses"""
     container = get_container()
-    from src.app_01.domain.repositories import RepositoryManager
+    from ...domain.repositories import RepositoryManager
     repo_manager = container.get(RepositoryManager)
     
     address_repo = await repo_manager.get_user_address_repository(market)
@@ -151,10 +163,18 @@ async def create_user_address(
 ):
     """Create user address"""
     container = get_container()
-    from src.app_01.domain.repositories import RepositoryManager
+    from ...domain.repositories import RepositoryManager
     repo_manager = container.get(RepositoryManager)
     
     body = await request.json()
+    
+    # This would need proper address model creation
+    # address_data = {
+    #     "user_id": current_user["id"],
+    #     "market": market.value,
+    #     **body
+    # }
+    # address = await address_repo.create(address_data)
     
     return {
         "success": True,
@@ -170,7 +190,7 @@ async def get_user_payment_methods(
 ):
     """Get user payment methods"""
     container = get_container()
-    from src.app_01.domain.repositories import RepositoryManager
+    from ...domain.repositories import RepositoryManager
     repo_manager = container.get(RepositoryManager)
     
     payment_repo = await repo_manager.get_user_payment_method_repository(market)
@@ -200,7 +220,7 @@ async def get_user_notifications(
 ):
     """Get user notifications"""
     container = get_container()
-    from src.app_01.domain.repositories import RepositoryManager
+    from ...domain.repositories import RepositoryManager
     repo_manager = container.get(RepositoryManager)
     
     notification_repo = await repo_manager.get_user_notification_repository(market)
@@ -229,7 +249,7 @@ async def mark_notification_read(
 ):
     """Mark notification as read"""
     container = get_container()
-    from src.app_01.domain.repositories import RepositoryManager
+    from ...domain.repositories import RepositoryManager
     repo_manager = container.get(RepositoryManager)
     
     notification_repo = await repo_manager.get_user_notification_repository(market)
@@ -239,5 +259,3 @@ async def mark_notification_read(
         "success": success,
         "message": "Notification marked as read" if success else "Failed to mark notification as read"
     }
-
-

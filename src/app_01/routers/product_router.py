@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from .. import models
-from .dependencies import get_db
+from ..db import get_db
 from ..schemas.product import ProductSchema
 from sqlalchemy.orm import joinedload
 
 router = APIRouter()
 
-@router.get("/", response_model=List[ProductSchema])
+@router.get("/products", response_model=List[ProductSchema])
 def get_products(
     db: Session = Depends(get_db),
     category: Optional[str] = None,
@@ -82,7 +82,7 @@ def get_products(
         ))
     return response_products
 
-@router.get("/{product_id}", response_model=ProductSchema)
+@router.get("/products/{product_id}", response_model=ProductSchema)
 def get_product(product_id: int, db: Session = Depends(get_db)):
     p = db.query(models.products.product.Product).options(
         joinedload(models.products.product.Product.brand),

@@ -16,7 +16,6 @@ KGBase = get_base(Market.KG)
 class PhoneVerificationKG(KGBase):
     """Phone verification for Kyrgyzstan market"""
     __tablename__ = "phone_verifications"
-    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
@@ -115,7 +114,6 @@ USBase = get_base(Market.US)
 class PhoneVerificationUS(USBase):
     """Phone verification for United States market"""
     __tablename__ = "phone_verifications"
-    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)

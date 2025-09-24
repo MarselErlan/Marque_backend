@@ -14,7 +14,6 @@ from ..schemas.auth import (
     UserProfile, UpdateProfileRequest, UpdateProfileResponse, LogoutResponse,
     VerifyTokenResponse, SupportedMarketsResponse, ErrorResponse, ValidationErrorResponse
 )
-from .dependencies import get_current_user_from_token
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -45,6 +44,19 @@ class RateLimitError(HTTPException):
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail=detail
         )
+
+def get_current_user_from_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Dependency to get current user from JWT token"""
+    if not credentials:
+        raise AuthenticationError("Missing authorization header")
+    
+    try:
+        # Verify token and get user info
+        token_response = auth_service.verify_access_token(credentials.credentials)
+        return token_response
+    except ValueError as e:
+        logger.error(f"Token verification failed: {e}")
+        raise AuthenticationError("Invalid token")
 
 @router.post("/send-verification", response_model=SendCodeResponse, responses={
     422: {"model": ValidationErrorResponse},

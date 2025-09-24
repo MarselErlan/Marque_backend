@@ -55,7 +55,6 @@ KGBase = get_base(Market.KG)
 class UserKG(KGBase):
     """User model for Kyrgyzstan market"""
     __tablename__ = "users"
-    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
     phone_number = Column(String(20), unique=True, nullable=False, index=True)  # +996 XXX XXX XXX
@@ -143,7 +142,6 @@ USBase = get_base(Market.US)
 class UserUS(USBase):
     """User model for United States market"""
     __tablename__ = "users"
-    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
     phone_number = Column(String(20), unique=True, nullable=False, index=True)  # +1 (XXX) XXX-XXXX

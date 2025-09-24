@@ -3,19 +3,18 @@ Main FastAPI Application
 Multi-market phone authentication system
 """
 
-import sys
-import os
-
-# Add the project root to the Python path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import logging
 import uvicorn
+import os
 
-from src.app_01.presentation.api.v1.routes import router as api_router
+from src.app_01.routers.auth_router import router as auth_router
+from src.app_01.routers.product_router import router as product_router
+from src.app_01.routers.category_router import router as category_router
+from src.app_01.routers.cart_router import router as cart_router
+from src.app_01.routers.wishlist_router import router as wishlist_router
 from src.app_01.services.auth_service import auth_service
 
 # Setup logging
@@ -26,7 +25,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="Marque Multi-Market Authentication API",
     description="Phone number authentication system for KG and US markets",
-    version="1.0.0",
+    version="1.0.1", # Increment version to signify update
     docs_url="/docs",
     redoc_url="/redoc"
 )
@@ -41,7 +40,11 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(api_router, prefix="/api/v1")
+app.include_router(auth_router, prefix="/api/v1")
+app.include_router(product_router, prefix="/api/v1")
+app.include_router(category_router, prefix="/api/v1")
+app.include_router(cart_router, prefix="/api/v1")
+app.include_router(wishlist_router, prefix="/api/v1")
 
 # Global exception handlers
 @app.exception_handler(HTTPException)
