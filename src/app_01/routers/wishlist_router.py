@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from .. import models
-from ..db import get_db
+from .dependencies import get_db
 from ..schemas.wishlist import WishlistSchema, WishlistItemSchema, AddToWishlistRequest
 from ..services.auth_service import get_current_user_from_token
 from ..schemas.auth import VerifyTokenResponse
 from ..routers.product_router import get_product
 
-router = APIRouter(prefix="/wishlist", tags=["wishlist"])
+router = APIRouter(tags=["wishlist"])
 
 @router.get("/", response_model=WishlistSchema)
 def get_wishlist(db: Session = Depends(get_db), current_user: VerifyTokenResponse = Depends(get_current_user_from_token)):

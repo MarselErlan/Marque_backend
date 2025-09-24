@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
 from .. import models
-from ..db import get_db
+from .dependencies import get_db
 from ..schemas.category import CategorySchema, SubCategorySchema
 from sqlalchemy.orm import joinedload
 
 router = APIRouter()
 
-@router.get("/categories", response_model=List[CategorySchema])
+@router.get("/", response_model=List[CategorySchema])
 def get_categories(db: Session = Depends(get_db)):
     categories = db.query(models.products.category.Category).options(
         joinedload(models.products.category.Category.subcategories)
