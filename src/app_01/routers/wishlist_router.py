@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from .. import models
-from .dependencies import get_db
+from .dependencies import get_db, get_current_user_from_token
 from ..schemas.wishlist import WishlistSchema, WishlistItemSchema, AddToWishlistRequest
-from ..services.auth_service import get_current_user_from_token
 from ..schemas.auth import VerifyTokenResponse
 from ..routers.product_router import get_product
 
