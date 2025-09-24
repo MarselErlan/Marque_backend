@@ -26,6 +26,7 @@ class User(Base):
     # Relationships
     reviews = relationship("Review", back_populates="user")
     cart = relationship("Cart", back_populates="user", uselist=False)
+    wishlist = relationship("Wishlist", back_populates="user", uselist=False)
     interactions = relationship("Interaction", back_populates="user")
     orders = relationship("Order", back_populates="user")
     admin_profile = relationship("Admin", back_populates="user", uselist=False)

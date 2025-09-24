@@ -39,6 +39,7 @@ class Product(Base):
     reviews = relationship("Review", back_populates="product", cascade="all, delete-orphan")
     interactions = relationship("Interaction", back_populates="product", cascade="all, delete-orphan")
     discounts = relationship("ProductDiscount", back_populates="product", cascade="all, delete-orphan")
+    wishlist_items = relationship("WishlistItem", back_populates="product", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Product(id={self.id}, title='{self.title}', brand_id={self.brand_id})>"
