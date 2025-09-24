@@ -28,6 +28,12 @@ from ...application.services import (
 
 router = APIRouter()
 
+router.include_router(auth_router, prefix="/auth", tags=["authentication"])
+router.include_router(product_router, prefix="/products", tags=["products"])
+router.include_router(category_router, prefix="/categories", tags=["categories"])
+router.include_router(cart_router, prefix="/cart", tags=["cart"])
+router.include_router(wishlist_router, prefix="/wishlist", tags=["wishlist"])
+
 # Authentication routes
 @router.post("/auth/login")
 async def login_with_phone(request: PhoneLoginRequest, market: Market = Depends(get_market_from_request)):
