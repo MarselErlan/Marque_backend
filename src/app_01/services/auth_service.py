@@ -18,7 +18,8 @@ from ..models.users.market_user import get_user_model, get_user_by_phone_with_ma
 from ..models.users.market_phone_verification import create_verification_for_market, verify_code_for_market
 from ..schemas.auth import (
     PhoneLoginRequest, VerifyCodeRequest, SendCodeResponse, VerifyCodeResponse,
-    UserProfile, UpdateProfileRequest, VerifyTokenResponse, MarketInfo
+    UserProfile, UpdateProfileRequest, VerifyTokenResponse, MarketInfo,
+    UserSchema
 )
 
 # JWT Configuration
@@ -159,13 +160,21 @@ class AuthService:
                 # Create access token
                 access_token = self._create_access_token(user.id, market.value)
                 
+                user_data = UserSchema(
+                    id=str(user.id),
+                    name=user.display_name,
+                    full_name=user.full_name,
+                    phone=user.phone_number,
+                    email=user.email
+                )
+
                 return VerifyCodeResponse(
                     success=True,
                     message="Phone number verified successfully",
                     access_token=access_token,
                     token_type="bearer",
                     expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-                    user_id=user.id,
+                    user=user_data,
                     market=market.value,
                     is_new_user=is_new_user
                 )
@@ -203,9 +212,10 @@ class AuthService:
                     raise ValueError(f"User not found with ID: {user_id}")
                 
                 return UserProfile(
-                    id=user.id,
+                    id=str(user.id),
                     phone_number=user.phone_number,
                     formatted_phone=user.formatted_phone,
+                    name=user.display_name,
                     full_name=user.full_name,
                     profile_image_url=user.profile_image_url,
                     is_verified=user.is_verified,
@@ -260,9 +270,10 @@ class AuthService:
                 db.refresh(user)
                 
                 return UserProfile(
-                    id=user.id,
+                    id=str(user.id),
                     phone_number=user.phone_number,
                     formatted_phone=user.formatted_phone,
+                    name=user.display_name,
                     full_name=user.full_name,
                     profile_image_url=user.profile_image_url,
                     is_verified=user.is_verified,

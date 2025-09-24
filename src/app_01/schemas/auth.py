@@ -8,6 +8,13 @@ from typing import Optional
 from datetime import datetime
 from enum import Enum
 
+class UserSchema(BaseModel):
+    id: str
+    name: Optional[str] = None
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+
 class MarketEnum(str, Enum):
     """Supported markets"""
     KG = "kg"
@@ -15,9 +22,9 @@ class MarketEnum(str, Enum):
 
 class PhoneLoginRequest(BaseModel):
     """Phone number login request"""
-    phone_number: str = Field(..., description="Phone number in international format")
+    phone: str = Field(..., description="Phone number in international format")
     
-    @validator('phone_number')
+    @validator('phone')
     def validate_phone_number(cls, v):
         """Validate phone number format for supported markets"""
         # Remove spaces and special characters
@@ -33,10 +40,10 @@ class PhoneLoginRequest(BaseModel):
 
 class VerifyCodeRequest(BaseModel):
     """Phone verification code request"""
-    phone_number: str = Field(..., description="Phone number in international format")
+    phone: str = Field(..., description="Phone number in international format")
     verification_code: str = Field(..., min_length=4, max_length=8, description="SMS verification code")
     
-    @validator('phone_number')
+    @validator('phone')
     def validate_phone_number(cls, v):
         """Validate phone number format for supported markets"""
         clean_phone = v.replace(" ", "").replace("-", "").replace("(", "").replace(")", "")
@@ -71,15 +78,16 @@ class VerifyCodeResponse(BaseModel):
     access_token: Optional[str] = Field(None, description="JWT access token")
     token_type: str = Field("bearer", description="Token type")
     expires_in: Optional[int] = Field(None, description="Token expiration in seconds")
-    user_id: Optional[int] = Field(None, description="User ID")
+    user: Optional[UserSchema] = Field(None, description="User information")
     market: Optional[MarketEnum] = Field(None, description="User market")
     is_new_user: Optional[bool] = Field(None, description="Whether this is a new user")
 
 class UserProfile(BaseModel):
     """User profile response"""
-    id: int = Field(..., description="User ID")
+    id: str = Field(..., description="User ID")
     phone_number: str = Field(..., description="User phone number")
     formatted_phone: str = Field(..., description="Formatted phone number")
+    name: Optional[str] = Field(None, description="User display name")
     full_name: Optional[str] = Field(None, description="User full name")
     profile_image_url: Optional[str] = Field(None, description="Profile image URL")
     is_verified: bool = Field(..., description="Phone verification status")

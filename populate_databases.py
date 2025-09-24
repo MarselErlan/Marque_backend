@@ -27,168 +27,116 @@ def populate_kg_database():
         engine = create_engine(kg_url)
         
         with engine.connect() as conn:
-            # Create real KG users
-            kg_users = [
+            # Truncate tables to start fresh
+            conn.execute(text("DELETE FROM skus;"))
+            conn.execute(text("DELETE FROM product_assets;"))
+            conn.execute(text("DELETE FROM products;"))
+            conn.execute(text("DELETE FROM subcategories;"))
+            conn.execute(text("DELETE FROM categories;"))
+            conn.execute(text("DELETE FROM brands;"))
+
+            # Create Brands
+            brands = [
+                {'name': 'MARQUE', 'slug': 'marque'},
+                {'name': 'SPORT', 'slug': 'sport'},
+                {'name': 'DENIM', 'slug': 'denim'},
+                {'name': 'BLOOM', 'slug': 'bloom'}
+            ]
+            brand_ids = {}
+            for brand in brands:
+                res = conn.execute(text("INSERT INTO brands (name, slug) VALUES (:name, :slug) RETURNING id"), brand)
+                brand_ids[brand['name']] = res.fetchone()[0]
+            print("   ✅ Created brands")
+
+            # Create Categories
+            categories = [
+                {'name': 'Мужчинам', 'slug': 'men'},
+                {'name': 'Женщинам', 'slug': 'women'}
+            ]
+            category_ids = {}
+            for category in categories:
+                res = conn.execute(text("INSERT INTO categories (name, slug) VALUES (:name, :slug) RETURNING id"), category)
+                category_ids[category['name']] = res.fetchone()[0]
+            print("   ✅ Created categories")
+            
+            # Create Subcategories
+            subcategories = [
+                {'category_id': category_ids['Мужчинам'], 'name': 'Футболки', 'slug': 't-shirts'},
+                {'category_id': category_ids['Мужчинам'], 'name': 'Обувь', 'slug': 'shoes'},
+                {'category_id': category_ids['Женщинам'], 'name': 'Платья', 'slug': 'dresses'}
+            ]
+            subcategory_ids = {}
+            for subcategory in subcategories:
+                res = conn.execute(text("INSERT INTO subcategories (category_id, name, slug) VALUES (:category_id, :name, :slug) RETURNING id"), subcategory)
+                subcategory_ids[subcategory['name']] = res.fetchone()[0]
+            print("   ✅ Created subcategories")
+
+            # Create Products
+            products_data = [
                 {
-                    'phone_number': '+996700123456',
-                    'full_name': 'Айбек Токтогулов',
-                    'market': 'KG',
-                    'language': 'ru',
-                    'country': 'Кыргызстан',
-                    'is_active': True,
-                    'is_verified': True
+                    'brand_id': brand_ids['MARQUE'], 'category_id': category_ids['Мужчинам'], 'subcategory_id': subcategory_ids['Футболки'],
+                    'title': 'Футболка спорт. из хлопка', 'slug': 'khlopok-sport-t-shirt', 'description': '...', 'sold_count': 150, 'rating_avg': 4.5, 'rating_count': 124,
+                    'skus': [
+                        {'sku_code': 'MQ-TS-B-S', 'price': 2999, 'original_price': 3999, 'size': 'S', 'color': 'black', 'stock': 10},
+                        {'sku_code': 'MQ-TS-B-M', 'price': 2999, 'original_price': 3999, 'size': 'M', 'color': 'black', 'stock': 15},
+                    ],
+                    'assets': [
+                        {'type': 'image', 'url': '/images/black-tshirt.jpg', 'order': 1}
+                    ]
                 },
                 {
-                    'phone_number': '+996700234567',
-                    'full_name': 'Айнура Касымова',
-                    'market': 'KG',
-                    'language': 'ru',
-                    'country': 'Кыргызстан',
-                    'is_active': True,
-                    'is_verified': True
+                    'brand_id': brand_ids['SPORT'], 'category_id': category_ids['Мужчинам'], 'subcategory_id': subcategory_ids['Обувь'],
+                    'title': 'Кроссовки беговые', 'slug': 'running-sneakers', 'description': '...', 'sold_count': 120, 'rating_avg': 4.8, 'rating_count': 89,
+                    'skus': [
+                        {'sku_code': 'SP-SN-W-42', 'price': 8999, 'original_price': 12999, 'size': '42', 'color': 'white', 'stock': 8},
+                    ],
+                    'assets': [
+                        {'type': 'image', 'url': '/images/white-sneakers.jpg', 'order': 1}
+                    ]
                 },
                 {
-                    'phone_number': '+996700345678',
-                    'full_name': 'Эрлан Беков',
-                    'market': 'KG',
-                    'language': 'ru',
-                    'country': 'Кыргызстан',
-                    'is_active': True,
-                    'is_verified': False
+                    'brand_id': brand_ids['BLOOM'], 'category_id': category_ids['Женщинам'], 'subcategory_id': subcategory_ids['Платья'],
+                    'title': 'Платье летнее', 'slug': 'summer-dress', 'description': '...', 'sold_count': 75, 'rating_avg': 4.6, 'rating_count': 43,
+                    'skus': [
+                        {'sku_code': 'BL-DR-Y-M', 'price': 4599, 'original_price': 6500, 'size': 'M', 'color': 'yellow', 'stock': 12},
+                    ],
+                    'assets': [
+                        {'type': 'image', 'url': '/images/female-model-yellow.jpg', 'order': 1}
+                    ]
                 }
             ]
-            
-            user_ids = []
-            for user_data in kg_users:
-                # Insert user
-                insert_query = text("""
-                    INSERT INTO users (phone_number, full_name, market, language, country, is_active, is_verified, created_at)
-                    VALUES (:phone_number, :full_name, :market, :language, :country, :is_active, :is_verified, :created_at)
+
+            for p_data in products_data:
+                product_sql = text("""
+                    INSERT INTO products (brand_id, category_id, subcategory_id, title, slug, description, sold_count, rating_avg, rating_count, created_at)
+                    VALUES (:brand_id, :category_id, :subcategory_id, :title, :slug, :description, :sold_count, :rating_avg, :rating_count, :created_at)
                     RETURNING id
                 """)
+                p_data['created_at'] = datetime.now()
+                res = conn.execute(product_sql, p_data)
+                product_id = res.fetchone()[0]
+
+                for sku_data in p_data['skus']:
+                    sku_sql = text("""
+                        INSERT INTO skus (product_id, sku_code, price, original_price, size, color, stock)
+                        VALUES (:product_id, :sku_code, :price, :original_price, :size, :color, :stock)
+                    """)
+                    sku_data['product_id'] = product_id
+                    conn.execute(sku_sql, sku_data)
+
+                for asset_data in p_data['assets']:
+                    asset_sql = text("""
+                        INSERT INTO product_assets (product_id, type, url, "order")
+                        VALUES (:product_id, :type, :url, :order)
+                    """)
+                    asset_data['product_id'] = product_id
+                    conn.execute(asset_sql, asset_data)
                 
-                user_data['created_at'] = datetime.now()
-                result = conn.execute(insert_query, user_data)
-                user_id = result.fetchone()[0]
-                user_ids.append(user_id)
-                print(f"   ✅ Created user: {user_data['full_name']} ({user_data['phone_number']}) - ID: {user_id}")
-            
-            # Create addresses for users
-            kg_addresses = [
-                {
-                    'user_id': user_ids[0],
-                    'address_type': 'home',
-                    'title': 'Дом',
-                    'full_address': 'ул. Чуй 123, Бишкек, Кыргызстан',
-                    'street': 'ул. Чуй',
-                    'building': '123',
-                    'city': 'Бишкек',
-                    'country': 'Кыргызстан',
-                    'market': 'KG',
-                    'is_default': True,
-                    'is_active': True
-                },
-                {
-                    'user_id': user_ids[1],
-                    'address_type': 'work',
-                    'title': 'Работа',
-                    'full_address': 'пр. Манаса 456, Бишкек, Кыргызстан',
-                    'street': 'пр. Манаса',
-                    'building': '456',
-                    'city': 'Бишкек',
-                    'country': 'Кыргызстан',
-                    'market': 'KG',
-                    'is_default': True,
-                    'is_active': True
-                }
-            ]
-            
-            for address_data in kg_addresses:
-                insert_address = text("""
-                    INSERT INTO user_addresses (user_id, address_type, title, full_address, street, building, city, country, market, is_default, is_active, created_at)
-                    VALUES (:user_id, :address_type, :title, :full_address, :street, :building, :city, :country, :market, :is_default, :is_active, :created_at)
-                    RETURNING id
-                """)
-                
-                address_data['created_at'] = datetime.now()
-                result = conn.execute(insert_address, address_data)
-                address_id = result.fetchone()[0]
-                print(f"   ✅ Created address: {address_data['title']} - {address_data['full_address']} - ID: {address_id}")
-            
-            # Create payment methods
-            kg_payments = [
-                {
-                    'user_id': user_ids[0],
-                    'payment_type': 'card',
-                    'card_type': 'visa',
-                    'card_number_masked': '****1234',
-                    'card_holder_name': 'Айбек Токтогулов',
-                    'bank_name': 'Демир Банк',
-                    'market': 'KG',
-                    'is_default': True,
-                    'is_active': True
-                },
-                {
-                    'user_id': user_ids[1],
-                    'payment_type': 'card',
-                    'card_type': 'mastercard',
-                    'card_number_masked': '****5678',
-                    'card_holder_name': 'Айнура Касымова',
-                    'bank_name': 'Айыл Банк',
-                    'market': 'KG',
-                    'is_default': True,
-                    'is_active': True
-                }
-            ]
-            
-            for payment_data in kg_payments:
-                insert_payment = text("""
-                    INSERT INTO user_payment_methods (user_id, payment_type, card_type, card_number_masked, card_holder_name, bank_name, market, is_default, is_active, created_at)
-                    VALUES (:user_id, :payment_type, :card_type, :card_number_masked, :card_holder_name, :bank_name, :market, :is_default, :is_active, :created_at)
-                    RETURNING id
-                """)
-                
-                payment_data['created_at'] = datetime.now()
-                result = conn.execute(insert_payment, payment_data)
-                payment_id = result.fetchone()[0]
-                print(f"   ✅ Created payment method: {payment_data['card_type']} ending in {payment_data['card_number_masked']} - ID: {payment_id}")
-            
-            # Create notifications
-            kg_notifications = [
-                {
-                    'user_id': user_ids[0],
-                    'notification_type': 'welcome',
-                    'title': 'Добро пожаловать в Marque!',
-                    'message': 'Спасибо за регистрацию в Marque KG. Наслаждайтесь покупками!',
-                    'is_read': False,
-                    'is_active': True
-                },
-                {
-                    'user_id': user_ids[1],
-                    'notification_type': 'order',
-                    'title': 'Заказ подтвержден',
-                    'message': 'Ваш заказ #12345 был подтвержден и отправлен на обработку.',
-                    'is_read': True,
-                    'is_active': True
-                }
-            ]
-            
-            for notification_data in kg_notifications:
-                insert_notification = text("""
-                    INSERT INTO user_notifications (user_id, notification_type, title, message, is_read, is_active, created_at)
-                    VALUES (:user_id, :notification_type, :title, :message, :is_read, :is_active, :created_at)
-                    RETURNING id
-                """)
-                
-                notification_data['created_at'] = datetime.now()
-                result = conn.execute(insert_notification, notification_data)
-                notification_id = result.fetchone()[0]
-                print(f"   ✅ Created notification: {notification_data['title']} - ID: {notification_id}")
-            
-            conn.commit()
-            print(f"\n🎉 KG Database populated successfully!")
-            print(f"   📊 Created: {len(kg_users)} users, {len(kg_addresses)} addresses, {len(kg_payments)} payments, {len(kg_notifications)} notifications")
-            return True
+                print(f"   ✅ Created {len(products_data)} products with SKUs and assets")
+
+                conn.commit()
+                print(f"\n🎉 KG Database populated successfully!")
+                return True
             
     except Exception as e:
         print(f"❌ Error populating KG database: {e}")
@@ -213,27 +161,18 @@ def populate_us_database():
                 {
                     'phone_number': '+1234567890',
                     'full_name': 'John Smith',
-                    'market': 'US',
-                    'language': 'en',
-                    'country': 'United States',
                     'is_active': True,
                     'is_verified': True
                 },
                 {
                     'phone_number': '+1234567891',
                     'full_name': 'Sarah Johnson',
-                    'market': 'US',
-                    'language': 'en',
-                    'country': 'United States',
                     'is_active': True,
                     'is_verified': True
                 },
                 {
                     'phone_number': '+1234567892',
                     'full_name': 'Michael Brown',
-                    'market': 'US',
-                    'language': 'en',
-                    'country': 'United States',
                     'is_active': True,
                     'is_verified': False
                 }
@@ -243,8 +182,8 @@ def populate_us_database():
             for user_data in us_users:
                 # Insert user
                 insert_query = text("""
-                    INSERT INTO users (phone_number, full_name, market, language, country, is_active, is_verified, created_at)
-                    VALUES (:phone_number, :full_name, :market, :language, :country, :is_active, :is_verified, :created_at)
+                    INSERT INTO users (phone_number, full_name, is_active, is_verified, created_at)
+                    VALUES (:phone_number, :full_name, :is_active, :is_verified, :created_at)
                     RETURNING id
                 """)
                 
@@ -292,8 +231,8 @@ def populate_us_database():
             
             for address_data in us_addresses:
                 insert_address = text("""
-                    INSERT INTO user_addresses (user_id, address_type, title, full_address, street_address, street_number, street_name, city, state, postal_code, country, market, is_default, is_active, created_at)
-                    VALUES (:user_id, :address_type, :title, :full_address, :street_address, :street_number, :street_name, :city, :state, :postal_code, :country, :market, :is_default, :is_active, :created_at)
+                    INSERT INTO user_addresses (user_id, address_type, title, full_address, street, building, city, postal_code, country, is_default, is_active, created_at)
+                    VALUES (:user_id, :address_type, :title, :full_address, :street, :building, :city, :postal_code, :country, :is_default, :is_active, :created_at)
                     RETURNING id
                 """)
                 
@@ -330,8 +269,8 @@ def populate_us_database():
             
             for payment_data in us_payments:
                 insert_payment = text("""
-                    INSERT INTO user_payment_methods (user_id, payment_type, card_type, card_number_masked, card_holder_name, bank_name, market, is_default, is_active, created_at)
-                    VALUES (:user_id, :payment_type, :card_type, :card_number_masked, :card_holder_name, :bank_name, :market, :is_default, :is_active, :created_at)
+                    INSERT INTO user_payment_methods (user_id, payment_type, card_type, card_number_masked, card_holder_name, is_default, is_active, created_at)
+                    VALUES (:user_id, :payment_type, :card_type, :card_number_masked, :card_holder_name, :is_default, :is_active, :created_at)
                     RETURNING id
                 """)
                 

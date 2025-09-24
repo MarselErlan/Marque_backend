@@ -58,7 +58,7 @@ def get_current_user_from_token(credentials: HTTPAuthorizationCredentials = Depe
         logger.error(f"Token verification failed: {e}")
         raise AuthenticationError("Invalid token")
 
-@router.post("/send-code", response_model=SendCodeResponse, responses={
+@router.post("/send-verification", response_model=SendCodeResponse, responses={
     422: {"model": ValidationErrorResponse},
     429: {"model": ErrorResponse},
     500: {"model": ErrorResponse}
@@ -71,13 +71,13 @@ async def send_verification_code(
     """
     Send SMS verification code to phone number
     
-    - **phone_number**: Phone number in international format (+996XXXXXXXXX for KG, +1XXXXXXXXXX for US)
+    - **phone**: Phone number in international format (+996XXXXXXXXX for KG, +1XXXXXXXXXX for US)
     - **x_market**: Optional market override header
     
     Returns verification code details and market information.
     """
     try:
-        logger.info(f"Sending verification code to {request.phone_number}")
+        logger.info(f"Sending verification code to {request.phone}")
         
         # Get client IP for rate limiting
         client_ip = request_obj.client.host
@@ -89,16 +89,16 @@ async def send_verification_code(
         return response
         
     except ValueError as e:
-        logger.warning(f"Validation error for {request.phone_number}: {e}")
+        logger.warning(f"Validation error for {request.phone}: {e}")
         raise ValidationError(str(e))
     except RuntimeError as e:
-        logger.error(f"Service error for {request.phone_number}: {e}")
+        logger.error(f"Service error for {request.phone}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
         )
     except Exception as e:
-        logger.error(f"Unexpected error for {request.phone_number}: {e}")
+        logger.error(f"Unexpected error for {request.phone}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error"

@@ -13,6 +13,7 @@ class SKU(Base):
     size = Column(String(20), nullable=False)
     color = Column(String(50), nullable=False)
     price = Column(Float, nullable=False)
+    original_price = Column(Float, nullable=True)
     stock = Column(Integer, default=0)
     is_active = Column(Boolean, default=True)
 

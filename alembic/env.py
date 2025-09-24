@@ -14,7 +14,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Add src to path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..')))
+
+from src.app_01.db import Base
+from src.app_01.models.users import user
+from src.app_01.models.products import product, brand, category
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -27,12 +31,7 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
-
-# For now, we'll use a simple metadata object
-# You can import your actual models later
-target_metadata = None
+target_metadata = Base.metadata
 
 def get_url():
     """Get database URL from environment or config"""
