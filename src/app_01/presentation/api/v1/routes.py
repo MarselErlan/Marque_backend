@@ -6,11 +6,11 @@ Main API endpoints organized by feature
 from fastapi import APIRouter, Depends, HTTPException, Request
 from typing import Dict, Any
 
-from ...routers.auth_router import router as auth_router
-from ...routers.product_router import router as product_router
-from ...routers.category_router import router as category_router
-from ...routers.cart_router import router as cart_router
-from ...routers.wishlist_router import router as wishlist_router
+from src.app_01.routers.auth_router import router as auth_router
+from src.app_01.routers.product_router import router as product_router
+from src.app_01.routers.category_router import router as category_router
+from src.app_01.routers.cart_router import router as cart_router
+from src.app_01.routers.wishlist_router import router as wishlist_router
 
 from ..dependencies import get_current_user, get_market_from_request
 from ..schemas.auth import (
