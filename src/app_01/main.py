@@ -12,6 +12,7 @@ import uvicorn
 from .routers.auth_router import router as auth_router
 from .routers.product_router import router as product_router
 from .routers.category_router import router as category_router
+from .routers.cart_router import router as cart_router
 from .services.auth_service import auth_service
 
 # Setup logging
@@ -40,6 +41,7 @@ app.add_middleware(
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(product_router, prefix="/api/v1")
 app.include_router(category_router, prefix="/api/v1")
+app.include_router(cart_router, prefix="/api/v1")
 
 # Global exception handlers
 @app.exception_handler(HTTPException)

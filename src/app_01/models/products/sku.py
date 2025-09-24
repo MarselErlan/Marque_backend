@@ -19,7 +19,7 @@ class SKU(Base):
 
     # Relationships
     product = relationship("Product", back_populates="skus")
-    cart_orders = relationship("CartOrder", back_populates="sku")
+    cart_items = relationship("CartItem", back_populates="sku")
 
     def __repr__(self):
         return f"<SKU(id={self.id}, sku_code='{self.sku_code}', size='{self.size}', color='{self.color}')>"
