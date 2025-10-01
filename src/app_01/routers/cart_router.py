@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from .. import models
 from ..db import get_db
 from ..schemas.cart import CartSchema, CartItemSchema, AddToCartRequest
-from ..services.auth_service import get_current_user_from_token
+from .auth_router import get_current_user_from_token
 from ..schemas.auth import VerifyTokenResponse
 
 router = APIRouter(prefix="/cart", tags=["cart"])

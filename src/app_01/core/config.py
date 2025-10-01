@@ -26,8 +26,8 @@ class Environment(Enum):
 
 class DatabaseConfig(BaseSettings):
     """Database configuration"""
-    url_kg: str = Field(default="postgresql://user:password@localhost/marque_kg_db", env="DATABASE_URL_MARQUE_KG")
-    url_us: str = Field(default="postgresql://user:password@localhost/marque_us_db", env="DATABASE_URL_MARQUE_US")
+    url_kg: str = os.getenv("DATABASE_URL_MARQUE_KG", "postgresql://user:password@localhost/marque_kg_db")
+    url_us: str = os.getenv("DATABASE_URL_MARQUE_US", "postgresql://user:password@localhost/marque_us_db")
     pool_size: int = Field(default=10, env="DATABASE_POOL_SIZE")
     max_overflow: int = Field(default=20, env="DATABASE_MAX_OVERFLOW")
     echo: bool = Field(default=False, env="DATABASE_ECHO")

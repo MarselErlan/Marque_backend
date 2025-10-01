@@ -16,6 +16,7 @@ load_dotenv()
 # Add src to path
 sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..')))
 
+from src.app_01.core.config import settings
 from src.app_01.db import Base
 from src.app_01.models.users import user
 from src.app_01.models.products import product, brand, category
@@ -39,14 +40,14 @@ def get_url():
     target_db = os.getenv("ALEMBIC_TARGET_DB", "KG")
     
     if target_db == "US":
-        database_url = os.getenv("DATABASE_URL_MARQUE_US")
+        database_url = settings.database.url_us
         print("🚀 Targeting US database for migrations")
     else:
-        database_url = os.getenv("DATABASE_URL_MARQUE_KG")
+        database_url = settings.database.url_kg
         print("🚀 Targeting KG database for migrations")
     
     if not database_url:
-        raise Exception(f"Database URL for {target_db} market not found in .env file")
+        raise Exception(f"Database URL for {target_db} market not found in .env file or config")
     
     return database_url
 

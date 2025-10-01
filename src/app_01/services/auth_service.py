@@ -10,7 +10,7 @@ import secrets
 import jwt
 import logging
 
-from ..db.market_db import (
+from ..db import (
     db_manager, Market, MarketConfig, detect_market_from_phone, 
     format_phone_for_market, get_market_config
 )

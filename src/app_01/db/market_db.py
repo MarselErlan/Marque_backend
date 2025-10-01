@@ -11,6 +11,8 @@ from typing import Generator, Dict, Any
 from dotenv import load_dotenv
 from enum import Enum
 
+from src.app_01.core.config import settings
+
 load_dotenv()
 
 # Create a base class for all models
@@ -89,15 +91,10 @@ class MarketDatabaseManager:
     def _setup_market_database(self, market: Market):
         """Setup database for specific market"""
         # Get database URL from environment
-        env_key = f"DATABASE_URL_MARQUE_{market.value.upper()}"
-        database_url = os.getenv(env_key)
-        
-        if not database_url:
-            # Fallback to local development
-            if market == Market.KG:
-                database_url = "postgresql://user:password@localhost/marque_kg_db"
-            else:  # US
-                database_url = "postgresql://user:password@localhost/marque_us_db"
+        if market == Market.KG:
+            database_url = settings.database.url_kg
+        else:  # US
+            database_url = settings.database.url_us
         
         # Create engine
         engine = create_engine(database_url)
@@ -107,7 +104,7 @@ class MarketDatabaseManager:
         SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
         self.session_factories[market] = SessionLocal
         
-        # Create base for this market
+        # Create a new Base for this market to avoid metadata conflicts
         base = declarative_base()
         self.bases[market] = base
     
@@ -146,7 +143,7 @@ def get_session_factory(market: Market = Market.KG):
 
 def get_base(market: Market = Market.KG):
     """Get SQLAlchemy base for market (defaults to KG)"""
-    return Base  # Return the global Base for now
+    return db_manager.get_base(market)
 
 def get_db(market: Market = Market.KG) -> Generator:
     """Get database session for market (defaults to KG)"""
