@@ -17,6 +17,12 @@ from ...application.services import (
     AuthService, UserService, PhoneVerificationService, MarketService
 )
 
+from ....routers.auth_router import router as auth_router
+from ....routers.product_router import router as product_router
+from ....routers.category_router import router as category_router
+from ....routers.cart_router import router as cart_router
+from ....routers.wishlist_router import router as wishlist_router
+
 router = APIRouter()
 
 # Authentication routes
@@ -259,3 +265,9 @@ async def mark_notification_read(
         "success": success,
         "message": "Notification marked as read" if success else "Failed to mark notification as read"
     }
+
+router.include_router(auth_router, prefix="/auth", tags=["authentication"])
+router.include_router(product_router, prefix="/products", tags=["products"])
+router.include_router(category_router, prefix="/categories", tags=["categories"])
+router.include_router(cart_router, prefix="/cart", tags=["cart"])
+router.include_router(wishlist_router, prefix="/wishlist", tags=["wishlist"])
