@@ -1,1 +1,1 @@
-web: python marque_api_production.py
+web: uvicorn src.app_01.main:app --host 0.0.0.0 --port $PORT
