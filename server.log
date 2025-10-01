@@ -1,0 +1,425 @@
+🚀 Starting Marque API...
+📍 Location: http://localhost:8000
+📚 API Docs: http://localhost:8000/docs
+
+INFO:     Will watch for changes in these directories: ['/Users/macbookpro/M4_Projects/Prodaction/Marque']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [3159] using WatchFiles
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [3166]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+INFO:     127.0.0.1:59984 - "GET /api/v1/banners/ HTTP/1.1" 200 OK
+ERROR:src.app_01.main:Unexpected error: When initializing mapper Mapper[User(users)], expression 'Cart' failed to locate a name ('Cart'). If this is a class name, consider adding this relationship() to the <class 'src.app_01.models.users.user.User'> class after both dependent classes have been defined.
+INFO:     127.0.0.1:59986 - "GET /api/v1/products HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/clsregistry.py", line 515, in _resolve_name
+    rval = d[token]
+           ~^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/util/_collections.py", line 346, in __missing__
+    self[key] = val = self.creator(key)
+                      ^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/clsregistry.py", line 483, in _access_cls
+    return self.fallback[key]
+           ~~~~~~~~~~~~~^^^^^
+KeyError: 'Cart'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 426, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 84, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/fastapi/applications.py", line 1106, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 83, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 20, in __call__
+    raise e
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 17, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/routing.py", line 66, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/fastapi/routing.py", line 274, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/fastapi/routing.py", line 193, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/concurrency.py", line 41, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/anyio/to_thread.py", line 33, in run_sync
+    return await get_asynclib().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 877, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 807, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/src/app_01/routers/product_router.py", line 21, in get_products
+    query = db.query(models.products.product.Product).options(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2912, in query
+    return self._query_cls(entities, self, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 276, in __init__
+    self._set_entities(entities)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 288, in _set_entities
+    self._raw_columns = [
+                        ^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 289, in <listcomp>
+    coercions.expect(
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/sql/coercions.py", line 406, in expect
+    insp._post_inspect
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 1260, in __get__
+    obj.__dict__[self.__name__] = result = self.fget(obj)
+                                           ^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 2707, in _post_inspect
+    self._check_configure()
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 2386, in _check_configure
+    _configure_registries({self.registry}, cascade=True)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 4199, in _configure_registries
+    _do_configure_registries(registries, cascade)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 4240, in _do_configure_registries
+    mapper._post_configure_properties()
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 2403, in _post_configure_properties
+    prop.init()
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/interfaces.py", line 579, in init
+    self.do_init()
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/relationships.py", line 1635, in do_init
+    self._setup_entity()
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/relationships.py", line 1852, in _setup_entity
+    self._clsregistry_resolve_name(argument)(),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/clsregistry.py", line 519, in _resolve_name
+    self._raise_for_name(name, err)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/clsregistry.py", line 500, in _raise_for_name
+    raise exc.InvalidRequestError(
+sqlalchemy.exc.InvalidRequestError: When initializing mapper Mapper[User(users)], expression 'Cart' failed to locate a name ('Cart'). If this is a class name, consider adding this relationship() to the <class 'src.app_01.models.users.user.User'> class after both dependent classes have been defined.
+ERROR:src.app_01.main:Unexpected error: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'Cart' failed to locate a name ('Cart'). If this is a class name, consider adding this relationship() to the <class 'src.app_01.models.users.user.User'> class after both dependent classes have been defined.
+INFO:     127.0.0.1:59988 - "GET /api/v1/products HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 426, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 84, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/fastapi/applications.py", line 1106, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 83, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 20, in __call__
+    raise e
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 17, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/routing.py", line 66, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/fastapi/routing.py", line 274, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/fastapi/routing.py", line 193, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/concurrency.py", line 41, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/anyio/to_thread.py", line 33, in run_sync
+    return await get_asynclib().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 877, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 807, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/src/app_01/routers/product_router.py", line 21, in get_products
+    query = db.query(models.products.product.Product).options(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2912, in query
+    return self._query_cls(entities, self, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 276, in __init__
+    self._set_entities(entities)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 288, in _set_entities
+    self._raw_columns = [
+                        ^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 289, in <listcomp>
+    coercions.expect(
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/sql/coercions.py", line 406, in expect
+    insp._post_inspect
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 1260, in __get__
+    obj.__dict__[self.__name__] = result = self.fget(obj)
+                                           ^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 2707, in _post_inspect
+    self._check_configure()
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 2386, in _check_configure
+    _configure_registries({self.registry}, cascade=True)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 4199, in _configure_registries
+    _do_configure_registries(registries, cascade)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 4236, in _do_configure_registries
+    raise e
+sqlalchemy.exc.InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'Cart' failed to locate a name ('Cart'). If this is a class name, consider adding this relationship() to the <class 'src.app_01.models.users.user.User'> class after both dependent classes have been defined.
+WARNING:  WatchFiles detected changes in 'src/app_01/db/market_db.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [3166]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [3930]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+INFO:     127.0.0.1:60015 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60015 - "GET /openapi.json HTTP/1.1" 200 OK
+ERROR:src.app_01.main:Unexpected error: When initializing mapper Mapper[User(users)], expression 'Cart' failed to locate a name ('Cart'). If this is a class name, consider adding this relationship() to the <class 'src.app_01.models.users.user.User'> class after both dependent classes have been defined.
+INFO:     127.0.0.1:60022 - "GET /api/v1/products HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/clsregistry.py", line 515, in _resolve_name
+    rval = d[token]
+           ~^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/util/_collections.py", line 346, in __missing__
+    self[key] = val = self.creator(key)
+                      ^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/clsregistry.py", line 483, in _access_cls
+    return self.fallback[key]
+           ~~~~~~~~~~~~~^^^^^
+KeyError: 'Cart'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 426, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 84, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/fastapi/applications.py", line 1106, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 83, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 20, in __call__
+    raise e
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 17, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/routing.py", line 66, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/fastapi/routing.py", line 274, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/fastapi/routing.py", line 193, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/concurrency.py", line 41, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/anyio/to_thread.py", line 33, in run_sync
+    return await get_asynclib().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 877, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 807, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/src/app_01/routers/product_router.py", line 21, in get_products
+    query = db.query(models.products.product.Product).options(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2912, in query
+    return self._query_cls(entities, self, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 276, in __init__
+    self._set_entities(entities)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 288, in _set_entities
+    self._raw_columns = [
+                        ^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 289, in <listcomp>
+    coercions.expect(
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/sql/coercions.py", line 406, in expect
+    insp._post_inspect
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 1260, in __get__
+    obj.__dict__[self.__name__] = result = self.fget(obj)
+                                           ^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 2707, in _post_inspect
+    self._check_configure()
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 2386, in _check_configure
+    _configure_registries({self.registry}, cascade=True)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 4199, in _configure_registries
+    _do_configure_registries(registries, cascade)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 4240, in _do_configure_registries
+    mapper._post_configure_properties()
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 2403, in _post_configure_properties
+    prop.init()
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/interfaces.py", line 579, in init
+    self.do_init()
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/relationships.py", line 1635, in do_init
+    self._setup_entity()
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/relationships.py", line 1852, in _setup_entity
+    self._clsregistry_resolve_name(argument)(),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/clsregistry.py", line 519, in _resolve_name
+    self._raise_for_name(name, err)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/clsregistry.py", line 500, in _raise_for_name
+    raise exc.InvalidRequestError(
+sqlalchemy.exc.InvalidRequestError: When initializing mapper Mapper[User(users)], expression 'Cart' failed to locate a name ('Cart'). If this is a class name, consider adding this relationship() to the <class 'src.app_01.models.users.user.User'> class after both dependent classes have been defined.
+WARNING:  WatchFiles detected changes in 'check_banner_table.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [3930]
+WARNING:  WatchFiles detected changes in 'check_banner_table.py'. Reloading...
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [4819]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'check_banner_table.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [4819]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [4858]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'check_banner_table.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [4858]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [5286]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'check_banner_table.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [5286]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [5770]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.

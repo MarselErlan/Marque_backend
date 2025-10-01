@@ -147,7 +147,12 @@ def get_base(market: Market = Market.KG):
 
 def get_db(market: Market = Market.KG) -> Generator:
     """Get database session for market (defaults to KG)"""
-    return db_manager.get_db_session(market)
+    SessionLocal = db_manager.get_session_factory(market)
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 # Market detection utilities
 def detect_market_from_phone(phone_number: str) -> Market:
