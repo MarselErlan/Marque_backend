@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 
 class ProductSchema(BaseModel):
@@ -23,3 +23,13 @@ class ProductSchema(BaseModel):
 
     class Config:
         orm_mode = True
+
+class ProductSearchResponse(BaseModel):
+    """Response model for product search with pagination"""
+    query: str = Field(..., description="The search query used")
+    results: List[ProductSchema] = Field(default_factory=list, description="List of products matching the search")
+    total: int = Field(..., description="Total number of products found")
+    page: int = Field(..., description="Current page number")
+    limit: int = Field(..., description="Number of items per page")
+    total_pages: int = Field(..., description="Total number of pages")
+    has_more: bool = Field(..., description="Whether there are more pages available")
