@@ -49,12 +49,14 @@ def api_client():
 
 @pytest.fixture
 def sample_kg_user(test_db):
-    """Create a sample KG user in the database"""
-    user = UserKG(
+    """Create a sample KG user in the database (using base User model for tests)"""
+    from src.app_01.models.users.user import User
+    user = User(
         phone_number="+996555123456",
         full_name="Test User KG",
         email="test.kg@example.com",
-        is_verified=True
+        is_verified=True,
+        is_active=True
     )
     test_db.add(user)
     test_db.commit()
@@ -64,12 +66,14 @@ def sample_kg_user(test_db):
 
 @pytest.fixture
 def sample_us_user(test_db):
-    """Create a sample US user in the database"""
-    user = UserUS(
+    """Create a sample US user in the database (using base User model for tests)"""
+    from src.app_01.models.users.user import User
+    user = User(
         phone_number="+12125551234",
         full_name="Test User US",
         email="test.us@example.com",
-        is_verified=True
+        is_verified=True,
+        is_active=True
     )
     test_db.add(user)
     test_db.commit()
@@ -166,15 +170,17 @@ def auth_token(api_client, sample_kg_user):
     """Create authentication token for testing"""
     import jwt
     from datetime import datetime, timedelta
+    from src.app_01.core.config import settings
     
     payload = {
-        "user_id": str(sample_kg_user.id),
+        "sub": sample_kg_user.id,  # Use "sub" as expected by auth service
         "phone_number": sample_kg_user.phone_number,
-        "market": "KG",
+        "market": "kg",  # Lowercase as expected by Market enum
         "exp": datetime.utcnow() + timedelta(hours=1)
     }
     
-    token = jwt.encode(payload, "your-secret-key-here", algorithm="HS256")
+    # Use the actual secret key from settings
+    token = jwt.encode(payload, settings.security.secret_key, algorithm="HS256")
     return token
 
 
