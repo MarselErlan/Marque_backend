@@ -16,7 +16,8 @@ class Interaction(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
-    user = relationship("User", back_populates="interactions")
+    # TODO: Re-enable when User model relationships are fixed
+    # user = relationship("User", back_populates="interactions")
     product = relationship("Product")
 
     def __repr__(self):

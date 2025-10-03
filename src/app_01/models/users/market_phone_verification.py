@@ -28,7 +28,8 @@ class PhoneVerificationKG(KGBase):
     market = Column(String(10), default="kg", nullable=False)
 
     # Relationships
-    user = relationship("UserKG", back_populates="phone_verifications")
+    # TODO: Re-enable when UserKG model relationships are fixed
+    # user = relationship("UserKG", back_populates="phone_verifications")
 
     def __repr__(self):
         return f"<PhoneVerificationKG(id={self.id}, phone='{self.phone_number}', code='{self.verification_code}')>"
@@ -126,7 +127,8 @@ class PhoneVerificationUS(USBase):
     market = Column(String(10), default="us", nullable=False)
 
     # Relationships
-    user = relationship("UserUS", back_populates="phone_verifications")
+    # TODO: Re-enable when UserUS model relationships are fixed
+    # user = relationship("UserUS", back_populates="phone_verifications")
 
     def __repr__(self):
         return f"<PhoneVerificationUS(id={self.id}, phone='{self.phone_number}', code='{self.verification_code}')>"

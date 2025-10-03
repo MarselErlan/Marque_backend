@@ -18,7 +18,8 @@ class Admin(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
-    user = relationship("User", back_populates="admin_profile")
+    # TODO: Re-enable when User model relationships are fixed
+    # user = relationship("User", back_populates="admin_profile")
     admin_logs = relationship("AdminLog", back_populates="admin", cascade="all, delete-orphan")
 
     def __repr__(self):

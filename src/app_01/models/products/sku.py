@@ -19,7 +19,8 @@ class SKU(Base):
 
     # Relationships
     product = relationship("Product", back_populates="skus")
-    cart_items = relationship("CartItem", back_populates="sku")
+    # TODO: Re-enable when CartItem model is properly integrated
+    # cart_items = relationship("CartItem", back_populates="sku")
 
     def __repr__(self):
         return f"<SKU(id={self.id}, sku_code='{self.sku_code}', size='{self.size}', color='{self.color}')>"

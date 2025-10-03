@@ -36,7 +36,8 @@ class UserAddressKG(KGBase):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
-    user = relationship("UserKG", back_populates="addresses")
+    # TODO: Re-enable when UserKG model relationships are fixed
+    # user = relationship("UserKG", back_populates="addresses")
 
     def __repr__(self):
         return f"<UserAddressKG(id={self.id}, user_id={self.user_id}, title='{self.title}')>"
@@ -141,7 +142,8 @@ class UserAddressUS(USBase):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
-    user = relationship("UserUS", back_populates="addresses")
+    # TODO: Re-enable when UserUS model relationships are fixed
+    # user = relationship("UserUS", back_populates="addresses")
 
     def __repr__(self):
         return f"<UserAddressUS(id={self.id}, user_id={self.user_id}, title='{self.title}')>"

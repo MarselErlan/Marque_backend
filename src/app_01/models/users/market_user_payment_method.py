@@ -32,7 +32,8 @@ class UserPaymentMethodKG(KGBase):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
-    user = relationship("UserKG", back_populates="payment_methods")
+    # TODO: Re-enable when UserKG model relationships are fixed
+    # user = relationship("UserKG", back_populates="payment_methods")
 
     def __repr__(self):
         return f"<UserPaymentMethodKG(id={self.id}, user_id={self.user_id}, type='{self.payment_type}')>"
@@ -180,7 +181,8 @@ class UserPaymentMethodUS(USBase):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
-    user = relationship("UserUS", back_populates="payment_methods")
+    # TODO: Re-enable when UserUS model relationships are fixed
+    # user = relationship("UserUS", back_populates="payment_methods")
 
     def __repr__(self):
         return f"<UserPaymentMethodUS(id={self.id}, user_id={self.user_id}, type='{self.payment_type}')>"

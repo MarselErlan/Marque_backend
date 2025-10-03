@@ -56,7 +56,8 @@ class Order(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
-    user = relationship("User", back_populates="orders")
+    # TODO: Re-enable when User model relationships are fixed
+    # user = relationship("User", back_populates="orders")
     order_items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
     created_by = relationship("Admin")
     status_history = relationship("OrderStatusHistory", back_populates="order", cascade="all, delete-orphan")

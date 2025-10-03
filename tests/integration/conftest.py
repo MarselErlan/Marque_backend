@@ -106,17 +106,37 @@ def sample_category(test_db):
 
 
 @pytest.fixture
-def sample_product(test_db, sample_brand, sample_category):
+def sample_subcategory(test_db, sample_category):
+    """Create a sample subcategory in the database"""
+    from src.app_01.models.products.category import Subcategory
+    subcategory = Subcategory(
+        name="T-Shirts",
+        slug="t-shirts",
+        category_id=sample_category.id,
+        description="Test subcategory",
+        sort_order=1
+    )
+    test_db.add(subcategory)
+    test_db.commit()
+    test_db.refresh(subcategory)
+    return subcategory
+
+
+@pytest.fixture
+def sample_product(test_db, sample_brand, sample_category, sample_subcategory):
     """Create a sample product in the database"""
     product = Product(
         title="Running Shoes",
+        slug="running-shoes-test",
         description="Great running shoes",
         brand_id=sample_brand.id,
         category_id=sample_category.id,
-        is_in_stock=True,
+        subcategory_id=sample_subcategory.id,
+        # is_in_stock is not a Product field
         sold_count=10,
         rating_avg=4.5,
-        rating_count=20
+        rating_count=20,
+        is_active=True
     )
     test_db.add(product)
     test_db.commit()

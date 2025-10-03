@@ -17,7 +17,8 @@ class Review(Base):
 
     # Relationships
     product = relationship("Product", back_populates="reviews")
-    user = relationship("User", back_populates="reviews")
+    # TODO: Re-enable when User model relationships are fixed
+    # user = relationship("User", back_populates="reviews")
 
     # Constraints
     __table_args__ = (

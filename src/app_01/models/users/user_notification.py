@@ -21,7 +21,8 @@ class UserNotification(Base):
     read_at = Column(DateTime(timezone=True), nullable=True)
 
     # Relationships
-    user = relationship("User", back_populates="notifications")
+    # TODO: Re-enable when User model relationships are fixed
+    # user = relationship("User", back_populates="notifications")
     order = relationship("Order")
 
     def __repr__(self):

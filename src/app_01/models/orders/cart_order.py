@@ -19,8 +19,10 @@ class CartOrder(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
-    user = relationship("User", back_populates="cart_orders")
-    sku = relationship("SKU", back_populates="cart_orders")
+    # TODO: Re-enable when User model relationships are fixed
+    # user = relationship("User", back_populates="cart_orders")
+    # TODO: Re-enable when SKU model relationships are fixed
+    # sku = relationship("SKU", back_populates="cart_orders")
 
     def __repr__(self):
         return f"<CartOrder(id={self.id}, user_id={self.user_id}, sku_id={self.sku_id}, quantity={self.quantity})>"

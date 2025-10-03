@@ -22,7 +22,8 @@ class UserPaymentMethod(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
-    user = relationship("User", back_populates="payment_methods")
+    # TODO: Re-enable when User model relationships are fixed
+    # user = relationship("User", back_populates="payment_methods")
 
     def __repr__(self):
         return f"<UserPaymentMethod(id={self.id}, user_id={self.user_id}, type='{self.payment_type}')>"

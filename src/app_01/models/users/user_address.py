@@ -25,7 +25,8 @@ class UserAddress(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
-    user = relationship("User", back_populates="addresses")
+    # TODO: Re-enable when User model relationships are fixed
+    # user = relationship("User", back_populates="addresses")
 
     def __repr__(self):
         return f"<UserAddress(id={self.id}, user_id={self.user_id}, title='{self.title}')>"

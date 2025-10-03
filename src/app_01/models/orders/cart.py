@@ -11,7 +11,8 @@ class Cart(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    user = relationship("User", back_populates="cart")
+    # TODO: Re-enable when User model relationships are fixed
+    # user = relationship("User", back_populates="cart")
     items = relationship("CartItem", back_populates="cart", cascade="all, delete-orphan")
 
 class CartItem(Base):

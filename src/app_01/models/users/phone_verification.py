@@ -18,7 +18,8 @@ class PhoneVerification(Base):
     verified_at = Column(DateTime(timezone=True), nullable=True)
 
     # Relationships
-    user = relationship("User", back_populates="phone_verifications")
+    # TODO: Re-enable when User model relationships are fixed
+    # user = relationship("User", back_populates="phone_verifications")
 
     def __repr__(self):
         return f"<PhoneVerification(id={self.id}, phone='{self.phone_number}', code='{self.verification_code}')>"
