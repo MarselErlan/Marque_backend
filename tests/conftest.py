@@ -9,7 +9,12 @@ from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
-from fastapi.testclient import TestClient
+
+# Try starlette first, fall back to fastapi
+try:
+    from starlette.testclient import TestClient
+except ImportError:
+    from fastapi.testclient import TestClient
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
