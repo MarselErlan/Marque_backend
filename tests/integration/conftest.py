@@ -191,3 +191,28 @@ def auth_headers(auth_token):
         "Authorization": f"Bearer {auth_token}"
     }
 
+
+@pytest.fixture
+def authenticated_client(api_client, sample_kg_user):
+    """Create an API client with mocked authentication"""
+    from src.app_01.main import app
+    from src.app_01.routers.auth_router import get_current_user_from_token
+    from src.app_01.schemas.auth import VerifyTokenResponse
+    
+    # Create a mock response that returns the test user
+    def mock_get_current_user():
+        return VerifyTokenResponse(
+            valid=True,
+            user_id=sample_kg_user.id,
+            phone_number=sample_kg_user.phone_number,
+            market="kg"
+        )
+    
+    # Override the dependency
+    app.dependency_overrides[get_current_user_from_token] = mock_get_current_user
+    
+    yield api_client
+    
+    # Clean up
+    app.dependency_overrides.clear()
+

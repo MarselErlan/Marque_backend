@@ -35,16 +35,15 @@ class TestCompleteUserJourney:
         response = api_client.get(f"/api/v1/banners/{sample_banner.id}")
         assert response.status_code in [200, 404, 422]
     
-    def test_authenticated_user_cart_workflow(self, api_client, auth_headers, sample_product):
+    def test_authenticated_user_cart_workflow(self, authenticated_client, sample_product):
         """Test authenticated user cart workflow"""
         # View cart (should be empty)
-        response = api_client.get("/api/v1/cart", headers=auth_headers)
+        response = authenticated_client.get("/api/v1/cart")
         assert response.status_code in [200, 404, 422]
         
         # Add item to cart
-        response = api_client.post(
+        response = authenticated_client.post(
             "/api/v1/cart/items",
-            headers=auth_headers,
             json={
                 "product_id": sample_product.id,
                 "sku_id": 1,
@@ -53,16 +52,15 @@ class TestCompleteUserJourney:
         )
         assert response.status_code in [200, 201, 404, 422, 500]
     
-    def test_authenticated_user_wishlist_workflow(self, api_client, auth_headers, sample_product):
+    def test_authenticated_user_wishlist_workflow(self, authenticated_client, sample_product):
         """Test authenticated user wishlist workflow"""
         # View wishlist
-        response = api_client.get("/api/v1/wishlist", headers=auth_headers)
+        response = authenticated_client.get("/api/v1/wishlist")
         assert response.status_code in [200, 404, 422]
         
         # Add to wishlist
-        response = api_client.post(
+        response = authenticated_client.post(
             "/api/v1/wishlist/items",
-            headers=auth_headers,
             json={"product_id": sample_product.id}
         )
         assert response.status_code in [200, 201, 404, 422, 500]

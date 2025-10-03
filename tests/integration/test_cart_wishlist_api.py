@@ -98,18 +98,17 @@ class TestWishlistAPI:
 class TestCartWithAuth:
     """Test cart operations with authentication"""
     
-    def test_get_cart_with_auth(self, api_client, auth_headers):
+    def test_get_cart_with_auth(self, authenticated_client):
         """Test getting cart with authentication"""
-        response = api_client.get("/api/v1/cart", headers=auth_headers)
+        response = authenticated_client.get("/api/v1/cart")
         
         # Should work or return proper error
         assert response.status_code in [200, 404, 422, 500]
     
-    def test_add_to_cart_with_auth(self, api_client, auth_headers, sample_product):
+    def test_add_to_cart_with_auth(self, authenticated_client, sample_product):
         """Test adding to cart with authentication"""
-        response = api_client.post(
+        response = authenticated_client.post(
             "/api/v1/cart/items",
-            headers=auth_headers,
             json={
                 "product_id": sample_product.id,
                 "sku_id": 1,
@@ -125,18 +124,17 @@ class TestCartWithAuth:
 class TestWishlistWithAuth:
     """Test wishlist operations with authentication"""
     
-    def test_get_wishlist_with_auth(self, api_client, auth_headers):
+    def test_get_wishlist_with_auth(self, authenticated_client):
         """Test getting wishlist with authentication"""
-        response = api_client.get("/api/v1/wishlist", headers=auth_headers)
+        response = authenticated_client.get("/api/v1/wishlist")
         
         # Should work or return proper error
         assert response.status_code in [200, 404, 422, 500]
     
-    def test_add_to_wishlist_with_auth(self, api_client, auth_headers, sample_product):
+    def test_add_to_wishlist_with_auth(self, authenticated_client, sample_product):
         """Test adding to wishlist with authentication"""
-        response = api_client.post(
+        response = authenticated_client.post(
             "/api/v1/wishlist/items",
-            headers=auth_headers,
             json={"product_id": sample_product.id}
         )
         
