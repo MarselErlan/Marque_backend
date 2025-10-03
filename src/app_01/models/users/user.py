@@ -24,16 +24,17 @@ class User(Base):
     hashed_password = Column(String(255), nullable=True)  # Keep for existing users
 
     # Relationships
-    reviews = relationship("Review", back_populates="user")
-    cart = relationship("Cart", back_populates="user", uselist=False)
-    wishlist = relationship("Wishlist", back_populates="user", uselist=False)
-    interactions = relationship("Interaction", back_populates="user")
-    orders = relationship("Order", back_populates="user")
-    admin_profile = relationship("Admin", back_populates="user", uselist=False)
-    addresses = relationship("UserAddress", back_populates="user", cascade="all, delete-orphan")
-    payment_methods = relationship("UserPaymentMethod", back_populates="user", cascade="all, delete-orphan")
-    notifications = relationship("UserNotification", back_populates="user", cascade="all, delete-orphan")
-    phone_verifications = relationship("PhoneVerification", back_populates="user", cascade="all, delete-orphan")
+    # TODO: Re-enable after fixing circular imports and ensuring proper model loading
+    # reviews = relationship("Review", back_populates="user")
+    # cart = relationship("Cart", back_populates="user", uselist=False)
+    # wishlist = relationship("Wishlist", back_populates="user", uselist=False)
+    # interactions = relationship("Interaction", back_populates="user")
+    # orders = relationship("Order", back_populates="user")
+    # admin_profile = relationship("Admin", back_populates="user", uselist=False)
+    # addresses = relationship("UserAddress", back_populates="user", cascade="all, delete-orphan")
+    # payment_methods = relationship("UserPaymentMethod", back_populates="user", cascade="all, delete-orphan")
+    # notifications = relationship("UserNotification", back_populates="user", cascade="all, delete-orphan")
+    # phone_verifications = relationship("PhoneVerification", back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<User(id={self.id}, phone_number='{self.phone_number}', full_name='{self.full_name}')>"

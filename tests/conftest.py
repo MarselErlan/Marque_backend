@@ -21,6 +21,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.app_01.db.market_db import Base, Market
 from src.app_01.main import app
+from src.app_01.models.banners.banner import Base as BannerBase
 
 
 @pytest.fixture(scope="session")
@@ -32,8 +33,10 @@ def test_db_engine():
         poolclass=StaticPool,
     )
     Base.metadata.create_all(bind=engine)
+    BannerBase.metadata.create_all(bind=engine)  # Create banner tables
     yield engine
     Base.metadata.drop_all(bind=engine)
+    BannerBase.metadata.drop_all(bind=engine)
 
 
 @pytest.fixture(scope="function")

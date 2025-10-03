@@ -17,7 +17,7 @@ from src.app_01.models.users.market_user import UserKG, UserUS
 from src.app_01.models.products.product import Product
 from src.app_01.models.products.brand import Brand
 from src.app_01.models.products.category import Category
-from src.app_01.models.banners.banner import Banner, BannerType
+from src.app_01.models.banners.banner import Banner, BannerType, Base as BannerBase
 
 
 @pytest.fixture(scope="function")
@@ -26,6 +26,7 @@ def test_db():
     # Use in-memory SQLite for testing
     engine = create_engine("sqlite:///:memory:")
     Base.metadata.create_all(bind=engine)
+    BannerBase.metadata.create_all(bind=engine)  # Create banner tables
     
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     db = TestingSessionLocal()
@@ -34,6 +35,7 @@ def test_db():
     
     db.close()
     Base.metadata.drop_all(bind=engine)
+    BannerBase.metadata.drop_all(bind=engine)
 
 
 @pytest.fixture(scope="function")

@@ -75,14 +75,17 @@ class UserKG(KGBase):
     hashed_password = Column(String(255), nullable=True)
 
     # Relationships
-    reviews = relationship("ReviewKG", back_populates="user")
-    cart_orders = relationship("CartOrderKG", back_populates="user")
-    interactions = relationship("InteractionKG", back_populates="user")
-    orders = relationship("OrderKG", back_populates="user")
-    addresses = relationship("UserAddressKG", back_populates="user", cascade="all, delete-orphan")
-    payment_methods = relationship("UserPaymentMethodKG", back_populates="user", cascade="all, delete-orphan")
-    notifications = relationship("UserNotificationKG", back_populates="user", cascade="all, delete-orphan")
-    phone_verifications = relationship("PhoneVerificationKG", back_populates="user", cascade="all, delete-orphan")
+    # TODO: Re-enable when market-specific models are properly integrated
+    # Note: These relationships reference models with different Base instances
+    # and need proper circular import handling
+    # reviews = relationship("ReviewKG", back_populates="user")
+    # cart_orders = relationship("CartOrderKG", back_populates="user")
+    # interactions = relationship("InteractionKG", back_populates="user")
+    # orders = relationship("OrderKG", back_populates="user")
+    # addresses = relationship("UserAddressKG", back_populates="user", cascade="all, delete-orphan")
+    # payment_methods = relationship("UserPaymentMethodKG", back_populates="user", cascade="all, delete-orphan")
+    # notifications = relationship("UserNotificationKG", back_populates="user", cascade="all, delete-orphan")
+    # phone_verifications = relationship("PhoneVerificationKG", back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<UserKG(id={self.id}, phone_number='{self.phone_number}', full_name='{self.full_name}')>"
@@ -162,14 +165,17 @@ class UserUS(USBase):
     hashed_password = Column(String(255), nullable=True)
 
     # Relationships
-    reviews = relationship("ReviewUS", back_populates="user")
-    cart_orders = relationship("CartOrderUS", back_populates="user")
-    interactions = relationship("InteractionUS", back_populates="user")
-    orders = relationship("OrderUS", back_populates="user")
-    addresses = relationship("UserAddressUS", back_populates="user", cascade="all, delete-orphan")
-    payment_methods = relationship("UserPaymentMethodUS", back_populates="user", cascade="all, delete-orphan")
-    notifications = relationship("UserNotificationUS", back_populates="user", cascade="all, delete-orphan")
-    phone_verifications = relationship("PhoneVerificationUS", back_populates="user", cascade="all, delete-orphan")
+    # TODO: Re-enable when market-specific models are properly integrated
+    # Note: These relationships reference models with different Base instances
+    # and need proper circular import handling
+    # reviews = relationship("ReviewUS", back_populates="user")
+    # cart_orders = relationship("CartOrderUS", back_populates="user")
+    # interactions = relationship("InteractionUS", back_populates="user")
+    # orders = relationship("OrderUS", back_populates="user")
+    # addresses = relationship("UserAddressUS", back_populates="user", cascade="all, delete-orphan")
+    # payment_methods = relationship("UserPaymentMethodUS", back_populates="user", cascade="all, delete-orphan")
+    # notifications = relationship("UserNotificationUS", back_populates="user", cascade="all, delete-orphan")
+    # phone_verifications = relationship("PhoneVerificationUS", back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<UserUS(id={self.id}, phone_number='{self.phone_number}', full_name='{self.full_name}')>"
