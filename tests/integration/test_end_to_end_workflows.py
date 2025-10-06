@@ -35,7 +35,7 @@ class TestCompleteUserJourney:
         response = api_client.get(f"/api/v1/banners/{sample_banner.id}")
         assert response.status_code in [200, 404, 422]
     
-    def test_authenticated_user_cart_workflow(self, authenticated_client, sample_product):
+    def test_authenticated_user_cart_workflow(self, authenticated_client, sample_product, sample_sku):
         """Test authenticated user cart workflow"""
         # View cart (should be empty)
         response = authenticated_client.get("/api/v1/cart")
@@ -46,7 +46,7 @@ class TestCompleteUserJourney:
             "/api/v1/cart/items",
             json={
                 "product_id": sample_product.id,
-                "sku_id": 1,
+                "sku_id": sample_sku.id,
                 "quantity": 1
             }
         )

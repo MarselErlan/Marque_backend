@@ -105,13 +105,13 @@ class TestCartWithAuth:
         # Should work or return proper error
         assert response.status_code in [200, 404, 422, 500]
     
-    def test_add_to_cart_with_auth(self, authenticated_client, sample_product):
+    def test_add_to_cart_with_auth(self, authenticated_client, sample_product, sample_sku):
         """Test adding to cart with authentication"""
         response = authenticated_client.post(
             "/api/v1/cart/items",
             json={
                 "product_id": sample_product.id,
-                "sku_id": 1,
+                "sku_id": sample_sku.id,
                 "quantity": 1
             }
         )

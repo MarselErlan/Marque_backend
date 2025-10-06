@@ -167,6 +167,26 @@ def sample_product(test_db, sample_brand, sample_category, sample_subcategory):
 
 
 @pytest.fixture
+def sample_sku(test_db, sample_product):
+    """Create a sample SKU for the product"""
+    from src.app_01.models.products.sku import SKU
+    sku = SKU(
+        product_id=sample_product.id,
+        sku_code="TEST-SKU-001",
+        size="M",
+        color="Blue",
+        price=99.99,
+        original_price=149.99,
+        stock=100,
+        is_active=True
+    )
+    test_db.add(sku)
+    test_db.commit()
+    test_db.refresh(sku)
+    return sku
+
+
+@pytest.fixture
 def sample_banner(test_db):
     """Create a sample banner in the database"""
     banner = Banner(
