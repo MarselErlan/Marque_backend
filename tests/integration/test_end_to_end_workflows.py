@@ -135,7 +135,8 @@ class TestErrorHandling:
     def test_invalid_banner_id(self, api_client):
         """Test handling of invalid banner ID"""
         response = api_client.get("/api/v1/banners/invalid")
-        assert response.status_code == 422
+        # Should return 404 for non-existent banner
+        assert response.status_code == 404
     
     def test_missing_required_fields(self, api_client):
         """Test validation of required fields"""

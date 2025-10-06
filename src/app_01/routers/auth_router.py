@@ -151,28 +151,28 @@ async def verify_phone_code(
     Returns authentication token and user information.
     """
     try:
-        logger.info(f"Verifying code for {request.phone_number}")
+        logger.info(f"Verifying code for {request.phone}")
         
         # Verify phone code
         response = auth_service.verify_phone_code(request, x_market)
         
-        logger.info(f"Phone verification successful for {request.phone_number}, user_id: {response.user_id}")
+        logger.info(f"Phone verification successful for {request.phone}, user_id: {response.user_id}")
         return response
         
     except ValueError as e:
-        logger.warning(f"Verification error for {request.phone_number}: {e}")
+        logger.warning(f"Verification error for {request.phone}: {e}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
     except RuntimeError as e:
-        logger.error(f"Service error for {request.phone_number}: {e}")
+        logger.error(f"Service error for {request.phone}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
         )
     except Exception as e:
-        logger.error(f"Unexpected error for {request.phone_number}: {e}")
+        logger.error(f"Unexpected error for {request.phone}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error"
