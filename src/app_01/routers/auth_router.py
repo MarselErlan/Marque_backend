@@ -156,7 +156,7 @@ async def verify_phone_code(
         # Verify phone code
         response = auth_service.verify_phone_code(request, x_market)
         
-        logger.info(f"Phone verification successful for {request.phone}, user_id: {response.user_id}")
+        logger.info(f"Phone verification successful for {request.phone}, user_id: {response.user.id}")
         return response
         
     except ValueError as e:
