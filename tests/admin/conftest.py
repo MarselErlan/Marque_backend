@@ -100,6 +100,95 @@ def sample_product_for_admin(admin_test_db):
 
 
 @pytest.fixture
+def sample_products_for_admin(admin_test_db):
+    """Create multiple sample products for admin testing"""
+    products = []
+    for i in range(5):
+        product = Product(
+            brand=f"Brand {i}",
+            title=f"Test Product {i}",
+            slug=f"test-product-{i}",
+            description=f"Test product {i} for admin",
+            sold_count=i * 10,
+            rating_avg=4.0 + (i * 0.1),
+            rating_count=i * 5
+        )
+        admin_test_db.add(product)
+    
+    admin_test_db.commit()
+    
+    # Query fresh instances to ensure they're attached to session
+    products = admin_test_db.query(Product).filter(
+        Product.slug.like('test-product-%')
+    ).all()
+    
+    return products
+
+
+@pytest.fixture
+def many_products_for_admin(admin_test_db):
+    """Create many products to test pagination"""
+    for i in range(25):
+        product = Product(
+            brand=f"Brand {i}",
+            title=f"Product {i:03d}",
+            slug=f"product-{i:03d}",
+            description=f"Product {i} description",
+            sold_count=i,
+            rating_avg=3.0 + (i % 5) * 0.5,
+            rating_count=i * 2
+        )
+        admin_test_db.add(product)
+    
+    admin_test_db.commit()
+    
+    # Query fresh instances
+    products = admin_test_db.query(Product).filter(
+        Product.slug.like('product-%')
+    ).all()
+    
+    return products
+
+
+@pytest.fixture
+def product_with_skus_for_admin(admin_test_db):
+    """Create product with associated SKUs"""
+    from src.app_01.models.products.sku import SKU
+    
+    # Create product with unique slug
+    product = Product(
+        brand="SKU Test Brand",
+        title="Product with SKUs",
+        slug="product-with-skus-test",
+        description="Product for SKU testing",
+        sold_count=0,
+        rating_avg=0.0,
+        rating_count=0
+    )
+    admin_test_db.add(product)
+    admin_test_db.commit()
+    admin_test_db.refresh(product)
+    
+    # Create SKUs for the product
+    for i, size in enumerate(["S", "M", "L"]):
+        sku = SKU(
+            product_id=product.id,
+            size=size,
+            color="Blue",
+            price=29.99 + (i * 5),
+            original_price=39.99 + (i * 5),
+            quantity=10 + i,
+            sku_code=f"SKU-{product.id}-{size}"
+        )
+        admin_test_db.add(sku)
+    
+    admin_test_db.commit()
+    admin_test_db.refresh(product)
+    
+    return product
+
+
+@pytest.fixture
 def admin_client(admin_test_db):
     """Create test client for admin routes"""
     from src.app_01.main import app

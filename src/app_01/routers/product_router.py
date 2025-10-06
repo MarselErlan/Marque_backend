@@ -4,10 +4,171 @@ from sqlalchemy import or_, func
 from typing import List, Optional
 from .. import models
 from ..db import get_db
-from ..schemas.product import ProductSchema, ProductSearchResponse
+from ..schemas.product import (
+    ProductSchema, ProductSearchResponse, ProductDetailSchema,
+    BrandSchema, CategoryBreadcrumbSchema, SubcategoryBreadcrumbSchema,
+    ProductImageSchema, SKUDetailSchema, ReviewSchema, BreadcrumbSchema,
+    SimilarProductSchema
+)
 from sqlalchemy.orm import joinedload
 
 router = APIRouter()
+
+
+@router.get("/products/{slug}", response_model=ProductDetailSchema)
+def get_product_detail(slug: str, db: Session = Depends(get_db)):
+    """
+    Get complete product details by slug
+    """
+    # Load product with all relationships
+    product = db.query(models.products.product.Product).options(
+        joinedload(models.products.product.Product.brand),
+        joinedload(models.products.product.Product.category),
+        joinedload(models.products.product.Product.subcategory),
+        joinedload(models.products.product.Product.skus),
+        joinedload(models.products.product.Product.assets),
+        joinedload(models.products.product.Product.reviews)
+    ).filter(
+        models.products.product.Product.slug == slug,
+        models.products.product.Product.is_active == True
+    ).first()
+    
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    # Build brand info
+    brand_info = BrandSchema(
+        id=product.brand.id,
+        name=product.brand.name,
+        slug=product.brand.slug
+    )
+    
+    # Build category info
+    category_info = CategoryBreadcrumbSchema(
+        id=product.category.id,
+        name=product.category.name,
+        slug=product.category.slug
+    )
+    
+    # Build subcategory info
+    subcategory_info = SubcategoryBreadcrumbSchema(
+        id=product.subcategory.id,
+        name=product.subcategory.name,
+        slug=product.subcategory.slug
+    )
+    
+    # Build images list (sorted by order)
+    images = [
+        ProductImageSchema(
+            id=asset.id,
+            url=asset.url,
+            alt_text=asset.alt_text,
+            type=asset.type,
+            order=asset.order
+        )
+        for asset in sorted(product.assets, key=lambda x: x.order)
+    ]
+    
+    # Build SKUs list
+    skus = [
+        SKUDetailSchema(
+            id=sku.id,
+            sku_code=sku.sku_code,
+            size=sku.size,
+            color=sku.color,
+            price=sku.price,
+            original_price=sku.original_price,
+            stock=sku.stock
+        )
+        for sku in product.skus
+    ]
+    
+    # Get unique sizes and colors
+    available_sizes = sorted(list(set(sku.size for sku in product.skus)))
+    available_colors = list(set(sku.color for sku in product.skus))
+    
+    # Calculate price range
+    prices = [sku.price for sku in product.skus]
+    price_min = min(prices) if prices else 0.0
+    price_max = max(prices) if prices else 0.0
+    
+    # Check stock availability
+    in_stock = any(sku.stock > 0 for sku in product.skus)
+    
+    # Build reviews list
+    reviews = [
+        ReviewSchema(
+            id=review.id,
+            rating=review.rating,
+            text=review.text,
+            created_at=review.created_at
+        )
+        for review in product.reviews
+    ]
+    
+    # Build breadcrumbs
+    breadcrumbs = [
+        BreadcrumbSchema(name="Главная", slug="/"),
+        BreadcrumbSchema(name=product.category.name, slug=product.category.slug),
+        BreadcrumbSchema(name=product.subcategory.name, slug=product.subcategory.slug),
+        BreadcrumbSchema(name=product.title, slug=product.slug)
+    ]
+    
+    # Get similar products (same subcategory, exclude current)
+    similar_products_query = db.query(models.products.product.Product).options(
+        joinedload(models.products.product.Product.skus),
+        joinedload(models.products.product.Product.assets)
+    ).filter(
+        models.products.product.Product.subcategory_id == product.subcategory_id,
+        models.products.product.Product.id != product.id,
+        models.products.product.Product.is_active == True
+    ).order_by(
+        models.products.product.Product.rating_avg.desc()
+    ).limit(4).all()
+    
+    similar_products = []
+    for sim_product in similar_products_query:
+        # Get first image if available
+        first_image = sim_product.assets[0].url if sim_product.assets else None
+        
+        # Get min price from SKUs
+        sim_prices = [sku.price for sku in sim_product.skus]
+        sim_price_min = min(sim_prices) if sim_prices else 0.0
+        
+        similar_products.append(SimilarProductSchema(
+            id=sim_product.id,
+            title=sim_product.title,
+            slug=sim_product.slug,
+            price_min=sim_price_min,
+            image=first_image,
+            rating_avg=sim_product.rating_avg
+        ))
+    
+    # Build complete response
+    return ProductDetailSchema(
+        id=product.id,
+        title=product.title,
+        slug=product.slug,
+        description=product.description,
+        brand=brand_info,
+        category=category_info,
+        subcategory=subcategory_info,
+        images=images,
+        skus=skus,
+        available_sizes=available_sizes,
+        available_colors=available_colors,
+        price_min=price_min,
+        price_max=price_max,
+        in_stock=in_stock,
+        rating_avg=product.rating_avg,
+        rating_count=product.rating_count,
+        sold_count=product.sold_count,
+        reviews=reviews,
+        attributes=product.attributes or {},
+        breadcrumbs=breadcrumbs,
+        similar_products=similar_products
+    )
+
 
 @router.get("/products", response_model=List[ProductSchema])
 def get_products(
