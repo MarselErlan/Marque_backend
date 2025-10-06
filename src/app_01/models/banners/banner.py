@@ -48,6 +48,23 @@ class Banner(Base):
     start_date = Column(DateTime(timezone=True), nullable=True)  # When to start showing
     end_date = Column(DateTime(timezone=True), nullable=True)    # When to stop showing
 
+    def __init__(self, **kwargs):
+        """Initialize banner with default values"""
+        # Handle 'link' as alias for 'link_url' for backward compatibility
+        if 'link' in kwargs and 'link_url' not in kwargs:
+            kwargs['link_url'] = kwargs.pop('link')
+        
+        # Set defaults for fields not provided
+        kwargs.setdefault('is_active', True)
+        kwargs.setdefault('display_order', 0)
+        if 'created_at' not in kwargs:
+            from datetime import datetime
+            kwargs['created_at'] = datetime.utcnow()
+        if 'updated_at' not in kwargs:
+            from datetime import datetime
+            kwargs['updated_at'] = datetime.utcnow()
+        super().__init__(**kwargs)
+
     def __repr__(self):
         return f"<Banner(id={self.id}, type='{self.banner_type}', title='{self.title}', active={self.is_active})>"
     

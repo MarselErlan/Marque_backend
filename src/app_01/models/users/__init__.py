@@ -4,6 +4,7 @@ from .phone_verification import PhoneVerification
 from .user_address import UserAddress
 from .user_payment_method import UserPaymentMethod
 from .user_notification import UserNotification
+from .wishlist import Wishlist, WishlistItem
 
 __all__ = [
     "User",
@@ -11,5 +12,7 @@ __all__ = [
     "PhoneVerification",
     "UserAddress",
     "UserPaymentMethod",
-    "UserNotification"
+    "UserNotification",
+    "Wishlist",
+    "WishlistItem"
 ]

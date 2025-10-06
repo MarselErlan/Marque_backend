@@ -56,7 +56,7 @@ class AuthService:
         """
         try:
             # Detect market from phone number
-            market = detect_market_from_phone(request.phone_number)
+            market = detect_market_from_phone(request.phone)
             
             # Override with header if provided
             if x_market:
@@ -66,7 +66,7 @@ class AuthService:
                     raise ValueError(f"Invalid market header: {x_market}")
             
             # Check rate limiting
-            self._check_rate_limit(request.phone_number)
+            self._check_rate_limit(request.phone)
             
             # Get market configuration
             config = get_market_config(market)
@@ -77,18 +77,18 @@ class AuthService:
             
             with session_factory() as db:
                 # Check if user exists
-                user = user_model.get_by_phone(db, request.phone_number)
+                user = user_model.get_by_phone(db, request.phone)
                 
                 # Create verification code
-                verification = create_verification_for_market(db, request.phone_number, user.id if user else None)
+                verification = create_verification_for_market(db, request.phone, user.id if user else None)
                 
                 # In a real application, you would send SMS here
                 # For demo purposes, we'll just log the code
-                formatted_phone = format_phone_for_market(request.phone_number, market)
+                formatted_phone = format_phone_for_market(request.phone, market)
                 logger.info(f"SMS sent to {formatted_phone}: Your verification code is {verification.verification_code}")
                 
                 # Update rate limiting
-                self._update_rate_limit(request.phone_number)
+                self._update_rate_limit(request.phone)
                 
                 return SendCodeResponse(
                     success=True,
@@ -123,7 +123,7 @@ class AuthService:
         """
         try:
             # Detect market from phone number
-            market = detect_market_from_phone(request.phone_number)
+            market = detect_market_from_phone(request.phone)
             
             # Override with header if provided
             if x_market:
@@ -138,18 +138,18 @@ class AuthService:
             
             with session_factory() as db:
                 # Verify the code
-                verification = verify_code_for_market(db, request.phone_number, request.verification_code)
+                verification = verify_code_for_market(db, request.phone, request.verification_code)
                 
                 if not verification:
                     raise ValueError("Invalid or expired verification code")
                 
                 # Check if user exists
-                user = user_model.get_by_phone(db, request.phone_number)
+                user = user_model.get_by_phone(db, request.phone)
                 is_new_user = False
                 
                 if not user:
                     # Create new user
-                    user = user_model.create_user(db, request.phone_number)
+                    user = user_model.create_user(db, request.phone)
                     is_new_user = True
                 
                 # Mark user as verified and update last login
@@ -375,8 +375,18 @@ class AuthService:
         }
         return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     
-    def _check_rate_limit(self, phone_number: str) -> None:
-        """Check if phone number has exceeded rate limit"""
+    def _generate_verification_code(self) -> str:
+        """Generate a random 6-digit verification code"""
+        import random
+        return ''.join([str(random.randint(0, 9)) for _ in range(6)])
+    
+    def _check_rate_limit(self, phone_number: str) -> bool:
+        """
+        Check if phone number has exceeded rate limit
+        
+        Returns:
+            True if within rate limit, raises ValueError if exceeded
+        """
         current_time = datetime.utcnow()
         window_start = current_time - timedelta(minutes=VERIFICATION_ATTEMPTS_WINDOW)
         
@@ -392,6 +402,8 @@ class AuthService:
         # Check if limit exceeded
         if len(self.rate_limit_store[phone_number]) >= MAX_VERIFICATION_ATTEMPTS:
             raise ValueError(f"Too many verification attempts. Please wait {VERIFICATION_ATTEMPTS_WINDOW} minutes.")
+        
+        return True
     
     def _update_rate_limit(self, phone_number: str) -> None:
         """Update rate limit for phone number"""

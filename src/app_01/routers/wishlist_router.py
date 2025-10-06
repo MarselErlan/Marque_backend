@@ -53,6 +53,11 @@ def add_to_wishlist(request: AddToWishlistRequest, db: Session = Depends(get_db)
 
     return get_wishlist(db, current_user)
 
+@router.get("/items", response_model=WishlistSchema)
+def get_wishlist_items(db: Session = Depends(get_db), current_user: VerifyTokenResponse = Depends(get_current_user_from_token)):
+    """Get wishlist items (alias for get_wishlist)"""
+    return get_wishlist(db, current_user)
+
 @router.delete("/items/{product_id}", response_model=WishlistSchema)
 def remove_from_wishlist(product_id: int, db: Session = Depends(get_db), current_user: VerifyTokenResponse = Depends(get_current_user_from_token)):
     user_id = current_user.user_id
@@ -69,6 +74,22 @@ def remove_from_wishlist(product_id: int, db: Session = Depends(get_db), current
         raise HTTPException(status_code=404, detail="Wishlist item not found")
 
     db.delete(wishlist_item)
+    db.commit()
+
+    return get_wishlist(db, current_user)
+
+@router.delete("/", response_model=WishlistSchema)
+def clear_wishlist(db: Session = Depends(get_db), current_user: VerifyTokenResponse = Depends(get_current_user_from_token)):
+    """Clear all items from wishlist"""
+    user_id = current_user.user_id
+    wishlist = db.query(models.users.wishlist.Wishlist).filter(models.users.wishlist.Wishlist.user_id == user_id).first()
+    if not wishlist:
+        raise HTTPException(status_code=404, detail="Wishlist not found")
+
+    # Delete all wishlist items
+    db.query(models.users.wishlist.WishlistItem).filter(
+        models.users.wishlist.WishlistItem.wishlist_id == wishlist.id
+    ).delete()
     db.commit()
 
     return get_wishlist(db, current_user)

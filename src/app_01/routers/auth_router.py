@@ -58,24 +58,12 @@ def get_current_user_from_token(credentials: HTTPAuthorizationCredentials = Depe
         logger.error(f"Token verification failed: {e}")
         raise AuthenticationError("Invalid token")
 
-@router.post("/send-verification", response_model=SendCodeResponse, responses={
-    422: {"model": ValidationErrorResponse},
-    429: {"model": ErrorResponse},
-    500: {"model": ErrorResponse}
-})
-async def send_verification_code(
+async def _send_verification_code_handler(
     request: PhoneLoginRequest,
     request_obj: Request,
-    x_market: Optional[str] = Header(None, description="Market override (kg/us)")
+    x_market: Optional[str] = None
 ):
-    """
-    Send SMS verification code to phone number
-    
-    - **phone**: Phone number in international format (+996XXXXXXXXX for KG, +1XXXXXXXXXX for US)
-    - **x_market**: Optional market override header
-    
-    Returns verification code details and market information.
-    """
+    """Internal handler for sending verification code"""
     try:
         logger.info(f"Sending verification code to {request.phone}")
         
@@ -103,6 +91,46 @@ async def send_verification_code(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error"
         )
+
+@router.post("/send-verification", response_model=SendCodeResponse, responses={
+    422: {"model": ValidationErrorResponse},
+    429: {"model": ErrorResponse},
+    500: {"model": ErrorResponse}
+})
+async def send_verification_code(
+    request: PhoneLoginRequest,
+    request_obj: Request,
+    x_market: Optional[str] = Header(None, description="Market override (kg/us)")
+):
+    """
+    Send SMS verification code to phone number
+    
+    - **phone**: Phone number in international format (+996XXXXXXXXX for KG, +1XXXXXXXXXX for US)
+    - **x_market**: Optional market override header
+    
+    Returns verification code details and market information.
+    """
+    return await _send_verification_code_handler(request, request_obj, x_market)
+
+@router.post("/send-code", response_model=SendCodeResponse, responses={
+    422: {"model": ValidationErrorResponse},
+    429: {"model": ErrorResponse},
+    500: {"model": ErrorResponse}
+})
+async def send_code(
+    request: PhoneLoginRequest,
+    request_obj: Request,
+    x_market: Optional[str] = Header(None, description="Market override (kg/us)")
+):
+    """
+    Send SMS verification code to phone number (alias for /send-verification)
+    
+    - **phone**: Phone number in international format (+996XXXXXXXXX for KG, +1XXXXXXXXXX for US)
+    - **x_market**: Optional market override header
+    
+    Returns verification code details and market information.
+    """
+    return await _send_verification_code_handler(request, request_obj, x_market)
 
 @router.post("/verify-code", response_model=VerifyCodeResponse, responses={
     400: {"model": ErrorResponse},

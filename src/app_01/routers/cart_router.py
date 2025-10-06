@@ -87,6 +87,11 @@ def update_cart_item(item_id: int, quantity: int, db: Session = Depends(get_db),
 
     return get_cart(db, current_user)
 
+@router.get("/items", response_model=CartSchema)
+def get_cart_items(db: Session = Depends(get_db), current_user: VerifyTokenResponse = Depends(get_current_user_from_token)):
+    """Get cart items (alias for get_cart)"""
+    return get_cart(db, current_user)
+
 @router.delete("/items/{item_id}", response_model=CartSchema)
 def remove_from_cart(item_id: int, db: Session = Depends(get_db), current_user: VerifyTokenResponse = Depends(get_current_user_from_token)):
     user_id = current_user.user_id
@@ -103,6 +108,22 @@ def remove_from_cart(item_id: int, db: Session = Depends(get_db), current_user: 
         raise HTTPException(status_code=404, detail="Cart item not found")
 
     db.delete(cart_item)
+    db.commit()
+
+    return get_cart(db, current_user)
+
+@router.delete("/", response_model=CartSchema)
+def clear_cart(db: Session = Depends(get_db), current_user: VerifyTokenResponse = Depends(get_current_user_from_token)):
+    """Clear all items from cart"""
+    user_id = current_user.user_id
+    cart = db.query(models.orders.cart.Cart).filter(models.orders.cart.Cart.user_id == user_id).first()
+    if not cart:
+        raise HTTPException(status_code=404, detail="Cart not found")
+
+    # Delete all cart items
+    db.query(models.orders.cart.CartItem).filter(
+        models.orders.cart.CartItem.cart_id == cart.id
+    ).delete()
     db.commit()
 
     return get_cart(db, current_user)

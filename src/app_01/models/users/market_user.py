@@ -74,6 +74,22 @@ class UserKG(KGBase):
     username = Column(String(100), unique=True, nullable=True, index=True)
     hashed_password = Column(String(255), nullable=True)
 
+    def __init__(self, **kwargs):
+        """Initialize user with default values"""
+        # Set defaults for fields not provided
+        kwargs.setdefault('is_active', True)
+        kwargs.setdefault('is_verified', False)
+        kwargs.setdefault('market', 'kg')
+        kwargs.setdefault('language', 'ru')
+        kwargs.setdefault('country', 'Kyrgyzstan')
+        if 'created_at' not in kwargs:
+            from datetime import datetime
+            kwargs['created_at'] = datetime.utcnow()
+        if 'updated_at' not in kwargs:
+            from datetime import datetime
+            kwargs['updated_at'] = datetime.utcnow()
+        super().__init__(**kwargs)
+
     # Relationships
     # TODO: Re-enable when market-specific models are properly integrated
     # Note: These relationships reference models with different Base instances
@@ -163,6 +179,22 @@ class UserUS(USBase):
     email = Column(String(255), unique=True, nullable=True, index=True)
     username = Column(String(100), unique=True, nullable=True, index=True)
     hashed_password = Column(String(255), nullable=True)
+
+    def __init__(self, **kwargs):
+        """Initialize user with default values"""
+        # Set defaults for fields not provided
+        kwargs.setdefault('is_active', True)
+        kwargs.setdefault('is_verified', False)
+        kwargs.setdefault('market', 'us')
+        kwargs.setdefault('language', 'en')
+        kwargs.setdefault('country', 'United States')
+        if 'created_at' not in kwargs:
+            from datetime import datetime
+            kwargs['created_at'] = datetime.utcnow()
+        if 'updated_at' not in kwargs:
+            from datetime import datetime
+            kwargs['updated_at'] = datetime.utcnow()
+        super().__init__(**kwargs)
 
     # Relationships
     # TODO: Re-enable when market-specific models are properly integrated

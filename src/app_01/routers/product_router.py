@@ -152,7 +152,8 @@ def search_products(
             query = query.filter(models.products.sku.SKU.price <= max_price)
 
     # Get total count before pagination
-    total_count = query.distinct().count()
+    # Count distinct product IDs to avoid JSON equality operator issue
+    total_count = query.distinct(models.products.product.Product.id).count()
 
     # Sorting
     if sort_by == "newest":
@@ -165,16 +166,18 @@ def search_products(
         query = query.join(models.products.product.Product.skus).order_by(models.products.sku.SKU.price.desc())
     elif sort_by == "relevance":
         # Simple relevance: prioritize title matches over description
+        from sqlalchemy import case
         query = query.order_by(
-            func.case(
+            case(
                 (models.products.product.Product.title.ilike(search_term), 1),
                 else_=2
             )
         )
     else:
         # Default: relevance
+        from sqlalchemy import case
         query = query.order_by(
-            func.case(
+            case(
                 (models.products.product.Product.title.ilike(search_term), 1),
                 else_=2
             )
@@ -182,7 +185,8 @@ def search_products(
 
     # Pagination
     offset = (page - 1) * limit
-    products = query.distinct().offset(offset).limit(limit).all()
+    # Use distinct on ID only to avoid JSON equality operator issue
+    products = query.distinct(models.products.product.Product.id).offset(offset).limit(limit).all()
 
     # Format response
     response_products = []
