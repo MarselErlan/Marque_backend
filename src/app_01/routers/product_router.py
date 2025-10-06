@@ -8,11 +8,83 @@ from ..schemas.product import (
     ProductSchema, ProductSearchResponse, ProductDetailSchema,
     BrandSchema, CategoryBreadcrumbSchema, SubcategoryBreadcrumbSchema,
     ProductImageSchema, SKUDetailSchema, ReviewSchema, BreadcrumbSchema,
-    SimilarProductSchema
+    SimilarProductSchema, ProductListItemSchema
 )
 from sqlalchemy.orm import joinedload
 
 router = APIRouter()
+
+
+@router.get("/products/best-sellers", response_model=List[ProductListItemSchema])
+def get_best_selling_products(
+    db: Session = Depends(get_db),
+    limit: Optional[int] = Query(None, ge=1, le=500, description="Limit number of products (optional, default: all)")
+):
+    """
+    Get all products sorted by most sold (best sellers first) for main page
+    No filters - just pure best sellers across all categories
+    """
+    # Base query: all active products with SKUs
+    query = db.query(models.products.product.Product).options(
+        joinedload(models.products.product.Product.brand),
+        joinedload(models.products.product.Product.skus),
+        joinedload(models.products.product.Product.assets)
+    ).filter(
+        models.products.product.Product.is_active == True
+    )
+    
+    # Join SKUs to ensure product has variants
+    query = query.join(models.products.product.Product.skus).group_by(models.products.product.Product.id)
+    
+    # Sort by most sold (best sellers first)
+    query = query.order_by(models.products.product.Product.sold_count.desc())
+    
+    # Apply limit if provided
+    if limit:
+        query = query.limit(limit)
+    
+    products = query.all()
+    
+    # Build response
+    product_list = []
+    for product in products:
+        # Get min/max prices from SKUs
+        sku_prices = [sku.price for sku in product.skus if sku.stock > 0]
+        if not sku_prices:
+            sku_prices = [sku.price for sku in product.skus]
+        
+        price_min_val = min(sku_prices) if sku_prices else 0.0
+        price_max_val = max(sku_prices) if sku_prices else 0.0
+        
+        # Get original prices for discount calculation
+        original_prices = [sku.original_price for sku in product.skus if sku.original_price and sku.original_price > 0]
+        original_price_min_val = min(original_prices) if original_prices else None
+        
+        # Calculate discount percentage
+        discount_percent = None
+        if original_price_min_val and price_min_val < original_price_min_val:
+            discount_percent = int(((original_price_min_val - price_min_val) / original_price_min_val) * 100)
+        
+        # Get main image (first asset)
+        main_image = product.assets[0].url if product.assets else None
+        
+        product_list.append(ProductListItemSchema(
+            id=product.id,
+            title=product.title,
+            slug=product.slug,
+            price_min=price_min_val,
+            price_max=price_max_val,
+            original_price_min=original_price_min_val,
+            discount_percent=discount_percent,
+            image=main_image,
+            rating_avg=product.rating_avg,
+            rating_count=product.rating_count,
+            sold_count=product.sold_count,
+            brand_name=product.brand.name,
+            brand_slug=product.brand.slug
+        ))
+    
+    return product_list
 
 
 @router.get("/products/{slug}", response_model=ProductDetailSchema)
