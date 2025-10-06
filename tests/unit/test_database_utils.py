@@ -28,15 +28,17 @@ class TestMarketDetection:
         assert detect_market_from_phone("+14155551234") == Market.US
         assert detect_market_from_phone("+13105551234") == Market.US
     
-    def test_detect_kg_market_without_plus_raises_error(self):
-        """Test that phone without + raises ValueError"""
-        with pytest.raises(ValueError):
-            detect_market_from_phone("996555123456")
+    def test_detect_kg_market_without_plus(self):
+        """Test that phone without + is automatically handled"""
+        # Function now adds '+' automatically if missing
+        assert detect_market_from_phone("996555123456") == Market.KG
+        assert detect_market_from_phone("996700987654") == Market.KG
     
-    def test_detect_us_market_without_plus_raises_error(self):
-        """Test that phone without + raises ValueError"""
-        with pytest.raises(ValueError):
-            detect_market_from_phone("12125551234")
+    def test_detect_us_market_without_plus(self):
+        """Test that phone without + is automatically handled"""
+        # Function now adds '+' automatically if missing
+        assert detect_market_from_phone("12125551234") == Market.US
+        assert detect_market_from_phone("14155551234") == Market.US
     
     def test_invalid_phone_raises_error(self):
         """Test that invalid phone raises ValueError"""

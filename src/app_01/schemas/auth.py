@@ -30,6 +30,10 @@ class PhoneLoginRequest(BaseModel):
         # Remove spaces and special characters
         clean_phone = v.replace(" ", "").replace("-", "").replace("(", "").replace(")", "")
         
+        # Add '+' if missing
+        if not clean_phone.startswith("+"):
+            clean_phone = "+" + clean_phone
+        
         # Check if it's a valid KG or US phone number
         if clean_phone.startswith("+996") and len(clean_phone) == 13:
             return clean_phone
@@ -47,6 +51,10 @@ class VerifyCodeRequest(BaseModel):
     def validate_phone_number(cls, v):
         """Validate phone number format for supported markets"""
         clean_phone = v.replace(" ", "").replace("-", "").replace("(", "").replace(")", "")
+        
+        # Add '+' if missing
+        if not clean_phone.startswith("+"):
+            clean_phone = "+" + clean_phone
         
         if clean_phone.startswith("+996") and len(clean_phone) == 13:
             return clean_phone

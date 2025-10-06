@@ -186,7 +186,7 @@ class TestSendVerificationCode:
         
         # Test
         db_mock = Mock()
-        request = PhoneLoginRequest(phone_number="+996555123456")
+        request = PhoneLoginRequest(phone="+996555123456")
         
         response = auth_service.send_verification_code(db_mock, request)
         
@@ -205,7 +205,7 @@ class TestSendVerificationCode:
         
         # Test
         db_mock = Mock()
-        request = PhoneLoginRequest(phone_number="+996555123456")
+        request = PhoneLoginRequest(phone="+996555123456")
         
         response = auth_service.send_verification_code(db_mock, request)
         

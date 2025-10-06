@@ -156,10 +156,21 @@ def get_db(market: Market = Market.KG) -> Generator:
 
 # Market detection utilities
 def detect_market_from_phone(phone_number: str) -> Market:
-    """Detect market from phone number"""
-    if phone_number.startswith("+996"):
+    """
+    Detect market from phone number
+    Supports formats: +996XXX, 996XXX, +1XXX, 1XXX, and formats with spaces
+    """
+    # Normalize phone number - remove spaces and special characters
+    clean_phone = phone_number.replace(" ", "").replace("-", "").replace("(", "").replace(")", "")
+    
+    # Add '+' if missing
+    if not clean_phone.startswith("+"):
+        clean_phone = "+" + clean_phone
+    
+    # Detect market
+    if clean_phone.startswith("+996"):
         return Market.KG
-    elif phone_number.startswith("+1"):
+    elif clean_phone.startswith("+1"):
         return Market.US
     else:
         raise ValueError(f"Cannot detect market for phone number: {phone_number}")

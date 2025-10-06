@@ -26,8 +26,8 @@ class TestAuthSchemas:
     
     def test_phone_login_request_valid(self):
         """Test valid phone login request"""
-        request = PhoneLoginRequest(phone_number="+996555123456")
-        assert request.phone_number == "+996555123456"
+        request = PhoneLoginRequest(phone="+996555123456")
+        assert request.phone == "+996555123456"
     
     def test_phone_login_request_invalid(self):
         """Test invalid phone login request"""
@@ -37,16 +37,16 @@ class TestAuthSchemas:
     def test_verify_code_request_valid(self):
         """Test valid verify code request"""
         request = VerifyCodeRequest(
-            phone_number="+996555123456",
-            code="123456"
+            phone="+996555123456",
+            verification_code="123456"
         )
-        assert request.phone_number == "+996555123456"
-        assert request.code == "123456"
+        assert request.phone == "+996555123456"
+        assert request.verification_code == "123456"
     
     def test_verify_code_request_missing_fields(self):
         """Test verify code request with missing fields"""
         with pytest.raises(ValidationError):
-            VerifyCodeRequest(phone_number="+996555123456")
+            VerifyCodeRequest(phone="+996555123456")
 
 
 class TestBannerSchemas:
@@ -123,6 +123,6 @@ class TestProductSchemas:
 ])
 def test_phone_validation_parametrized(phone):
     """Parametrized test for phone validation"""
-    request = PhoneLoginRequest(phone_number=phone)
-    assert request.phone_number == phone
+    request = PhoneLoginRequest(phone=phone)
+    assert request.phone == phone
 

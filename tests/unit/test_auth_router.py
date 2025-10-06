@@ -13,15 +13,15 @@ class TestAuthEndpoints:
     def test_send_code_endpoint_exists(self, client):
         """Test that send-code endpoint exists"""
         response = client.post("/api/v1/auth/send-code", json={
-            "phone_number": "+996555123456"
+            "phone": "+996555123456"
         })
         assert response.status_code not in [404]  # Endpoint may not exist
     
     def test_verify_code_endpoint_exists(self, client):
         """Test that verify-code endpoint exists"""
         response = client.post("/api/v1/auth/verify-code", json={
-            "phone_number": "+996555123456",
-            "code": "123456"
+            "phone": "+996555123456",
+            "verification_code": "123456"
         })
         assert response.status_code not in [404]  # Endpoint may not exist
     
@@ -66,7 +66,7 @@ class TestSendCodeValidation:
     def test_send_code_valid_phones(self, client, phone):
         """Test send code with valid phone numbers"""
         response = client.post("/api/v1/auth/send-code", json={
-            "phone_number": phone
+            "phone": phone
         })
         # Should not be validation error
         assert response.status_code != 422
@@ -83,22 +83,22 @@ class TestVerifyCodeValidation:
     def test_verify_code_missing_code(self, client):
         """Test verify code without code"""
         response = client.post("/api/v1/auth/verify-code", json={
-            "phone_number": "+996555123456"
+            "phone": "+996555123456"
         })
         assert response.status_code in [404, 422]
     
     def test_verify_code_missing_phone(self, client):
         """Test verify code without phone"""
         response = client.post("/api/v1/auth/verify-code", json={
-            "code": "123456"
+            "verification_code": "123456"
         })
         assert response.status_code in [404, 422]
     
     def test_verify_code_invalid_code_format(self, client):
         """Test verify code with invalid code format"""
         response = client.post("/api/v1/auth/verify-code", json={
-            "phone_number": "+996555123456",
-            "code": "abc"
+            "phone": "+996555123456",
+            "verification_code": "abc"
         })
         assert response.status_code in [400, 404, 422]
 

@@ -3891,3 +3891,489 @@ INFO:src.app_01.main:Loaded 2 supported markets
 INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
 INFO:src.app_01.main:  - MarketEnum.US: United States ($)
 INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'src/app_01/db/market_db.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [43997]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [45809]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'src/app_01/schemas/auth.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [45809]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [45916]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'src/app_01/schemas/auth.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [45916]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [45993]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'tests/unit/test_schemas.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [45993]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [46236]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'tests/unit/test_schemas.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [46236]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [46313]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'tests/unit/test_schemas.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [46313]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [46355]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+INFO:     127.0.0.1:49263 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49263 - "GET /openapi.json HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'tests/unit/test_auth_router.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [46355]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [46572]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'tests/unit/test_auth_router.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [46572]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [46607]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'tests/unit/test_auth_router.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [46607]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [46686]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'tests/unit/test_auth_router.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [46686]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [46761]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'src/app_01/db/market_db.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [46761]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [46789]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'src/app_01/schemas/auth.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [46789]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [46816]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'tests/unit/test_auth_router.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [46816]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [46822]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'tests/unit/test_schemas.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [46822]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [46842]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'tests/unit/test_auth_router.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [46842]
+WARNING:  WatchFiles detected changes in 'tests/unit/test_auth_router.py'. Reloading...
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [46874]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'tests/unit/test_auth_router.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [46874]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [46885]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'tests/unit/test_auth_service.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [46885]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [46956]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'tests/unit/test_auth_service.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [46956]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [46990]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'tests/unit/test_database_utils.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [46990]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [47551]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'tests/unit/test_database_utils.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [47551]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [47596]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'tests/unit/test_models.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [47596]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [47888]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'tests/unit/test_models.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [47888]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [47922]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'tests/unit/test_database_utils.py', 'tests/unit/test_auth_router.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [47922]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:     Started server process [48803]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
