@@ -22,6 +22,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from src.app_01.db.market_db import Base, Market
 from src.app_01.main import app
 from src.app_01.models.banners.banner import Base as BannerBase
+# Import Cart and Wishlist models to ensure their tables are created
+from src.app_01.models.orders.cart import Cart, CartItem
+from src.app_01.models.users.wishlist import Wishlist, WishlistItem
 
 
 @pytest.fixture(scope="session")

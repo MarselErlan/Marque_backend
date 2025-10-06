@@ -6,6 +6,7 @@ Database setup, API client, and test data for integration tests
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 try:
     from starlette.testclient import TestClient
 except ImportError:
@@ -18,13 +19,20 @@ from src.app_01.models.products.product import Product
 from src.app_01.models.products.brand import Brand
 from src.app_01.models.products.category import Category
 from src.app_01.models.banners.banner import Banner, BannerType, Base as BannerBase
+# Import Cart and Wishlist models to ensure their tables are created
+from src.app_01.models.orders.cart import Cart, CartItem
+from src.app_01.models.users.wishlist import Wishlist, WishlistItem
 
 
 @pytest.fixture(scope="function")
 def test_db():
     """Create test database for integration tests"""
-    # Use in-memory SQLite for testing
-    engine = create_engine("sqlite:///:memory:")
+    # Use in-memory SQLite for testing with thread-safe configuration
+    engine = create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool
+    )
     Base.metadata.create_all(bind=engine)
     BannerBase.metadata.create_all(bind=engine)  # Create banner tables
     
@@ -39,12 +47,22 @@ def test_db():
 
 
 @pytest.fixture(scope="function")
-def api_client():
-    """Create API test client"""
-    # Use TestClient without database override for now
-    # Tests will use the actual database or handle mocking differently
+def api_client(test_db):
+    """Create API test client with database override"""
+    from src.app_01.db.market_db import get_db
+    
+    def override_get_db():
+        try:
+            yield test_db
+        finally:
+            pass
+    
+    app.dependency_overrides[get_db] = override_get_db
+    
     with TestClient(app) as client:
         yield client
+    
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture
