@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 import secrets
 import jwt
 import logging
+import os
 
 from ..db import (
     db_manager, Market, MarketConfig, detect_market_from_phone, 
@@ -22,6 +23,15 @@ from ..schemas.auth import (
     UserSchema
 )
 
+# Twilio imports
+try:
+    from twilio.rest import Client
+    from twilio.base.exceptions import TwilioException
+    TWILIO_AVAILABLE = True
+except ImportError:
+    TWILIO_AVAILABLE = False
+    TwilioException = Exception
+
 # JWT Configuration
 SECRET_KEY = "your-secret-key-here"  # Should be in environment variables
 ALGORITHM = "HS256"
@@ -30,6 +40,22 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 # Rate limiting configuration
 MAX_VERIFICATION_ATTEMPTS = 3
 VERIFICATION_ATTEMPTS_WINDOW = 15  # minutes
+
+# Twilio Configuration
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+TWILIO_VERIFY_SERVICE_SID = os.getenv("TWILIO_VERIFY_SERVICE_SID")
+
+# Initialize Twilio client
+TWILIO_READY = False
+twilio_client = None
+
+if TWILIO_AVAILABLE and TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN and TWILIO_VERIFY_SERVICE_SID:
+    try:
+        twilio_client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+        TWILIO_READY = True
+    except Exception as e:
+        logging.warning(f"Twilio client initialization failed: {e}")
 
 logger = logging.getLogger(__name__)
 
@@ -82,10 +108,15 @@ class AuthService:
                 # Create verification code
                 verification = create_verification_for_market(db, request.phone, user.id if user else None)
                 
-                # In a real application, you would send SMS here
-                # For demo purposes, we'll just log the code
+                # Send SMS via Twilio
                 formatted_phone = format_phone_for_market(request.phone, market)
-                logger.info(f"SMS sent to {formatted_phone}: Your verification code is {verification.verification_code}")
+                sms_sent = self._send_sms_via_twilio(request.phone, verification.verification_code)
+                
+                if not sms_sent:
+                    # If Twilio fails, log the code for demo/testing
+                    logger.warning(f"Twilio SMS failed. Verification code for {formatted_phone}: {verification.verification_code}")
+                else:
+                    logger.info(f"✅ SMS sent to {formatted_phone} via Twilio")
                 
                 # Update rate limiting
                 self._update_rate_limit(request.phone)
@@ -413,6 +444,37 @@ class AuthService:
             self.rate_limit_store[phone_number] = []
         
         self.rate_limit_store[phone_number].append(current_time)
+    
+    def _send_sms_via_twilio(self, phone: str, code: str) -> bool:
+        """
+        Send SMS verification code via Twilio
+        
+        Args:
+            phone: Phone number to send to
+            code: Verification code to send
+            
+        Returns:
+            True if SMS sent successfully, False otherwise
+        """
+        if not TWILIO_READY:
+            logger.warning("Twilio not configured - running in demo mode")
+            return False
+        
+        try:
+            # Send SMS using Twilio Messaging API
+            message = twilio_client.messages.create(
+                body=f"Your Marque verification code is: {code}",
+                from_=os.getenv("TWILIO_PHONE_NUMBER", "+13128059851"),  # Your Twilio phone number
+                to=phone
+            )
+            logger.info(f"✅ Twilio SMS sent successfully - SID: {message.sid}")
+            return True
+        except TwilioException as e:
+            logger.error(f"❌ Twilio SMS failed: {e}")
+            return False
+        except Exception as e:
+            logger.error(f"❌ Unexpected error sending SMS: {e}")
+            return False
 
 # Global service instance
 auth_service = AuthService()
