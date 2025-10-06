@@ -447,11 +447,11 @@ class AuthService:
     
     def _send_sms_via_twilio(self, phone: str, code: str) -> bool:
         """
-        Send SMS verification code via Twilio
+        Send SMS verification code via Twilio Verify
         
         Args:
             phone: Phone number to send to
-            code: Verification code to send
+            code: Verification code (not used with Verify API)
             
         Returns:
             True if SMS sent successfully, False otherwise
@@ -461,16 +461,17 @@ class AuthService:
             return False
         
         try:
-            # Send SMS using Twilio Messaging API
-            message = twilio_client.messages.create(
-                body=f"Your Marque verification code is: {code}",
-                from_=os.getenv("TWILIO_PHONE_NUMBER", "+13128059851"),  # Your Twilio phone number
-                to=phone
+            # Send SMS using Twilio Verify API (no from_ number needed!)
+            verification = twilio_client.verify.v2.services(
+                TWILIO_VERIFY_SERVICE_SID
+            ).verifications.create(
+                to=phone,
+                channel='sms'
             )
-            logger.info(f"✅ Twilio SMS sent successfully - SID: {message.sid}")
+            logger.info(f"✅ Twilio Verify SMS sent successfully - SID: {verification.sid}, Status: {verification.status}")
             return True
         except TwilioException as e:
-            logger.error(f"❌ Twilio SMS failed: {e}")
+            logger.error(f"❌ Twilio Verify failed: {e}")
             return False
         except Exception as e:
             logger.error(f"❌ Unexpected error sending SMS: {e}")
