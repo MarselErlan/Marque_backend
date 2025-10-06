@@ -105,18 +105,16 @@ class AuthService:
                 # Check if user exists
                 user = user_model.get_by_phone(db, request.phone)
                 
-                # Create verification code
-                verification = create_verification_for_market(db, request.phone, user.id if user else None)
-                
-                # Send SMS via Twilio
+                # Send SMS via Twilio Verify (Twilio generates and stores the code)
                 formatted_phone = format_phone_for_market(request.phone, market)
-                sms_sent = self._send_sms_via_twilio(request.phone, verification.verification_code)
+                sms_sent = self._send_sms_via_twilio_verify(request.phone)
                 
                 if not sms_sent:
-                    # If Twilio fails, log the code for demo/testing
-                    logger.warning(f"Twilio SMS failed. Verification code for {formatted_phone}: {verification.verification_code}")
+                    # If Twilio fails, create local verification for demo
+                    verification = create_verification_for_market(db, request.phone, user.id if user else None)
+                    logger.warning(f"Twilio Verify failed. Demo code for {formatted_phone}: {verification.verification_code}")
                 else:
-                    logger.info(f"✅ SMS sent to {formatted_phone} via Twilio")
+                    logger.info(f"✅ SMS sent to {formatted_phone} via Twilio Verify")
                 
                 # Update rate limiting
                 self._update_rate_limit(request.phone)
@@ -168,11 +166,14 @@ class AuthService:
             session_factory = db_manager.get_session_factory(market)
             
             with session_factory() as db:
-                # Verify the code
-                verification = verify_code_for_market(db, request.phone, request.verification_code)
+                # Verify the code via Twilio Verify
+                code_valid = self._verify_code_via_twilio_verify(request.phone, request.verification_code)
                 
-                if not verification:
-                    raise ValueError("Invalid or expired verification code")
+                if not code_valid:
+                    # Fallback to local database verification if Twilio not available
+                    verification = verify_code_for_market(db, request.phone, request.verification_code)
+                    if not verification:
+                        raise ValueError("Invalid or expired verification code")
                 
                 # Check if user exists
                 user = user_model.get_by_phone(db, request.phone)
@@ -445,36 +446,71 @@ class AuthService:
         
         self.rate_limit_store[phone_number].append(current_time)
     
-    def _send_sms_via_twilio(self, phone: str, code: str) -> bool:
+    def _send_sms_via_twilio_verify(self, phone: str) -> bool:
         """
         Send SMS verification code via Twilio Verify
         
         Args:
             phone: Phone number to send to
-            code: Verification code (not used with Verify API)
             
         Returns:
             True if SMS sent successfully, False otherwise
         """
         if not TWILIO_READY:
-            logger.warning("Twilio not configured - running in demo mode")
+            logger.info(f"📱 Twilio not configured - running in demo mode for {phone}")
             return False
         
         try:
-            # Send SMS using Twilio Verify API (no from_ number needed!)
+            # Send SMS using Twilio Verify API
             verification = twilio_client.verify.v2.services(
                 TWILIO_VERIFY_SERVICE_SID
             ).verifications.create(
                 to=phone,
                 channel='sms'
             )
-            logger.info(f"✅ Twilio Verify SMS sent successfully - SID: {verification.sid}, Status: {verification.status}")
+            logger.info(f"✅ Twilio Verify SMS sent to {phone} - SID: {verification.sid}")
             return True
         except TwilioException as e:
             logger.error(f"❌ Twilio Verify failed: {e}")
             return False
         except Exception as e:
             logger.error(f"❌ Unexpected error sending SMS: {e}")
+            return False
+    
+    def _verify_code_via_twilio_verify(self, phone: str, code: str) -> bool:
+        """
+        Verify code via Twilio Verify
+        
+        Args:
+            phone: Phone number
+            code: Verification code to check
+            
+        Returns:
+            True if code is valid, False otherwise
+        """
+        if not TWILIO_READY:
+            logger.info(f"📱 Twilio not configured - skipping Twilio verification for {phone}")
+            return False
+        
+        try:
+            # Verify code using Twilio Verify API
+            verification_check = twilio_client.verify.v2.services(
+                TWILIO_VERIFY_SERVICE_SID
+            ).verification_checks.create(
+                to=phone,
+                code=code
+            )
+            is_approved = verification_check.status == 'approved'
+            if is_approved:
+                logger.info(f"✅ Twilio Verify code approved for {phone}")
+            else:
+                logger.warning(f"❌ Twilio Verify code rejected for {phone}: {verification_check.status}")
+            return is_approved
+        except TwilioException as e:
+            logger.error(f"❌ Twilio Verify check failed: {e}")
+            return False
+        except Exception as e:
+            logger.error(f"❌ Unexpected error verifying code: {e}")
             return False
 
 # Global service instance
