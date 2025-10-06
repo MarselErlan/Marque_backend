@@ -1,6 +1,6 @@
 from sqladmin import Admin
 from fastapi import FastAPI
-from ..db import engine
+from ..db.market_db import db_manager, Market
 from .sqladmin_views import (
     WebsiteContentAuthenticationBackend,
     ProductAdmin, SKUAdmin, ProductAssetAdmin, ProductAttributeAdmin,
@@ -20,15 +20,16 @@ from .user_admin_views import (
 def create_sqladmin_app(app: FastAPI) -> Admin:
     """Create and configure SQLAdmin for website content management"""
     
+    # Use KG market engine as default for admin (can be switched later)
+    engine = db_manager.get_engine(Market.KG)
+    
     # Initialize SQLAdmin with authentication
     admin = Admin(
         app=app,
         engine=engine,
         authentication_backend=WebsiteContentAuthenticationBackend(secret_key="your-secret-key-here"),
-        title="Marque - Управление контентом",
-        logo_url="/static/logo.png",
-        favicon_url="/static/favicon.ico",
-        index_view=WebsiteContentDashboard,
+        title="Marque - Admin Panel",
+        base_url="/admin"
     )
     
     # Add all admin views

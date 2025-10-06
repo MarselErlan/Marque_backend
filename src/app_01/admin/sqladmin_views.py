@@ -4,44 +4,95 @@ from starlette.requests import Request
 from starlette.responses import RedirectResponse
 from typing import Optional
 import secrets
+from passlib.hash import bcrypt
+from sqlalchemy.orm import Session
+from datetime import datetime
 
 from ..models import (
     Product, SKU, ProductAsset, Review, ProductAttribute,
     User, Admin, AdminLog
 )
-from ..db import engine
+from ..db.market_db import db_manager, Market
 
 
 class WebsiteContentAuthenticationBackend(AuthenticationBackend):
     """Custom authentication for website content admin"""
     
     async def login(self, request: Request) -> bool:
+        """Authenticate admin user"""
         form = await request.form()
         username = form.get("username")
         password = form.get("password")
         
-        # Here you would verify the credentials against your database
-        # For now, we'll use a simple check
-        if username == "content_admin" and password == "admin123":
-            # Create session token
+        if not username or not password:
+            return False
+        
+        # Get database session
+        db = next(db_manager.get_db_session(Market.KG))
+        
+        try:
+            # Find admin by username
+            admin = db.query(Admin).filter(Admin.username == username).first()
+            
+            if not admin:
+                return False
+            
+            # Check if admin is active
+            if not admin.is_active:
+                return False
+            
+            # Verify password
+            if not admin.hashed_password:
+                return False
+                
+            if not bcrypt.verify(password, admin.hashed_password):
+                return False
+            
+            # Update last login
+            admin.last_login = datetime.utcnow()
+            db.commit()
+            
+            # Create session
             token = secrets.token_urlsafe(32)
-            request.session.update({"token": token})
+            request.session.update({
+                "token": token,
+                "admin_id": admin.id,
+                "admin_username": admin.username,
+                "is_super_admin": admin.is_super_admin
+            })
+            
             return True
-        return False
+            
+        except Exception as e:
+            print(f"Admin login error: {e}")
+            return False
+        finally:
+            db.close()
     
     async def logout(self, request: Request) -> bool:
+        """Logout admin user"""
         request.session.clear()
         return True
     
     async def authenticate(self, request: Request) -> bool:
+        """Check if user is authenticated"""
         token = request.session.get("token")
+        admin_id = request.session.get("admin_id")
         
-        if not token:
+        if not token or not admin_id:
             return False
         
-        # Here you would verify the token and check admin permissions
-        # For now, we'll just check if token exists
-        return True
+        # Optionally verify admin still exists and is active
+        db = next(db_manager.get_db_session(Market.KG))
+        try:
+            admin = db.query(Admin).filter(Admin.id == admin_id).first()
+            if not admin or not admin.is_active:
+                return False
+            return True
+        except Exception:
+            return False
+        finally:
+            db.close()
 
 
 class ProductAdmin(ModelView, model=Product):
@@ -364,7 +415,7 @@ class AdminLogAdmin(ModelView, model=AdminLog):
 
 
 # Custom dashboard view
-class WebsiteContentDashboard(BaseView, name="Панель управления"):
+class WebsiteContentDashboard(BaseView):
     """Custom dashboard for website content admin"""
     
     name = "Панель управления"

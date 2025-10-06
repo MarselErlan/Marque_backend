@@ -9,10 +9,23 @@ class Admin(Base):
     __tablename__ = "admins"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, unique=True, index=True)
+    
+    # Authentication fields (for standalone admin login)
+    username = Column(String(100), unique=True, nullable=True, index=True)
+    email = Column(String(255), unique=True, nullable=True, index=True)
+    hashed_password = Column(String(255), nullable=True)
+    full_name = Column(String(255), nullable=True)
+    
+    # Optional link to user account
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, unique=True, index=True)
+    
+    # Admin configuration
     admin_role = Column(String(50), nullable=False, default="order_management")  # order_management, website_content, super_admin
     permissions = Column(String(500), nullable=True)  # JSON string of permissions
     is_active = Column(Boolean, default=True)
+    is_super_admin = Column(Boolean, default=False)
+    
+    # Tracking
     last_login = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
@@ -23,22 +36,17 @@ class Admin(Base):
     admin_logs = relationship("AdminLog", back_populates="admin", cascade="all, delete-orphan")
 
     def __repr__(self):
-        return f"<Admin(id={self.id}, role='{self.admin_role}', user_id={self.user_id})>"
-
-    @property
-    def is_super_admin(self):
-        """Check if admin has super admin privileges"""
-        return self.admin_role == "super_admin"
+        return f"<Admin(id={self.id}, username='{self.username}', role='{self.admin_role}')>"
 
     @property
     def is_order_management_admin(self):
         """Check if admin manages orders"""
-        return self.admin_role == "order_management"
+        return self.admin_role == "order_management" or self.is_super_admin
 
     @property
     def is_website_content_admin(self):
         """Check if admin manages website content"""
-        return self.admin_role == "website_content"
+        return self.admin_role == "website_content" or self.is_super_admin
 
     @property
     def role_display_name(self):
