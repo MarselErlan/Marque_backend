@@ -167,10 +167,13 @@ class AuthService:
             
             with session_factory() as db:
                 # Verify the code via Twilio Verify
-                code_valid = self._verify_code_via_twilio_verify(request.phone, request.verification_code)
-                
-                if not code_valid:
-                    # Fallback to local database verification if Twilio not available
+                if TWILIO_READY:
+                    # Using Twilio Verify - codes are checked by Twilio
+                    code_valid = self._verify_code_via_twilio_verify(request.phone, request.verification_code)
+                    if not code_valid:
+                        raise ValueError("Invalid or expired verification code")
+                else:
+                    # Demo mode - check local database
                     verification = verify_code_for_market(db, request.phone, request.verification_code)
                     if not verification:
                         raise ValueError("Invalid or expired verification code")
@@ -494,6 +497,7 @@ class AuthService:
         
         try:
             # Verify code using Twilio Verify API
+            logger.info(f"🔍 Checking code for {phone} with Twilio Verify...")
             verification_check = twilio_client.verify.v2.services(
                 TWILIO_VERIFY_SERVICE_SID
             ).verification_checks.create(
@@ -502,15 +506,16 @@ class AuthService:
             )
             is_approved = verification_check.status == 'approved'
             if is_approved:
-                logger.info(f"✅ Twilio Verify code approved for {phone}")
+                logger.info(f"✅ Twilio Verify code APPROVED for {phone}")
             else:
-                logger.warning(f"❌ Twilio Verify code rejected for {phone}: {verification_check.status}")
+                logger.warning(f"❌ Twilio Verify code REJECTED for {phone}: Status={verification_check.status}")
             return is_approved
         except TwilioException as e:
-            logger.error(f"❌ Twilio Verify check failed: {e}")
+            logger.error(f"❌ Twilio Verify check FAILED for {phone}: {type(e).__name__}: {e}")
+            # Important: return False, don't raise - let the caller handle it
             return False
         except Exception as e:
-            logger.error(f"❌ Unexpected error verifying code: {e}")
+            logger.error(f"❌ Unexpected error verifying code for {phone}: {type(e).__name__}: {e}")
             return False
 
 # Global service instance
