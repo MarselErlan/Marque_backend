@@ -11079,3 +11079,416 @@ INFO:src.app_01.main:Loaded 2 supported markets
 INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
 INFO:src.app_01.main:  - MarketEnum.US: United States ($)
 INFO:     Application startup complete.
+INFO:     127.0.0.1:62038 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62038 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62038 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62038 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62038 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62038 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62038 - "GET /login HTTP/1.1" 200 OK
+✅ Admin 'admin' logged in from kg database
+INFO:     127.0.0.1:62038 - "POST /login HTTP/1.1" 302 Found
+INFO:     127.0.0.1:62038 - "GET / HTTP/1.1" 302 Found
+INFO:     127.0.0.1:62038 - "GET /login HTTP/1.1" 200 OK
+✅ Admin 'admin' logged in from kg database
+INFO:     127.0.0.1:62038 - "POST /login HTTP/1.1" 302 Found
+INFO:     127.0.0.1:62038 - "GET / HTTP/1.1" 302 Found
+INFO:     127.0.0.1:62038 - "GET /login HTTP/1.1" 200 OK
+✅ Admin 'admin' logged in from kg database
+INFO:     127.0.0.1:62038 - "POST /login HTTP/1.1" 302 Found
+INFO:     127.0.0.1:62038 - "GET / HTTP/1.1" 302 Found
+INFO:     127.0.0.1:62038 - "GET /login HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'src/app_01/admin/sqladmin_views.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [96605]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:src.app_01.main:✅ SQLAdmin initialized at /admin
+INFO:     Started server process [98476]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'src/app_01/admin/sqladmin_views.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [98476]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:src.app_01.main:✅ SQLAdmin initialized at /admin
+INFO:     Started server process [98718]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'src/app_01/admin/sqladmin_views.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [98718]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:src.app_01.main:✅ SQLAdmin initialized at /admin
+INFO:     Started server process [98838]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'src/app_01/admin/sqladmin_views.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [98838]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:src.app_01.main:✅ SQLAdmin initialized at /admin
+INFO:     Started server process [98858]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'src/app_01/admin/sqladmin_views.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [98858]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:src.app_01.main:✅ SQLAdmin initialized at /admin
+INFO:     Started server process [98874]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'src/app_01/admin/sqladmin_views.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [98874]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:src.app_01.main:✅ SQLAdmin initialized at /admin
+INFO:     Started server process [1413]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+INFO:src.app_01.admin.sqladmin_views:🔐 ADMIN LOGIN ATTEMPT
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+INFO:src.app_01.admin.sqladmin_views:📝 Received credentials:
+INFO:src.app_01.admin.sqladmin_views:   Username: 'admin'
+INFO:src.app_01.admin.sqladmin_views:   Password length: 8 chars
+INFO:src.app_01.admin.sqladmin_views:
+──────────────────────────────────────────────────────────────────────
+INFO:src.app_01.admin.sqladmin_views:🔍 Checking KG database...
+INFO:src.app_01.admin.sqladmin_views:──────────────────────────────────────────────────────────────────────
+DEBUG:src.app_01.admin.sqladmin_views:   🔎 Searching for admin with username: 'admin'
+INFO:src.app_01.admin.sqladmin_views:   ✅ Found admin: ID=4, Username='admin'
+INFO:src.app_01.admin.sqladmin_views:   ✅ Admin is active
+INFO:src.app_01.admin.sqladmin_views:   🔐 Password hash found (length: 60 chars)
+DEBUG:src.app_01.admin.sqladmin_views:   🔐 Hash preview: $2b$12$3dc2oflPP.Lp9qdT.fJbHO9...
+DEBUG:src.app_01.admin.sqladmin_views:   🔓 Verifying password with bcrypt...
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Password bytes length: 8
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Hash bytes length: 60
+INFO:src.app_01.admin.sqladmin_views:   ✅ Password verification SUCCESS!
+INFO:src.app_01.admin.sqladmin_views:
+======================================================================
+INFO:src.app_01.admin.sqladmin_views:✅ AUTHENTICATION SUCCESSFUL!
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+INFO:src.app_01.admin.sqladmin_views:   User: admin
+INFO:src.app_01.admin.sqladmin_views:   ID: 4
+INFO:src.app_01.admin.sqladmin_views:   Database: kg
+INFO:src.app_01.admin.sqladmin_views:   Super Admin: True
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Updated last_login timestamp
+INFO:src.app_01.admin.sqladmin_views:   ✅ Session created with token: WydaeyrlWXeETQxF...
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+
+DEBUG:src.app_01.admin.sqladmin_views:   🔒 Database connection closed
+INFO:     127.0.0.1:62181 - "POST /login HTTP/1.1" 302 Found
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✗, admin_id=None, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   ❌ No token or admin_id in session
+INFO:     127.0.0.1:62181 - "GET / HTTP/1.1" 302 Found
+INFO:     127.0.0.1:62181 - "GET /login HTTP/1.1" 200 OK
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+INFO:src.app_01.admin.sqladmin_views:🔐 ADMIN LOGIN ATTEMPT
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+INFO:src.app_01.admin.sqladmin_views:📝 Received credentials:
+INFO:src.app_01.admin.sqladmin_views:   Username: 'admin'
+INFO:src.app_01.admin.sqladmin_views:   Password length: 8 chars
+INFO:src.app_01.admin.sqladmin_views:
+──────────────────────────────────────────────────────────────────────
+INFO:src.app_01.admin.sqladmin_views:🔍 Checking KG database...
+INFO:src.app_01.admin.sqladmin_views:──────────────────────────────────────────────────────────────────────
+DEBUG:src.app_01.admin.sqladmin_views:   🔎 Searching for admin with username: 'admin'
+INFO:src.app_01.admin.sqladmin_views:   ✅ Found admin: ID=4, Username='admin'
+INFO:src.app_01.admin.sqladmin_views:   ✅ Admin is active
+INFO:src.app_01.admin.sqladmin_views:   🔐 Password hash found (length: 60 chars)
+DEBUG:src.app_01.admin.sqladmin_views:   🔐 Hash preview: $2b$12$3dc2oflPP.Lp9qdT.fJbHO9...
+DEBUG:src.app_01.admin.sqladmin_views:   🔓 Verifying password with bcrypt...
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Password bytes length: 8
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Hash bytes length: 60
+INFO:src.app_01.admin.sqladmin_views:   ✅ Password verification SUCCESS!
+INFO:src.app_01.admin.sqladmin_views:
+======================================================================
+INFO:src.app_01.admin.sqladmin_views:✅ AUTHENTICATION SUCCESSFUL!
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+INFO:src.app_01.admin.sqladmin_views:   User: admin
+INFO:src.app_01.admin.sqladmin_views:   ID: 4
+INFO:src.app_01.admin.sqladmin_views:   Database: kg
+INFO:src.app_01.admin.sqladmin_views:   Super Admin: True
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Updated last_login timestamp
+INFO:src.app_01.admin.sqladmin_views:   ✅ Session created with token: sshKsHeqXslHXhXU...
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+
+DEBUG:src.app_01.admin.sqladmin_views:   🔒 Database connection closed
+INFO:     127.0.0.1:62184 - "POST /login HTTP/1.1" 302 Found
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✗, admin_id=None, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   ❌ No token or admin_id in session
+INFO:     127.0.0.1:62184 - "GET / HTTP/1.1" 302 Found
+INFO:     127.0.0.1:62184 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62184 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62185 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62185 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62185 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62185 - "GET /login HTTP/1.1" 200 OK
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+INFO:src.app_01.admin.sqladmin_views:🔐 ADMIN LOGIN ATTEMPT
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+INFO:src.app_01.admin.sqladmin_views:📝 Received credentials:
+INFO:src.app_01.admin.sqladmin_views:   Username: 'admin'
+INFO:src.app_01.admin.sqladmin_views:   Password length: 8 chars
+INFO:src.app_01.admin.sqladmin_views:
+──────────────────────────────────────────────────────────────────────
+INFO:src.app_01.admin.sqladmin_views:🔍 Checking KG database...
+INFO:src.app_01.admin.sqladmin_views:──────────────────────────────────────────────────────────────────────
+DEBUG:src.app_01.admin.sqladmin_views:   🔎 Searching for admin with username: 'admin'
+INFO:src.app_01.admin.sqladmin_views:   ✅ Found admin: ID=4, Username='admin'
+INFO:src.app_01.admin.sqladmin_views:   ✅ Admin is active
+INFO:src.app_01.admin.sqladmin_views:   🔐 Password hash found (length: 60 chars)
+DEBUG:src.app_01.admin.sqladmin_views:   🔐 Hash preview: $2b$12$3dc2oflPP.Lp9qdT.fJbHO9...
+DEBUG:src.app_01.admin.sqladmin_views:   🔓 Verifying password with bcrypt...
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Password bytes length: 8
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Hash bytes length: 60
+INFO:src.app_01.admin.sqladmin_views:   ✅ Password verification SUCCESS!
+INFO:src.app_01.admin.sqladmin_views:
+======================================================================
+INFO:src.app_01.admin.sqladmin_views:✅ AUTHENTICATION SUCCESSFUL!
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+INFO:src.app_01.admin.sqladmin_views:   User: admin
+INFO:src.app_01.admin.sqladmin_views:   ID: 4
+INFO:src.app_01.admin.sqladmin_views:   Database: kg
+INFO:src.app_01.admin.sqladmin_views:   Super Admin: True
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Updated last_login timestamp
+INFO:src.app_01.admin.sqladmin_views:   ✅ Session created with token: rIMmcuGMEDKJk2vf...
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+
+DEBUG:src.app_01.admin.sqladmin_views:   🔒 Database connection closed
+INFO:     127.0.0.1:62185 - "POST /login HTTP/1.1" 302 Found
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✗, admin_id=None, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   ❌ No token or admin_id in session
+INFO:     127.0.0.1:62185 - "GET / HTTP/1.1" 302 Found
+INFO:     127.0.0.1:62185 - "GET /login HTTP/1.1" 200 OK
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+INFO:src.app_01.admin.sqladmin_views:🔐 ADMIN LOGIN ATTEMPT
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+INFO:src.app_01.admin.sqladmin_views:📝 Received credentials:
+INFO:src.app_01.admin.sqladmin_views:   Username: 'admin'
+INFO:src.app_01.admin.sqladmin_views:   Password length: 8 chars
+INFO:src.app_01.admin.sqladmin_views:
+──────────────────────────────────────────────────────────────────────
+INFO:src.app_01.admin.sqladmin_views:🔍 Checking KG database...
+INFO:src.app_01.admin.sqladmin_views:──────────────────────────────────────────────────────────────────────
+DEBUG:src.app_01.admin.sqladmin_views:   🔎 Searching for admin with username: 'admin'
+INFO:src.app_01.admin.sqladmin_views:   ✅ Found admin: ID=4, Username='admin'
+INFO:src.app_01.admin.sqladmin_views:   ✅ Admin is active
+INFO:src.app_01.admin.sqladmin_views:   🔐 Password hash found (length: 60 chars)
+DEBUG:src.app_01.admin.sqladmin_views:   🔐 Hash preview: $2b$12$3dc2oflPP.Lp9qdT.fJbHO9...
+DEBUG:src.app_01.admin.sqladmin_views:   🔓 Verifying password with bcrypt...
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Password bytes length: 8
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Hash bytes length: 60
+INFO:src.app_01.admin.sqladmin_views:   ✅ Password verification SUCCESS!
+INFO:src.app_01.admin.sqladmin_views:
+======================================================================
+INFO:src.app_01.admin.sqladmin_views:✅ AUTHENTICATION SUCCESSFUL!
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+INFO:src.app_01.admin.sqladmin_views:   User: admin
+INFO:src.app_01.admin.sqladmin_views:   ID: 4
+INFO:src.app_01.admin.sqladmin_views:   Database: kg
+INFO:src.app_01.admin.sqladmin_views:   Super Admin: True
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Updated last_login timestamp
+INFO:src.app_01.admin.sqladmin_views:   ✅ Session created with token: NtGmAptCE_h4kuIG...
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+
+DEBUG:src.app_01.admin.sqladmin_views:   🔒 Database connection closed
+INFO:     127.0.0.1:62185 - "POST /login HTTP/1.1" 302 Found
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✗, admin_id=None, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   ❌ No token or admin_id in session
+INFO:     127.0.0.1:62185 - "GET / HTTP/1.1" 302 Found
+INFO:     127.0.0.1:62185 - "GET /login HTTP/1.1" 200 OK
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+INFO:src.app_01.admin.sqladmin_views:🔐 ADMIN LOGIN ATTEMPT
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+INFO:src.app_01.admin.sqladmin_views:📝 Received credentials:
+INFO:src.app_01.admin.sqladmin_views:   Username: 'admin'
+INFO:src.app_01.admin.sqladmin_views:   Password length: 8 chars
+INFO:src.app_01.admin.sqladmin_views:
+──────────────────────────────────────────────────────────────────────
+INFO:src.app_01.admin.sqladmin_views:🔍 Checking KG database...
+INFO:src.app_01.admin.sqladmin_views:──────────────────────────────────────────────────────────────────────
+DEBUG:src.app_01.admin.sqladmin_views:   🔎 Searching for admin with username: 'admin'
+INFO:src.app_01.admin.sqladmin_views:   ✅ Found admin: ID=4, Username='admin'
+INFO:src.app_01.admin.sqladmin_views:   ✅ Admin is active
+INFO:src.app_01.admin.sqladmin_views:   🔐 Password hash found (length: 60 chars)
+DEBUG:src.app_01.admin.sqladmin_views:   🔐 Hash preview: $2b$12$3dc2oflPP.Lp9qdT.fJbHO9...
+DEBUG:src.app_01.admin.sqladmin_views:   🔓 Verifying password with bcrypt...
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Password bytes length: 8
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Hash bytes length: 60
+INFO:src.app_01.admin.sqladmin_views:   ✅ Password verification SUCCESS!
+INFO:src.app_01.admin.sqladmin_views:
+======================================================================
+INFO:src.app_01.admin.sqladmin_views:✅ AUTHENTICATION SUCCESSFUL!
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+INFO:src.app_01.admin.sqladmin_views:   User: admin
+INFO:src.app_01.admin.sqladmin_views:   ID: 4
+INFO:src.app_01.admin.sqladmin_views:   Database: kg
+INFO:src.app_01.admin.sqladmin_views:   Super Admin: True
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Updated last_login timestamp
+INFO:src.app_01.admin.sqladmin_views:   ✅ Session created with token: qb6tNt00LE1xN6vI...
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+
+DEBUG:src.app_01.admin.sqladmin_views:   🔒 Database connection closed
+INFO:     127.0.0.1:62194 - "POST /login HTTP/1.1" 302 Found
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✗, admin_id=None, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   ❌ No token or admin_id in session
+INFO:     127.0.0.1:62195 - "GET / HTTP/1.1" 302 Found
+INFO:     127.0.0.1:62194 - "GET /login HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'update_admin_password.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1413]
+WARNING:  WatchFiles detected changes in 'update_admin_password.py'. Reloading...
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:src.app_01.main:✅ SQLAdmin initialized at /admin
+INFO:     Started server process [2608]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'update_admin_password.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [2608]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:src.app_01.main:✅ SQLAdmin initialized at /admin
+INFO:     Started server process [2693]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'update_admin_password.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [2693]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:src.app_01.main:✅ SQLAdmin initialized at /admin
+INFO:     Started server process [2900]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
