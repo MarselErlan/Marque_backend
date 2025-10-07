@@ -10765,3 +10765,13 @@ INFO:src.app_01.main:Loaded 2 supported markets
 INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
 INFO:src.app_01.main:  - MarketEnum.US: United States ($)
 INFO:     Application startup complete.
+INFO:     127.0.0.1:61311 - "GET /login HTTP/1.1" 200 OK
+WARNING:passlib.handlers.bcrypt:(trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+INFO:     127.0.0.1:61314 - "POST /login HTTP/1.1" 302 Found
+INFO:     127.0.0.1:61314 - "GET / HTTP/1.1" 302 Found
+INFO:     127.0.0.1:61314 - "GET /login HTTP/1.1" 200 OK
