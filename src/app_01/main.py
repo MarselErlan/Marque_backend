@@ -53,7 +53,20 @@ app.add_middleware(HTTPSRedirectMiddleware)
 
 # Session middleware (required for admin authentication - MUST be added BEFORE SQLAdmin)
 from starlette.middleware.sessions import SessionMiddleware
-app.add_middleware(SessionMiddleware, secret_key="your-secret-key-change-in-production")
+import os
+
+# Session configuration for production (Railway HTTPS)
+session_secret = os.getenv("SESSION_SECRET_KEY", "marque-session-secret-key-change-in-production")
+is_production = os.getenv("RAILWAY_ENVIRONMENT") is not None
+
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=session_secret,
+    session_cookie="marque_admin_session",
+    max_age=14 * 24 * 60 * 60,  # 14 days
+    same_site="lax",  # Required for Railway redirects
+    https_only=is_production  # Only require HTTPS in production
+)
 
 # Initialize SQLAdmin
 try:
