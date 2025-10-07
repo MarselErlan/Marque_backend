@@ -3,9 +3,10 @@ Main FastAPI Application
 Multi-market phone authentication system
 """
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 import logging
 import uvicorn
 
@@ -29,6 +30,26 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc"
 )
+
+# HTTPS Redirect Middleware (for Railway and production)
+class HTTPSRedirectMiddleware(BaseHTTPMiddleware):
+    """Redirect HTTP to HTTPS in production (Railway)"""
+    
+    async def dispatch(self, request: Request, call_next):
+        # Check if request came through HTTPS proxy (Railway sets this header)
+        forwarded_proto = request.headers.get("x-forwarded-proto")
+        
+        # If we're behind a proxy and it's HTTP, redirect to HTTPS
+        if forwarded_proto == "http":
+            # Get the HTTPS URL
+            url = str(request.url).replace("http://", "https://", 1)
+            return RedirectResponse(url=url, status_code=301)
+        
+        response = await call_next(request)
+        return response
+
+# Add HTTPS redirect middleware (before other middlewares)
+app.add_middleware(HTTPSRedirectMiddleware)
 
 # Session middleware (required for admin authentication - MUST be added BEFORE SQLAdmin)
 from starlette.middleware.sessions import SessionMiddleware
