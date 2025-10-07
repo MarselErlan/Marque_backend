@@ -4,7 +4,7 @@ from starlette.requests import Request
 from starlette.responses import RedirectResponse
 from typing import Optional
 import secrets
-from passlib.hash import bcrypt
+import bcrypt
 from sqlalchemy.orm import Session
 from datetime import datetime
 
@@ -50,8 +50,12 @@ class WebsiteContentAuthenticationBackend(AuthenticationBackend):
                 # Verify password
                 if not admin.hashed_password:
                     continue  # Try next database
+                
+                # Use bcrypt directly for verification
+                password_bytes = password.encode('utf-8')
+                hash_bytes = admin.hashed_password.encode('utf-8')
                     
-                if not bcrypt.verify(password, admin.hashed_password):
+                if not bcrypt.checkpw(password_bytes, hash_bytes):
                     continue  # Try next database
                 
                 # ✅ Authentication successful!
