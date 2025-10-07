@@ -19,7 +19,7 @@ class WebsiteContentAuthenticationBackend(AuthenticationBackend):
     """Custom authentication for website content admin"""
     
     async def login(self, request: Request) -> bool:
-        """Authenticate admin user"""
+        """Authenticate admin user - checks BOTH KG and US databases"""
         form = await request.form()
         username = form.get("username")
         password = form.get("password")
@@ -32,47 +32,55 @@ class WebsiteContentAuthenticationBackend(AuthenticationBackend):
         if len(password.encode('utf-8')) > 72:
             password = password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
         
-        # Get database session
-        db = next(db_manager.get_db_session(Market.KG))
-        
-        try:
-            # Find admin by username
-            admin = db.query(Admin).filter(Admin.username == username).first()
+        # Try both databases (KG first, then US)
+        for market in [Market.KG, Market.US]:
+            db = next(db_manager.get_db_session(market))
             
-            if not admin:
-                return False
-            
-            # Check if admin is active
-            if not admin.is_active:
-                return False
-            
-            # Verify password
-            if not admin.hashed_password:
-                return False
+            try:
+                # Find admin by username
+                admin = db.query(Admin).filter(Admin.username == username).first()
                 
-            if not bcrypt.verify(password, admin.hashed_password):
-                return False
-            
-            # Update last login
-            admin.last_login = datetime.utcnow()
-            db.commit()
-            
-            # Create session
-            token = secrets.token_urlsafe(32)
-            request.session.update({
-                "token": token,
-                "admin_id": admin.id,
-                "admin_username": admin.username,
-                "is_super_admin": admin.is_super_admin
-            })
-            
-            return True
-            
-        except Exception as e:
-            print(f"Admin login error: {e}")
-            return False
-        finally:
-            db.close()
+                if not admin:
+                    continue  # Try next database
+                
+                # Check if admin is active
+                if not admin.is_active:
+                    continue  # Try next database
+                
+                # Verify password
+                if not admin.hashed_password:
+                    continue  # Try next database
+                    
+                if not bcrypt.verify(password, admin.hashed_password):
+                    continue  # Try next database
+                
+                # ✅ Authentication successful!
+                # Update last login
+                admin.last_login = datetime.utcnow()
+                db.commit()
+                
+                # Create session
+                token = secrets.token_urlsafe(32)
+                request.session.update({
+                    "token": token,
+                    "admin_id": admin.id,
+                    "admin_username": admin.username,
+                    "is_super_admin": admin.is_super_admin,
+                    "admin_market": market.value  # Store which database the admin is in
+                })
+                
+                print(f"✅ Admin '{username}' logged in from {market.value} database")
+                return True
+                
+            except Exception as e:
+                print(f"Admin login error in {market.value} database: {e}")
+                continue
+            finally:
+                db.close()
+        
+        # No valid admin found in any database
+        print(f"❌ Admin login failed for '{username}' - not found in any database")
+        return False
     
     async def logout(self, request: Request) -> bool:
         """Logout admin user"""
@@ -80,21 +88,29 @@ class WebsiteContentAuthenticationBackend(AuthenticationBackend):
         return True
     
     async def authenticate(self, request: Request) -> bool:
-        """Check if user is authenticated"""
+        """Check if user is authenticated - checks the correct database"""
         token = request.session.get("token")
         admin_id = request.session.get("admin_id")
+        admin_market = request.session.get("admin_market", "kg")  # Default to KG for backward compatibility
         
         if not token or not admin_id:
             return False
         
-        # Optionally verify admin still exists and is active
-        db = next(db_manager.get_db_session(Market.KG))
+        # Get the market from session (or try both if not set)
+        try:
+            market = Market.KG if admin_market == "kg" else Market.US
+        except:
+            market = Market.KG
+        
+        # Check admin exists and is active in the correct database
+        db = next(db_manager.get_db_session(market))
         try:
             admin = db.query(Admin).filter(Admin.id == admin_id).first()
             if not admin or not admin.is_active:
                 return False
             return True
-        except Exception:
+        except Exception as e:
+            print(f"Authentication check error: {e}")
             return False
         finally:
             db.close()
