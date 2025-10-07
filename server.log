@@ -9743,3 +9743,181 @@ INFO:src.app_01.main:Loaded 2 supported markets
 INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
 INFO:src.app_01.main:  - MarketEnum.US: United States ($)
 INFO:     Application startup complete.
+INFO:     127.0.0.1:58075 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58076 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58075 - "GET /docs HTTP/1.1" 200 OK
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/fastapi/openapi/utils.py:207: UserWarning: Duplicate Operation ID search_products_api_v1_products_search_get for function search_products at /Users/macbookpro/M4_Projects/Prodaction/Marque/src/app_01/routers/product_router.py
+  warnings.warn(message, stacklevel=1)
+INFO:     127.0.0.1:58075 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58075 - "GET / HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58075 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58080 - "GET /css/fontawesome.min.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58082 - "GET /css/flatpickr.min.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58075 - "GET /css/tabler.min.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58079 - "GET /css/tabler-icons.min.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58083 - "GET /css/main.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58081 - "GET /css/select2.min.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58082 - "GET /js/tabler.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58081 - "GET /js/jquery.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58083 - "GET /js/popper.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58080 - "GET /js/bootstrap.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58079 - "GET /js/select2.full.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58081 - "GET /js/main.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58083 - "GET /js/flatpickr.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58079 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+WARNING:passlib.handlers.bcrypt:(trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+INFO:     127.0.0.1:58089 - "POST /login HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58089 - "GET / HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58089 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58092 - "POST /login HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58092 - "GET / HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58092 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58094 - "POST /login HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58094 - "GET / HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58094 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58130 - "POST /login HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58131 - "GET / HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58130 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58130 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58132 - "POST /login HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58132 - "GET / HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58132 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58132 - "POST /login HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:58284 - "POST /login HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58285 - "GET / HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58284 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58284 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58549 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58556 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58559 - "GET /css/select2.min.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58556 - "GET /css/tabler.min.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58557 - "GET /css/tabler-icons.min.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58558 - "GET /css/fontawesome.min.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58561 - "GET /css/flatpickr.min.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58560 - "GET /css/main.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58559 - "GET /js/jquery.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58558 - "GET /js/popper.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58561 - "GET /js/tabler.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58560 - "GET /js/bootstrap.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58557 - "GET /js/select2.full.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58559 - "GET /js/flatpickr.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58558 - "GET /js/main.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58557 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58570 - "POST /login HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58570 - "GET / HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58570 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58581 - "POST /login HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:58581 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58583 - "POST /login HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:58583 - "POST /login HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:58588 - "POST /login HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58588 - "GET / HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58588 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58588 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58599 - "POST /login HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58599 - "GET / HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58599 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /login HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58649 - "GET / HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58648 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58671 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58671 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58671 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58671 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58671 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58671 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58677 - "POST /login HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58677 - "GET / HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58677 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58681 - "GET /css/tabler-icons.min.css.map HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58687 - "POST /login HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58687 - "GET / HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58687 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58692 - "GET /installHook.js.map HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58692 - "GET /css/tabler-icons.min.css.map HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:58692 - "GET /css/tabler-icons.scss HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58697 - "GET /product HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58699 - "GET /installHook.js.map HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58698 - "GET /css/tabler-icons.min.css.map HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:58699 - "GET /css/tabler-icons.scss HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58704 - "GET /css/tabler-icons.min.css.map HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:58704 - "GET /installHook.js.map HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58704 - "GET /css/tabler-icons.scss HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58709 - "POST /login HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58709 - "GET / HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58709 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58804 - "POST /login HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58811 - "GET / HTTP/1.1" 302 Found
+INFO:     127.0.0.1:58815 - "GET /product/list HTTP/1.1" 302 Found
+WARNING:  WatchFiles detected changes in 'src/app_01/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [4063]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:src.app_01.main:✅ SQLAdmin initialized at /admin
+INFO:     Started server process [36869]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+INFO:     127.0.0.1:58850 - "GET /health HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'src/app_01/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [36869]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:src.app_01.main:✅ SQLAdmin initialized at /admin
+INFO:     Started server process [37117]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'src/app_01/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [37117]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:src.app_01.main:✅ SQLAdmin initialized at /admin
+INFO:     Started server process [37188]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.

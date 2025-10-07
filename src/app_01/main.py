@@ -30,6 +30,10 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
+# Session middleware (required for admin authentication - MUST be added BEFORE SQLAdmin)
+from starlette.middleware.sessions import SessionMiddleware
+app.add_middleware(SessionMiddleware, secret_key="your-secret-key-change-in-production")
+
 # Initialize SQLAdmin
 try:
     from .admin.admin_app import create_sqladmin_app
@@ -37,10 +41,6 @@ try:
     logger.info("✅ SQLAdmin initialized at /admin")
 except Exception as e:
     logger.warning(f"⚠️  SQLAdmin initialization failed: {e}")
-
-# Session middleware (required for admin authentication)
-from starlette.middleware.sessions import SessionMiddleware
-app.add_middleware(SessionMiddleware, secret_key="your-secret-key-change-in-production")
 
 # CORS middleware
 app.add_middleware(
