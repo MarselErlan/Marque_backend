@@ -1,11 +1,13 @@
 """
 Multi-Market Database Configuration
 Handles different databases and configurations for KG and US markets
+with production-ready connection pooling
 """
 
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import QueuePool
 import os
 from typing import Generator, Dict, Any
 from dotenv import load_dotenv
@@ -89,15 +91,31 @@ class MarketDatabaseManager:
             self._setup_market_database(market)
     
     def _setup_market_database(self, market: Market):
-        """Setup database for specific market"""
+        """Setup database for specific market with production-ready connection pool"""
         # Get database URL from environment
         if market == Market.KG:
             database_url = settings.database.url_kg
         else:  # US
             database_url = settings.database.url_us
         
-        # Create engine
-        engine = create_engine(database_url)
+        # Create engine with production-ready connection pool settings
+        engine = create_engine(
+            database_url,
+            # Connection Pool Settings
+            poolclass=QueuePool,           # Use QueuePool for connection management
+            pool_size=10,                  # Base connection pool size (10 concurrent connections)
+            max_overflow=20,               # Allow up to 20 extra connections for traffic spikes
+            pool_timeout=30,               # Wait up to 30 seconds for available connection
+            pool_recycle=3600,             # Recycle connections after 1 hour (prevents stale connections)
+            pool_pre_ping=True,            # Test connections before using (prevents "gone away" errors)
+            # Performance Settings
+            echo=False,                    # Disable SQL logging for performance
+            echo_pool=False,               # Disable pool checkout/checkin logging
+            # Connection Settings
+            connect_args={
+                "connect_timeout": 10,     # TCP connection timeout
+            }
+        )
         self.engines[market] = engine
         
         # Create session factory

@@ -27,6 +27,11 @@ class WebsiteContentAuthenticationBackend(AuthenticationBackend):
         if not username or not password:
             return False
         
+        # Bcrypt limitation: passwords must be <= 72 bytes
+        # Truncate password if too long (standard practice)
+        if len(password.encode('utf-8')) > 72:
+            password = password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
+        
         # Get database session
         db = next(db_manager.get_db_session(Market.KG))
         
