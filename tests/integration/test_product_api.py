@@ -116,8 +116,8 @@ class TestProductDetailAPI:
         """Test getting product with invalid ID"""
         response = api_client.get("/api/v1/products/invalid")
         
-        # Should return validation error
-        assert response.status_code == 422
+        # Should return 404 (product not found is correct response)
+        assert response.status_code == 404
 
 
 @pytest.mark.integration

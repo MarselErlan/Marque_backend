@@ -254,7 +254,3 @@ def authenticated_client(api_client, sample_kg_user):
     # Clean up
     app.dependency_overrides.clear()
 
-
-# Import catalog fixtures
-pytest_plugins = ["tests.fixtures.catalog_fixtures"]
-

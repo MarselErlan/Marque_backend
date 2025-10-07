@@ -15,6 +15,12 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)  # Phone number verified
     last_login = Column(DateTime(timezone=True), nullable=True)
+    
+    # Multi-market fields
+    market = Column(String(10), nullable=True, index=True)  # 'kg', 'us', etc.
+    language = Column(String(10), nullable=True)  # 'ru', 'en', etc.
+    country = Column(String(100), nullable=True)  # 'Kyrgyzstan', 'United States', etc.
+    
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 

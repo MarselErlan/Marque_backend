@@ -130,7 +130,7 @@ class TestErrorHandling:
     def test_invalid_product_id(self, api_client):
         """Test handling of invalid product ID"""
         response = api_client.get("/api/v1/products/invalid")
-        assert response.status_code == 422
+        assert response.status_code == 404  # Product not found (correct response)
     
     def test_invalid_banner_id(self, api_client):
         """Test handling of invalid banner ID"""

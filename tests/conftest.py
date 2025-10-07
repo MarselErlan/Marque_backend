@@ -189,3 +189,7 @@ def us_market():
     """US market fixture"""
     return Market.US
 
+
+# Import catalog fixtures plugin
+pytest_plugins = ["tests.fixtures.catalog_fixtures"]
+

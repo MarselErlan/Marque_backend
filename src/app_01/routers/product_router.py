@@ -8,9 +8,10 @@ from ..schemas.product import (
     ProductSchema, ProductSearchResponse, ProductDetailSchema,
     BrandSchema, CategoryBreadcrumbSchema, SubcategoryBreadcrumbSchema,
     ProductImageSchema, SKUDetailSchema, ReviewSchema, BreadcrumbSchema,
-    SimilarProductSchema, ProductListItemSchema
+    SimilarProductSchema, ProductListItemSchema, ProductListResponse
 )
 from sqlalchemy.orm import joinedload
+import math
 
 router = APIRouter()
 
@@ -85,6 +86,183 @@ def get_best_selling_products(
         ))
     
     return product_list
+
+
+@router.get("/products/search", response_model=ProductListResponse)
+def search_products(
+    query: str = Query(..., min_length=1, max_length=200, description="Search query"),
+    db: Session = Depends(get_db),
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    sort_by: Optional[str] = Query("relevance", description="Sort by: relevance, price_asc, price_desc, newest, popular, rating"),
+    price_min: Optional[float] = Query(None, ge=0),
+    price_max: Optional[float] = Query(None, ge=0),
+    sizes: Optional[str] = Query(None, description="Comma-separated sizes: M,L,XL"),
+    colors: Optional[str] = Query(None, description="Comma-separated colors: black,white"),
+    brands: Optional[str] = Query(None, description="Comma-separated brand slugs: nike,adidas"),
+    category: Optional[str] = Query(None, description="Filter by category slug"),
+    subcategory: Optional[str] = Query(None, description="Filter by subcategory slug")
+):
+    """
+    Global product search with filters, sorting, and pagination.
+    Returns products in the same format as subcategory pages.
+    
+    Search across ALL products (not limited to one subcategory).
+    Results can be filtered by category, subcategory, brand, price, size, color.
+    """
+    # Base query: all active products with SKUs
+    search_query = db.query(models.products.product.Product).options(
+        joinedload(models.products.product.Product.brand),
+        joinedload(models.products.product.Product.skus),
+        joinedload(models.products.product.Product.assets),
+        joinedload(models.products.product.Product.category),
+        joinedload(models.products.product.Product.subcategory)
+    ).filter(
+        models.products.product.Product.is_active == True
+    )
+    
+    # Join SKUs (required for filtering and to ensure products have variants)
+    search_query = search_query.join(models.products.product.Product.skus).filter(
+        models.products.sku.SKU.is_active == True
+    )
+    
+    # Full-text search on title and description
+    search_term = f"%{query}%"
+    search_query = search_query.filter(
+        or_(
+            models.products.product.Product.title.ilike(search_term),
+            models.products.product.Product.description.ilike(search_term)
+        )
+    )
+    
+    # Category filter
+    if category:
+        search_query = search_query.join(models.products.product.Product.category).filter(
+            models.products.category.Category.slug == category
+        )
+    
+    # Subcategory filter
+    if subcategory:
+        search_query = search_query.join(models.products.product.Product.subcategory).filter(
+            models.products.category.Subcategory.slug == subcategory
+        )
+    
+    # Price filters
+    if price_min is not None:
+        search_query = search_query.filter(models.products.sku.SKU.price >= price_min)
+    if price_max is not None:
+        search_query = search_query.filter(models.products.sku.SKU.price <= price_max)
+    
+    # Size filter
+    if sizes:
+        size_list = [s.strip() for s in sizes.split(",")]
+        search_query = search_query.filter(models.products.sku.SKU.size.in_(size_list))
+    
+    # Color filter
+    if colors:
+        color_list = [c.strip() for c in colors.split(",")]
+        search_query = search_query.filter(models.products.sku.SKU.color.in_(color_list))
+    
+    # Brand filter
+    if brands:
+        brand_slugs = [b.strip() for b in brands.split(",")]
+        search_query = search_query.join(models.products.product.Product.brand).filter(
+            models.products.brand.Brand.slug.in_(brand_slugs)
+        )
+    
+    # Group by product to avoid duplicates from SKU joins
+    search_query = search_query.group_by(models.products.product.Product.id)
+    
+    # Sorting
+    valid_sorts = ["relevance", "price_asc", "price_desc", "newest", "popular", "rating"]
+    if sort_by not in valid_sorts:
+        sort_by = "relevance"
+    
+    if sort_by == "price_asc":
+        search_query = search_query.order_by(func.min(models.products.sku.SKU.price).asc())
+    elif sort_by == "price_desc":
+        search_query = search_query.order_by(func.min(models.products.sku.SKU.price).desc())
+    elif sort_by == "popular":
+        search_query = search_query.order_by(models.products.product.Product.sold_count.desc())
+    elif sort_by == "rating":
+        search_query = search_query.order_by(models.products.product.Product.rating_avg.desc())
+    elif sort_by == "newest":
+        search_query = search_query.order_by(models.products.product.Product.created_at.desc())
+    else:  # relevance (default)
+        # For relevance, prioritize title matches over description matches
+        # This is a simple relevance: title match = higher priority
+        search_query = search_query.order_by(
+            models.products.product.Product.title.ilike(search_term).desc(),
+            models.products.product.Product.sold_count.desc()
+        )
+    
+    # Get total count before pagination
+    total = search_query.count()
+    
+    # Pagination
+    offset = (page - 1) * limit
+    total_pages = math.ceil(total / limit) if total > 0 else 0
+    has_more = page < total_pages
+    
+    # Apply pagination
+    products = search_query.offset(offset).limit(limit).all()
+    
+    # Build response (same format as subcategory pages)
+    product_list = []
+    for product in products:
+        # Get main image
+        main_image = None
+        if product.assets:
+            image_assets = sorted([a for a in product.assets if a.is_image], key=lambda x: x.order)
+            if image_assets:
+                main_image = image_assets[0].url
+        
+        # Get price range from SKUs
+        if product.skus:
+            prices = [sku.price for sku in product.skus if sku.stock > 0]
+            if not prices:
+                prices = [sku.price for sku in product.skus]
+            
+            min_price = min(prices) if prices else 0.0
+            
+            # Get original price for discount calculation
+            original_prices = [sku.original_price for sku in product.skus if sku.original_price and sku.original_price > 0]
+            original_price = min(original_prices) if original_prices else None
+            
+            discount_percentage = None
+            if original_price and original_price > min_price:
+                discount_percentage = int(((original_price - min_price) / original_price) * 100)
+            
+            in_stock = any(sku.stock > 0 for sku in product.skus)
+        else:
+            min_price = 0.0
+            original_price = None
+            discount_percentage = None
+            in_stock = False
+        
+        product_list.append(ProductListItemSchema(
+            id=product.id,
+            title=product.title,
+            slug=product.slug,
+            brand_name=product.brand.name if product.brand else "Unknown",
+            main_image=main_image,
+            price=min_price,
+            original_price=original_price,
+            discount_percentage=discount_percentage,
+            rating_avg=product.rating_avg or 0.0,
+            rating_count=product.rating_count or 0,
+            sold_count=product.sold_count or 0,
+            in_stock=in_stock
+        ))
+    
+    return ProductListResponse(
+        products=product_list,
+        total=total,
+        page=page,
+        limit=limit,
+        total_pages=total_pages,
+        has_more=has_more
+    )
 
 
 @router.get("/products/{slug}", response_model=ProductDetailSchema)
