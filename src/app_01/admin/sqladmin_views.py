@@ -7,6 +7,7 @@ import secrets
 import bcrypt
 from sqlalchemy.orm import Session
 from datetime import datetime
+import logging
 
 from ..models import (
     Product, SKU, ProductAsset, Review, ProductAttribute,
@@ -14,54 +15,99 @@ from ..models import (
 )
 from ..db.market_db import db_manager, Market
 
+# Setup logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 class WebsiteContentAuthenticationBackend(AuthenticationBackend):
     """Custom authentication for website content admin"""
     
     async def login(self, request: Request) -> bool:
         """Authenticate admin user - checks BOTH KG and US databases"""
+        logger.info("="*70)
+        logger.info("🔐 ADMIN LOGIN ATTEMPT")
+        logger.info("="*70)
+        
         form = await request.form()
         username = form.get("username")
         password = form.get("password")
         
+        logger.info(f"📝 Received credentials:")
+        logger.info(f"   Username: '{username}'")
+        logger.info(f"   Password length: {len(password) if password else 0} chars")
+        
         if not username or not password:
+            logger.error("❌ Missing username or password")
             return False
         
         # Bcrypt limitation: passwords must be <= 72 bytes
-        # Truncate password if too long (standard practice)
-        if len(password.encode('utf-8')) > 72:
+        original_length = len(password.encode('utf-8'))
+        if original_length > 72:
+            logger.warning(f"⚠️  Password too long ({original_length} bytes), truncating to 72 bytes")
             password = password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
         
         # Try both databases (KG first, then US)
         for market in [Market.KG, Market.US]:
+            logger.info(f"\n{'─'*70}")
+            logger.info(f"🔍 Checking {market.value.upper()} database...")
+            logger.info(f"{'─'*70}")
+            
             db = next(db_manager.get_db_session(market))
             
             try:
                 # Find admin by username
+                logger.debug(f"   🔎 Searching for admin with username: '{username}'")
                 admin = db.query(Admin).filter(Admin.username == username).first()
                 
                 if not admin:
+                    logger.warning(f"   ⚠️  Admin '{username}' not found in {market.value} database")
                     continue  # Try next database
+                
+                logger.info(f"   ✅ Found admin: ID={admin.id}, Username='{admin.username}'")
                 
                 # Check if admin is active
                 if not admin.is_active:
+                    logger.warning(f"   ❌ Admin is INACTIVE (is_active={admin.is_active})")
                     continue  # Try next database
+                
+                logger.info(f"   ✅ Admin is active")
                 
                 # Verify password
                 if not admin.hashed_password:
+                    logger.error(f"   ❌ Admin has NO password hash stored!")
                     continue  # Try next database
+                
+                logger.info(f"   🔐 Password hash found (length: {len(admin.hashed_password)} chars)")
+                logger.debug(f"   🔐 Hash preview: {admin.hashed_password[:30]}...")
                 
                 # Use bcrypt directly for verification
+                logger.debug(f"   🔓 Verifying password with bcrypt...")
                 password_bytes = password.encode('utf-8')
                 hash_bytes = admin.hashed_password.encode('utf-8')
+                
+                logger.debug(f"   📊 Password bytes length: {len(password_bytes)}")
+                logger.debug(f"   📊 Hash bytes length: {len(hash_bytes)}")
                     
                 if not bcrypt.checkpw(password_bytes, hash_bytes):
+                    logger.error(f"   ❌ Password verification FAILED!")
                     continue  # Try next database
                 
+                logger.info(f"   ✅ Password verification SUCCESS!")
+                
                 # ✅ Authentication successful!
+                logger.info(f"\n{'='*70}")
+                logger.info(f"✅ AUTHENTICATION SUCCESSFUL!")
+                logger.info(f"{'='*70}")
+                logger.info(f"   User: {admin.username}")
+                logger.info(f"   ID: {admin.id}")
+                logger.info(f"   Database: {market.value}")
+                logger.info(f"   Super Admin: {admin.is_super_admin}")
+                
                 # Update last login
                 admin.last_login = datetime.utcnow()
                 db.commit()
+                logger.debug(f"   ✅ Updated last_login timestamp")
                 
                 # Create session
                 token = secrets.token_urlsafe(32)
@@ -73,17 +119,27 @@ class WebsiteContentAuthenticationBackend(AuthenticationBackend):
                     "admin_market": market.value  # Store which database the admin is in
                 })
                 
-                print(f"✅ Admin '{username}' logged in from {market.value} database")
+                logger.info(f"   ✅ Session created with token: {token[:16]}...")
+                logger.info(f"{'='*70}\n")
+                
                 return True
                 
             except Exception as e:
-                print(f"Admin login error in {market.value} database: {e}")
+                logger.error(f"   ❌ EXCEPTION in {market.value} database: {type(e).__name__}: {e}")
+                import traceback
+                logger.error(traceback.format_exc())
                 continue
             finally:
                 db.close()
+                logger.debug(f"   🔒 Database connection closed")
         
         # No valid admin found in any database
-        print(f"❌ Admin login failed for '{username}' - not found in any database")
+        logger.error(f"\n{'='*70}")
+        logger.error(f"❌ LOGIN FAILED")
+        logger.error(f"{'='*70}")
+        logger.error(f"   Username: '{username}'")
+        logger.error(f"   Reason: Not found in any database OR password mismatch")
+        logger.error(f"{'='*70}\n")
         return False
     
     async def logout(self, request: Request) -> bool:
@@ -93,28 +149,41 @@ class WebsiteContentAuthenticationBackend(AuthenticationBackend):
     
     async def authenticate(self, request: Request) -> bool:
         """Check if user is authenticated - checks the correct database"""
+        logger.debug("🔍 Checking authentication status...")
+        
         token = request.session.get("token")
         admin_id = request.session.get("admin_id")
         admin_market = request.session.get("admin_market", "kg")  # Default to KG for backward compatibility
         
+        logger.debug(f"   Session data: token={'✓' if token else '✗'}, admin_id={admin_id}, market={admin_market}")
+        
         if not token or not admin_id:
+            logger.debug("   ❌ No token or admin_id in session")
             return False
         
         # Get the market from session (or try both if not set)
         try:
             market = Market.KG if admin_market == "kg" else Market.US
+            logger.debug(f"   📊 Using {market.value.upper()} database")
         except:
             market = Market.KG
+            logger.warning(f"   ⚠️  Error determining market, defaulting to KG")
         
         # Check admin exists and is active in the correct database
         db = next(db_manager.get_db_session(market))
         try:
             admin = db.query(Admin).filter(Admin.id == admin_id).first()
-            if not admin or not admin.is_active:
+            if not admin:
+                logger.warning(f"   ❌ Admin ID {admin_id} not found in {market.value} database")
                 return False
+            if not admin.is_active:
+                logger.warning(f"   ❌ Admin {admin.username} is inactive")
+                return False
+            
+            logger.debug(f"   ✅ Authentication valid for {admin.username} (ID: {admin_id})")
             return True
         except Exception as e:
-            print(f"Authentication check error: {e}")
+            logger.error(f"   ❌ Authentication check error: {type(e).__name__}: {e}")
             return False
         finally:
             db.close()
