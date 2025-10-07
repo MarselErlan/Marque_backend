@@ -83,8 +83,36 @@ def sample_content_admin(admin_test_db):
 @pytest.fixture
 def sample_product_for_admin(admin_test_db):
     """Create sample product for admin testing"""
+    from src.app_01.models.products.brand import Brand
+    from src.app_01.models.products.category import Category, Subcategory
+    
+    # Create brand
+    brand = Brand(name="Test Brand", slug="test-brand")
+    admin_test_db.add(brand)
+    admin_test_db.commit()
+    admin_test_db.refresh(brand)
+    
+    # Create category
+    category = Category(name="Test Category", slug="test-category")
+    admin_test_db.add(category)
+    admin_test_db.commit()
+    admin_test_db.refresh(category)
+    
+    # Create subcategory
+    subcategory = Subcategory(
+        name="Test Subcategory",
+        slug="test-subcategory",
+        category_id=category.id
+    )
+    admin_test_db.add(subcategory)
+    admin_test_db.commit()
+    admin_test_db.refresh(subcategory)
+    
+    # Create product
     product = Product(
-        brand="Test Brand",
+        brand_id=brand.id,
+        category_id=category.id,
+        subcategory_id=subcategory.id,
         title="Test Product",
         slug="test-product",
         description="Test product for admin",
@@ -100,13 +128,21 @@ def sample_product_for_admin(admin_test_db):
 
 
 @pytest.fixture
-def sample_products_for_admin(admin_test_db):
+def sample_products_for_admin(admin_test_db, sample_product_for_admin):
     """Create multiple sample products for admin testing"""
-    products = []
-    for i in range(5):
+    products = [sample_product_for_admin]  # Include the base product
+    
+    # Get the brand, category, subcategory from the base product
+    brand_id = sample_product_for_admin.brand_id
+    category_id = sample_product_for_admin.category_id
+    subcategory_id = sample_product_for_admin.subcategory_id
+    
+    for i in range(4):  # Create 4 more products (total 5)
         product = Product(
-            brand=f"Brand {i}",
-            title=f"Test Product {i}",
+            brand_id=brand_id,
+            category_id=category_id,
+            subcategory_id=subcategory_id,
+            title=f"Test Product {i+2}",
             slug=f"test-product-{i}",
             description=f"Test product {i} for admin",
             sold_count=i * 10,

@@ -4,7 +4,7 @@ from ..db.market_db import db_manager, Market
 from .sqladmin_views import (
     WebsiteContentAuthenticationBackend,
     ProductAdmin, SKUAdmin, ProductAssetAdmin, ProductAttributeAdmin,
-    ReviewAdmin, UserAdmin, AdminLogAdmin, WebsiteContentDashboard
+    ReviewAdmin, AdminLogAdmin, WebsiteContentDashboard
 )
 from .catalog_admin_views import CategoryAdmin, SubcategoryAdmin, BrandAdmin
 from .filter_admin_views import (
@@ -15,6 +15,12 @@ from .user_admin_views import (
     UserAdmin, PhoneVerificationAdmin, UserAddressAdmin, 
     UserPaymentMethodAdmin, UserNotificationAdmin
 )
+# NEW: Import all missing admin views
+from .order_admin_views import OrderAdmin, OrderItemAdmin, OrderStatusHistoryAdmin
+from .banner_admin_views import BannerAdmin
+from .cart_admin_views import CartAdmin, CartItemAdmin
+from .wishlist_admin_views import WishlistAdmin, WishlistItemAdmin
+from .admin_user_admin_views import AdminUserAdmin
 
 
 def create_sqladmin_app(app: FastAPI) -> Admin:
@@ -33,14 +39,34 @@ def create_sqladmin_app(app: FastAPI) -> Admin:
     )
     
     # Add all admin views
-    # User Management
+    
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # 🛒 ORDER MANAGEMENT (CRITICAL for e-commerce)
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    admin.add_view(OrderAdmin)
+    admin.add_view(OrderItemAdmin)
+    admin.add_view(OrderStatusHistoryAdmin)
+    
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # 🛍️ CART & WISHLIST MANAGEMENT
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    admin.add_view(CartAdmin)
+    admin.add_view(CartItemAdmin)
+    admin.add_view(WishlistAdmin)
+    admin.add_view(WishlistItemAdmin)
+    
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # 👤 USER MANAGEMENT
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     admin.add_view(UserAdmin)
     admin.add_view(PhoneVerificationAdmin)
     admin.add_view(UserAddressAdmin)
     admin.add_view(UserPaymentMethodAdmin)
     admin.add_view(UserNotificationAdmin)
     
-    # Catalog Management
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # 📦 CATALOG MANAGEMENT
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     admin.add_view(CategoryAdmin)
     admin.add_view(SubcategoryAdmin)
     admin.add_view(BrandAdmin)
@@ -51,14 +77,24 @@ def create_sqladmin_app(app: FastAPI) -> Admin:
     admin.add_view(ProductDiscountAdmin)
     admin.add_view(ProductSearchAdmin)
     
-    # Product Management
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # 🛍️ PRODUCT MANAGEMENT
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     admin.add_view(ProductAdmin)
     admin.add_view(SKUAdmin)
     admin.add_view(ProductAssetAdmin)
     admin.add_view(ProductAttributeAdmin)
     admin.add_view(ReviewAdmin)
     
-    # Admin Management
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # 🎨 MARKETING & CONTENT
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    admin.add_view(BannerAdmin)
+    
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # 🔐 ADMIN MANAGEMENT
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    admin.add_view(AdminUserAdmin)
     admin.add_view(AdminLogAdmin)
     
     return admin
