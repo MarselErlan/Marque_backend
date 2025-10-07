@@ -148,7 +148,7 @@ To fix this, I need to know:
 - [ ] Custom VPS with Nginx
 - [ ] Custom VPS with Apache
 - [ ] Docker container
-- [ ] Other: ******\_\_\_******
+- [ ] Other: **\*\***\_\_\_**\*\***
 
 Once you tell me, I'll give you the **exact configuration** you need!
 
