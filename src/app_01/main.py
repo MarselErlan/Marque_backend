@@ -71,7 +71,21 @@ app.add_middleware(
 # Initialize SQLAdmin
 try:
     from .admin.admin_app import create_sqladmin_app
+    from fastapi.staticfiles import StaticFiles
+    
     admin = create_sqladmin_app(app)
+    
+    # Mount static files for SQLAdmin (fixes missing CSS/JS in production)
+    # SQLAdmin serves its static files from /admin/statics
+    try:
+        import sqladmin
+        import pathlib
+        sqladmin_static_path = pathlib.Path(sqladmin.__file__).parent / "statics"
+        app.mount("/admin/statics", StaticFiles(directory=str(sqladmin_static_path)), name="admin-statics")
+        logger.info("✅ SQLAdmin static files mounted at /admin/statics")
+    except Exception as static_error:
+        logger.warning(f"⚠️  Could not mount SQLAdmin static files: {static_error}")
+    
     logger.info("✅ SQLAdmin initialized at /admin")
 except Exception as e:
     logger.warning(f"⚠️  SQLAdmin initialization failed: {e}")
