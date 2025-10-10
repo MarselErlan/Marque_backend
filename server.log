@@ -12669,3 +12669,34 @@ INFO:src.app_01.main:Loaded 2 supported markets
 INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
 INFO:src.app_01.main:  - MarketEnum.US: United States ($)
 INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'src/app_01/admin/admin_app.py', 'src/app_01/admin/sqladmin_views.py', 'src/app_01/admin/order_admin_views.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [60163]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:src.app_01.main:✅ SQLAdmin static files mounted from: /Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqladmin/statics
+ERROR:src.app_01.main:❌ SQLAdmin initialization failed: DashboardView() takes no arguments
+Traceback (most recent call last):
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/src/app_01/main.py", line 111, in <module>
+    admin = create_sqladmin_app(app)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/src/app_01/admin/admin_app.py", line 51, in create_sqladmin_app
+    admin.add_view(DashboardView(name="Dashboard", icon="fa-solid fa-chart-line"))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: DashboardView() takes no arguments
+INFO:     Started server process [61911]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
