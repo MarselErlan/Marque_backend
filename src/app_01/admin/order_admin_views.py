@@ -13,26 +13,38 @@ from ..models.orders.order_status_history import OrderStatusHistory
 
 
 class OrderAdmin(ModelView, model=Order):
-    """Order management interface - CRITICAL for e-commerce operations"""
+    """
+    Enhanced Order Management Interface with TDD improvements
+    
+    Features:
+    - Visual status badges with colors
+    - Better column formatting with currency
+    - Enhanced search and filters
+    - Export functionality
+    - Quick filters (today's orders, pending, etc.)
+    """
     
     # Display settings
     name = "Заказы"
     name_plural = "Заказы"
     icon = "fa-solid fa-shopping-cart"
+    category = "🛒 Продажи"  # Group in sidebar
     
-    # Column configuration
+    # Column configuration - show most important info
     column_list = [
-        "id", "order_number", "customer_name", "status", 
-        "total_amount", "order_date", "delivery_city"
+        "id", "order_number", "customer_name", "customer_phone",
+        "status", "total_amount", "order_date", "delivery_city"
     ]
     
+    # Detailed view shows everything
     column_details_list = [
         "id", "order_number", "user_id", "status",
         "customer_name", "customer_phone", "customer_email",
         "delivery_address", "delivery_city", "delivery_notes",
         "subtotal", "shipping_cost", "total_amount", "currency",
-        "order_date", "confirmed_date", "shipped_date", "delivered_date",
-        "notes", "created_at", "updated_at"
+        "order_date", "confirmed_date", "shipped_date", "delivered_date", "cancelled_date",
+        "notes", "created_at", "updated_at",
+        "order_items", "status_history"
     ]
     
     # Form configuration
@@ -44,15 +56,35 @@ class OrderAdmin(ModelView, model=Order):
         "notes"
     ]
     
-    # Search and filters
-    column_searchable_list = ["order_number", "customer_name", "customer_phone", "customer_email"]
-    column_sortable_list = ["id", "order_number", "total_amount", "order_date", "status"]
-    column_filters = ["status", "order_date", "delivery_city", "currency"]
+    # Enhanced search - search by multiple fields
+    column_searchable_list = [
+        "order_number", 
+        "customer_name", 
+        "customer_phone", 
+        "customer_email",
+        "delivery_city"
+    ]
     
-    # Default sorting (newest first)
-    column_default_sort = [("order_date", True)]
+    # Sortable columns
+    column_sortable_list = [
+        "id", "order_number", "total_amount", 
+        "order_date", "status", "customer_name"
+    ]
     
-    # Column labels (Russian)
+    # Enhanced filters for better order management
+    column_filters = [
+        "status",          # Filter by order status
+        "order_date",      # Filter by date range
+        "delivery_city",   # Filter by city
+        "currency",        # Filter by currency (KGS/USD)
+        "total_amount",    # Filter by order value
+        "created_at"       # Filter by creation date
+    ]
+    
+    # Default sorting (newest first for quick access to recent orders)
+    column_default_sort = [("order_date", True)]  # Descending
+    
+    # Russian labels for better UX
     column_labels = {
         "id": "ID",
         "order_number": "Номер заказа",
@@ -65,100 +97,153 @@ class OrderAdmin(ModelView, model=Order):
         "delivery_city": "Город",
         "delivery_notes": "Примечания к доставке",
         "subtotal": "Сумма товаров",
-        "shipping_cost": "Стоимость доставки",
+        "shipping_cost": "Доставка",
         "total_amount": "Итого",
         "currency": "Валюта",
         "order_date": "Дата заказа",
-        "confirmed_date": "Дата подтверждения",
-        "shipped_date": "Дата отправки",
-        "delivered_date": "Дата доставки",
-        "cancelled_date": "Дата отмены",
-        "notes": "Примечания администратора",
+        "confirmed_date": "Подтвержден",
+        "shipped_date": "Отправлен",
+        "delivered_date": "Доставлен",
+        "cancelled_date": "Отменен",
+        "notes": "Примечания",
         "created_at": "Создан",
         "updated_at": "Обновлен",
-        "order_items": "Товары в заказе",
-        "status_history": "История статусов"
+        "order_items": "Товары",
+        "status_history": "История"
     }
     
-    # Form labels
+    # Form labels with hints
     form_label = "Заказ"
     form_columns_labels = {
-        "order_number": "Номер заказа (#1001)",
+        "order_number": "Номер заказа",
         "user_id": "ID пользователя",
         "status": "Статус заказа",
         "customer_name": "Имя клиента",
-        "customer_phone": "Телефон клиента",
-        "customer_email": "Email клиента (опционально)",
+        "customer_phone": "Телефон",
+        "customer_email": "Email",
         "delivery_address": "Адрес доставки",
-        "delivery_city": "Город доставки",
+        "delivery_city": "Город",
         "delivery_notes": "Примечания к доставке",
-        "subtotal": "Сумма товаров (сом)",
-        "shipping_cost": "Стоимость доставки (сом)",
-        "total_amount": "Итоговая сумма (сом)",
-        "currency": "Валюта (KGS/USD)",
+        "subtotal": "Сумма товаров",
+        "shipping_cost": "Стоимость доставки",
+        "total_amount": "Итого",
+        "currency": "Валюта",
         "notes": "Примечания администратора"
     }
     
-    # Custom formatting
+    # Enhanced formatters for better display
     column_formatters = {
-        "total_amount": lambda model, _: f"{model.total_amount:,.2f} {model.currency}",
-        "status": lambda model, _: model.status_display if hasattr(model, 'status_display') else model.status.value,
-        "order_date": lambda model, _: model.order_date.strftime("%d.%m.%Y %H:%M") if model.order_date else ""
+        # Format money with thousand separators and currency
+        "total_amount": lambda model, _: f"{model.total_amount:,.2f} {model.currency}" if model.total_amount else "0.00",
+        "subtotal": lambda model, _: f"{model.subtotal:,.2f}" if model.subtotal else "0.00",
+        "shipping_cost": lambda model, _: f"{model.shipping_cost:,.2f}" if model.shipping_cost else "0.00",
+        
+        # Format status with visual indicators
+        "status": lambda model, _: _format_order_status(model.status),
+        
+        # Format dates in Russian format
+        "order_date": lambda model, _: model.order_date.strftime("%d.%m.%Y %H:%M") if model.order_date else "-",
+        "confirmed_date": lambda model, _: model.confirmed_date.strftime("%d.%m.%Y %H:%M") if model.confirmed_date else "-",
+        "shipped_date": lambda model, _: model.shipped_date.strftime("%d.%m.%Y %H:%M") if model.shipped_date else "-",
+        "delivered_date": lambda model, _: model.delivered_date.strftime("%d.%m.%Y %H:%M") if model.delivered_date else "-",
+        
+        # Format phone with better display
+        "customer_phone": lambda model, _: model.customer_phone or "-"
     }
     
-    # Permissions
-    can_create = True
-    can_edit = True
-    can_delete = False  # Orders should not be deleted, only cancelled
+    # Permissions - allow editing and viewing but not deletion
+    can_create = True     # Allow creating manual orders
+    can_edit = True       # Allow editing order details
+    can_delete = False    # Never delete orders (for audit trail)
     can_view_details = True
-    can_export = True  # Allow exporting orders for accounting
+    can_export = True     # Enable CSV export
     
-    # Page size
+    # Pagination settings
     page_size = 50
     page_size_options = [25, 50, 100, 200]
+    
+    # Description for admins
+    column_descriptions = {
+        "status": "Статус заказа: PENDING (ожидает подтверждения) → CONFIRMED (подтвержден) → SHIPPED (отправлен) → DELIVERED (доставлен)",
+        "total_amount": "Итоговая сумма заказа (товары + доставка)",
+        "notes": "Внутренние примечания администратора (не видны клиенту)"
+    }
+
+
+def _format_order_status(status):
+    """
+    Format order status with visual badges
+    
+    Returns HTML span with colored badge based on status
+    """
+    status_colors = {
+        OrderStatus.PENDING: ("⏳ Ожидает", "warning"),      # Yellow
+        OrderStatus.CONFIRMED: ("✅ Подтвержден", "info"),    # Blue
+        OrderStatus.SHIPPED: ("🚚 Отправлен", "primary"),     # Purple
+        OrderStatus.DELIVERED: ("✅ Доставлен", "success"),   # Green
+        OrderStatus.CANCELLED: ("❌ Отменен", "danger"),      # Red
+    }
+    
+    label, color = status_colors.get(status, (status.value, "secondary"))
+    return f'<span class="badge badge-{color}">{label}</span>'
 
 
 class OrderItemAdmin(ModelView, model=OrderItem):
-    """Order items management interface"""
+    """
+    Order Items Management - Enhanced view with better formatting
+    
+    Shows individual items in orders with full product details
+    """
     
     name = "Товары в заказах"
     name_plural = "Товары в заказах"
     icon = "fa-solid fa-box"
+    category = "🛒 Продажи"
     
+    # Show key info in list view
     column_list = [
-        "id", "order_id", "sku_id", "quantity", 
-        "unit_price", "total_price"
+        "id", "order_id", "product_name", "size", "color",
+        "quantity", "unit_price", "total_price"
     ]
     
+    # Full details view
     column_details_list = [
-        "id", "order_id", "sku_id", "product_name",
-        "sku_code", "size", "color",
+        "id", "order_id", "sku_id", 
+        "product_name", "sku_code", "size", "color",
         "quantity", "unit_price", "total_price", "currency"
     ]
     
+    # Form for creating/editing
     form_columns = [
         "order_id", "sku_id", "product_name", "sku_code",
         "size", "color", "quantity", "unit_price", "total_price", "currency"
     ]
     
+    # Search by product name or SKU code
     column_searchable_list = ["product_name", "sku_code"]
-    column_sortable_list = ["id", "order_id", "quantity", "total_price"]
-    column_filters = ["order_id", "size", "color"]
     
+    # Sortable columns
+    column_sortable_list = ["id", "order_id", "product_name", "quantity", "unit_price", "total_price"]
+    
+    # Filters
+    column_filters = ["order_id", "size", "color", "quantity"]
+    
+    # Russian labels
     column_labels = {
         "id": "ID",
-        "order_id": "ID заказа",
-        "sku_id": "ID артикула",
-        "product_name": "Название товара",
-        "sku_code": "Код артикула",
+        "order_id": "Заказ №",
+        "sku_id": "SKU ID",
+        "product_name": "Товар",
+        "sku_code": "Артикул",
         "size": "Размер",
         "color": "Цвет",
-        "quantity": "Количество",
-        "unit_price": "Цена за единицу",
+        "quantity": "Кол-во",
+        "unit_price": "Цена",
         "total_price": "Итого",
         "currency": "Валюта"
     }
     
+    # Form labels
     form_label = "Товар в заказе"
     form_columns_labels = {
         "order_id": "Номер заказа",
@@ -168,65 +253,108 @@ class OrderItemAdmin(ModelView, model=OrderItem):
         "size": "Размер",
         "color": "Цвет",
         "quantity": "Количество",
-        "unit_price": "Цена за единицу (сом)",
-        "total_price": "Итоговая сумма (сом)",
+        "unit_price": "Цена за единицу",
+        "total_price": "Итоговая сумма",
         "currency": "Валюта"
     }
     
+    # Enhanced formatters
     column_formatters = {
-        "total_price": lambda model, _: f"{model.total_price:,.2f} {model.currency}",
-        "unit_price": lambda model, _: f"{model.unit_price:,.2f}"
+        "total_price": lambda model, _: f"<b>{model.total_price:,.2f} {model.currency}</b>" if model.total_price else "0.00",
+        "unit_price": lambda model, _: f"{model.unit_price:,.2f}" if model.unit_price else "0.00",
+        "quantity": lambda model, _: f"<b>{model.quantity}x</b>",
+        "product_name": lambda model, _: model.product_name or "-"
     }
     
+    # Permissions
     can_create = True
     can_edit = True
-    can_delete = True
+    can_delete = True  # Allow deletion if needed
     can_view_details = True
+    can_export = True
     
+    # Pagination
     page_size = 50
+    page_size_options = [25, 50, 100]
 
 
 class OrderStatusHistoryAdmin(ModelView, model=OrderStatusHistory):
-    """Order status history tracking interface"""
+    """
+    Order Status History - Audit Trail for Order Changes
+    
+    Read-only view to track all status changes for transparency
+    """
     
     name = "История заказов"
     name_plural = "История заказов"
     icon = "fa-solid fa-history"
+    category = "🛒 Продажи"
     
+    # Show key info in list
     column_list = [
-        "id", "order_id", "status", "changed_by_admin_id", "created_at"
+        "id", "order_id", "previous_status", "status", 
+        "changed_by_admin_id", "created_at"
     ]
     
+    # Full details
     column_details_list = [
         "id", "order_id", "status", "previous_status",
         "changed_by_admin_id", "notes", "created_at"
     ]
     
-    # Read-only for security
-    can_create = False
-    can_edit = False
-    can_delete = False
+    # Read-only for security and audit integrity
+    can_create = False  # History is auto-generated
+    can_edit = False    # Never edit history
+    can_delete = False  # Never delete history
     can_view_details = True
+    can_export = True   # Allow exporting for audits
     
+    # Search in notes
     column_searchable_list = ["notes"]
-    column_sortable_list = ["id", "order_id", "created_at"]
-    column_filters = ["status", "order_id", "changed_by_admin_id"]
     
+    # Sortable columns
+    column_sortable_list = ["id", "order_id", "created_at", "status"]
+    
+    # Filters for audit queries
+    column_filters = [
+        "status", 
+        "previous_status",
+        "order_id", 
+        "changed_by_admin_id",
+        "created_at"
+    ]
+    
+    # Show newest first
     column_default_sort = [("created_at", True)]
     
+    # Russian labels
     column_labels = {
         "id": "ID",
-        "order_id": "ID заказа",
+        "order_id": "Заказ №",
         "status": "Новый статус",
-        "previous_status": "Предыдущий статус",
-        "changed_by_admin_id": "Изменил администратор",
+        "previous_status": "Был",
+        "changed_by_admin_id": "Кто изменил",
         "notes": "Примечания",
-        "created_at": "Дата изменения"
+        "created_at": "Когда"
     }
     
+    # Enhanced formatters
     column_formatters = {
-        "created_at": lambda model, _: model.created_at.strftime("%d.%m.%Y %H:%M") if model.created_at else ""
+        "status": lambda model, _: _format_order_status(model.status),
+        "previous_status": lambda model, _: _format_order_status(model.previous_status) if model.previous_status else "-",
+        "created_at": lambda model, _: model.created_at.strftime("%d.%m.%Y %H:%M") if model.created_at else "-",
+        "notes": lambda model, _: model.notes or "-"
     }
     
+    # Show more records per page for history
     page_size = 100
+    page_size_options = [50, 100, 200, 500]
+    
+    # Description
+    column_descriptions = {
+        "status": "Новый статус заказа после изменения",
+        "previous_status": "Статус до изменения",
+        "changed_by_admin_id": "ID администратора, который изменил статус",
+        "created_at": "Дата и время изменения статуса"
+    }
 
