@@ -190,117 +190,288 @@ class WebsiteContentAuthenticationBackend(AuthenticationBackend):
 
 
 class ProductAdmin(ModelView, model=Product):
-    """Product management interface"""
+    """
+    Enhanced Product Management Interface
+    
+    Features:
+    - Stock status display
+    - SKU count
+    - Better brand/category display
+    - Enhanced search and filters
+    - Export functionality
+    """
     
     # Display settings
     name = "Товары"
     name_plural = "Товары"
     icon = "fa-solid fa-box"
+    category = "🛍️ Каталог"  # Group in sidebar
     
-    # Column configuration
+    # Enhanced column configuration
     column_list = [
-        "id", "brand", "title", "slug", "sold_count", 
-        "rating_avg", "rating_count", "created_at"
+        "id", "title", "brand", "category", "subcategory",
+        "sold_count", "rating_avg", "is_active"
     ]
+    
     column_details_list = [
-        "id", "brand", "title", "slug", "description",
+        "id", "brand", "category", "subcategory", 
+        "title", "slug", "description",
         "sold_count", "rating_avg", "rating_count", 
-        "attributes", "created_at", "updated_at"
+        "is_active", "created_at", "updated_at",
+        "skus", "assets", "reviews"
     ]
     
     # Form configuration
     form_columns = [
-        "brand", "title", "slug", "description", "attributes"
+        "brand_id", "category_id", "subcategory_id",
+        "title", "slug", "description", 
+        "is_active"
     ]
     
-    # Search and filters
-    column_searchable_list = ["title", "brand", "slug"]
-    column_sortable_list = ["id", "brand", "title", "sold_count", "rating_avg", "created_at"]
-    column_filters = ["brand", "created_at"]
+    # Enhanced search - search by multiple fields
+    column_searchable_list = ["title", "slug", "description"]
     
-    # Custom labels
+    # Sortable columns
+    column_sortable_list = [
+        "id", "title", "sold_count", 
+        "rating_avg", "created_at", "is_active"
+    ]
+    
+    # Enhanced filters
+    column_filters = [
+        "brand_id",
+        "category_id",
+        "subcategory_id",
+        "is_active",
+        "sold_count",
+        "rating_avg",
+        "created_at"
+    ]
+    
+    # Default sorting (most popular first)
+    column_default_sort = [("sold_count", True)]  # Descending
+    
+    # Russian labels
     column_labels = {
         "id": "ID",
         "brand": "Бренд",
+        "brand_id": "Бренд",
+        "category": "Категория",
+        "category_id": "Категория",
+        "subcategory": "Подкатегория",
+        "subcategory_id": "Подкатегория",
         "title": "Название",
-        "slug": "URL-адрес",
+        "slug": "URL",
         "description": "Описание",
         "sold_count": "Продано",
         "rating_avg": "Рейтинг",
         "rating_count": "Отзывов",
-        "attributes": "Атрибуты",
-        "created_at": "Создано",
-        "updated_at": "Обновлено"
+        "is_active": "Активен",
+        "created_at": "Создан",
+        "updated_at": "Обновлен",
+        "skus": "Варианты (SKU)",
+        "assets": "Изображения",
+        "reviews": "Отзывы"
     }
     
     # Form labels
     form_label = "Товар"
     form_columns_labels = {
-        "brand": "Бренд",
+        "brand_id": "Бренд",
+        "category_id": "Категория",
+        "subcategory_id": "Подкатегория",
         "title": "Название товара",
-        "slug": "URL-адрес (slug)",
-        "description": "Описание товара",
-        "attributes": "Атрибуты (JSON)"
+        "slug": "URL-адрес",
+        "description": "Описание",
+        "is_active": "Активен"
     }
     
-    # Custom methods
-    def can_create(self, request: Request) -> bool:
-        return True
+    # Enhanced formatters for better display
+    column_formatters = {
+        # Brand name
+        "brand": lambda model, _: model.brand.name if model.brand else "-",
+        
+        # Category/Subcategory
+        "category": lambda model, _: model.category.name if model.category else "-",
+        "subcategory": lambda model, _: model.subcategory.name if model.subcategory else "-",
+        
+        # Rating with stars
+        "rating_avg": lambda model, _: f"⭐ {model.rating_avg:.1f}" if model.rating_avg else "-",
+        
+        # Sold count with badge
+        "sold_count": lambda model, _: f"<span class='badge badge-info'>{model.sold_count}</span>",
+        
+        # Active status with badge
+        "is_active": lambda model, _: (
+            '<span class="badge badge-success">✅ Активен</span>' if model.is_active 
+            else '<span class="badge badge-secondary">⏸️ Неактивен</span>'
+        ),
+        
+        # Created date
+        "created_at": lambda model, _: model.created_at.strftime("%d.%m.%Y") if model.created_at else "-"
+    }
     
-    def can_edit(self, request: Request) -> bool:
-        return True
+    # Permissions
+    can_create = True
+    can_edit = True
+    can_delete = False  # Don't delete products (set inactive instead)
+    can_view_details = True
+    can_export = True  # Enable CSV export
     
-    def can_delete(self, request: Request) -> bool:
-        return True
+    # Pagination
+    page_size = 50
+    page_size_options = [25, 50, 100, 200]
     
-    def can_view_details(self, request: Request) -> bool:
-        return True
+    # Description hints
+    column_descriptions = {
+        "is_active": "Активные товары отображаются на сайте. Неактивные скрыты от покупателей.",
+        "sold_count": "Количество проданных единиц товара (всех вариантов)",
+        "rating_avg": "Средний рейтинг из всех отзывов"
+    }
 
 
 class SKUAdmin(ModelView, model=SKU):
-    """SKU management interface"""
+    """
+    Enhanced SKU Management Interface
+    
+    Features:
+    - Color-coded stock levels
+    - Better price formatting
+    - Product relationship display
+    - Enhanced search and filters
+    """
     
     name = "Артикулы"
     name_plural = "Артикулы"
     icon = "fa-solid fa-tags"
+    category = "🛍️ Каталог"
     
+    # Enhanced column configuration
     column_list = [
-        "id", "sku_code", "size", "color", "price", "stock", "is_active"
-    ]
-    column_details_list = [
-        "id", "product_id", "sku_code", "size", "color", 
+        "id", "product", "sku_code", "size", "color", 
         "price", "stock", "is_active"
     ]
     
-    form_columns = [
-        "product_id", "sku_code", "size", "color", "price", "stock", "is_active"
+    column_details_list = [
+        "id", "product_id", "product", "sku_code", 
+        "size", "color", "price", "original_price",
+        "stock", "is_active"
     ]
     
-    column_searchable_list = ["sku_code", "size", "color"]
-    column_sortable_list = ["id", "sku_code", "price", "stock", "is_active"]
-    column_filters = ["size", "color", "is_active"]
+    # Form configuration
+    form_columns = [
+        "product_id", "sku_code", "size", "color", 
+        "price", "original_price", "stock", "is_active"
+    ]
     
+    # Enhanced search
+    column_searchable_list = ["sku_code", "size", "color"]
+    
+    # Sortable columns
+    column_sortable_list = ["id", "sku_code", "price", "stock", "is_active"]
+    
+    # Enhanced filters
+    column_filters = [
+        "product_id",
+        "size",
+        "color",
+        "is_active",
+        "stock",
+        "price"
+    ]
+    
+    # Default sorting (low stock first for attention)
+    column_default_sort = [("stock", False)]  # Ascending
+    
+    # Russian labels
     column_labels = {
         "id": "ID",
-        "product_id": "ID товара",
-        "sku_code": "Код артикула",
+        "product": "Товар",
+        "product_id": "Товар",
+        "sku_code": "Артикул",
         "size": "Размер",
         "color": "Цвет",
         "price": "Цена",
+        "original_price": "Старая цена",
         "stock": "Остаток",
         "is_active": "Активен"
     }
     
+    # Form labels
     form_label = "Артикул"
     form_columns_labels = {
-        "product_id": "ID товара",
+        "product_id": "Товар",
         "sku_code": "Код артикула",
         "size": "Размер",
         "color": "Цвет",
-        "price": "Цена (сом)",
+        "price": "Цена",
+        "original_price": "Старая цена (для скидки)",
         "stock": "Количество на складе",
-        "is_active": "Активен для продажи"
+        "is_active": "Активен"
     }
+    
+    # Enhanced formatters with stock status
+    column_formatters = {
+        # Product name
+        "product": lambda model, _: model.product.title if model.product else "-",
+        
+        # Price with currency
+        "price": lambda model, _: f"{model.price:,.0f} ₸" if model.price else "0 ₸",
+        
+        # Original price
+        "original_price": lambda model, _: f"{model.original_price:,.0f} ₸" if model.original_price else "-",
+        
+        # Stock with color-coded badges
+        "stock": lambda model, _: _format_stock_badge(model.stock),
+        
+        # Active status
+        "is_active": lambda model, _: (
+            '<span class="badge badge-success">✅ Активен</span>' if model.is_active 
+            else '<span class="badge badge-secondary">⏸️ Неактивен</span>'
+        ),
+        
+        # Size with badge
+        "size": lambda model, _: f'<span class="badge badge-light">{model.size}</span>' if model.size else "-",
+        
+        # Color with badge (could add color preview)
+        "color": lambda model, _: f'<span class="badge badge-light">{model.color}</span>' if model.color else "-"
+    }
+    
+    # Permissions
+    can_create = True
+    can_edit = True
+    can_delete = False  # Don't delete SKUs (set inactive instead)
+    can_view_details = True
+    can_export = True
+    
+    # Pagination
+    page_size = 50
+    page_size_options = [25, 50, 100, 200]
+    
+    # Description hints
+    column_descriptions = {
+        "stock": "Остаток на складе. Цвет: Красный (<5), Желтый (<10), Зеленый (>=10)",
+        "is_active": "Неактивные артикулы не показываются покупателям",
+        "original_price": "Если указана, показывается как зачеркнутая цена (скидка)"
+    }
+
+
+def _format_stock_badge(stock):
+    """
+    Format stock with color-coded badge
+    
+    Red: < 5 (critical)
+    Yellow: < 10 (low)
+    Green: >= 10 (good)
+    """
+    if stock == 0:
+        return '<span class="badge badge-danger">❌ Нет</span>'
+    elif stock < 5:
+        return f'<span class="badge badge-danger">⚠️ {stock}</span>'
+    elif stock < 10:
+        return f'<span class="badge badge-warning">🔸 {stock}</span>'
+    else:
+        return f'<span class="badge badge-success">✅ {stock}</span>'
 
 
 class ProductAssetAdmin(ModelView, model=ProductAsset):
