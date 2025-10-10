@@ -34,6 +34,9 @@ class CategoryAdmin(ModelView, model=Category):
     column_sortable_list = ["id", "name", "sort_order", "is_active", "created_at"]
     column_filters = ["is_active"]
     
+    # Eager load relationships to avoid lazy loading errors
+    column_select_related_list = ["subcategories", "products"]
+    
     column_labels = {
         "id": "ID",
         "name": "Название",
@@ -125,6 +128,9 @@ class SubcategoryAdmin(ModelView, model=Subcategory):
     column_searchable_list = ["name", "slug", "description"]
     column_sortable_list = ["id", "name", "sort_order", "is_active", "created_at"]
     column_filters = ["is_active", "category_id"]
+    
+    # Eager load relationships to avoid lazy loading errors
+    column_select_related_list = ["category", "products"]
     
     column_labels = {
         "id": "ID",
