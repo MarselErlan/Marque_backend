@@ -11558,3 +11558,569 @@ INFO:src.app_01.main:Loaded 2 supported markets
 INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
 INFO:src.app_01.main:  - MarketEnum.US: United States ($)
 INFO:     Application startup complete.
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+INFO:src.app_01.admin.sqladmin_views:🔐 ADMIN LOGIN ATTEMPT
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+INFO:src.app_01.admin.sqladmin_views:📝 Received credentials:
+INFO:src.app_01.admin.sqladmin_views:   Username: 'admin'
+INFO:src.app_01.admin.sqladmin_views:   Password length: 8 chars
+INFO:src.app_01.admin.sqladmin_views:
+──────────────────────────────────────────────────────────────────────
+INFO:src.app_01.admin.sqladmin_views:🔍 Checking KG database...
+INFO:src.app_01.admin.sqladmin_views:──────────────────────────────────────────────────────────────────────
+DEBUG:src.app_01.admin.sqladmin_views:   🔎 Searching for admin with username: 'admin'
+INFO:src.app_01.admin.sqladmin_views:   ✅ Found admin: ID=4, Username='admin'
+INFO:src.app_01.admin.sqladmin_views:   ✅ Admin is active
+INFO:src.app_01.admin.sqladmin_views:   🔐 Password hash found (length: 60 chars)
+DEBUG:src.app_01.admin.sqladmin_views:   🔐 Hash preview: $2b$12$IBSmkTtoUbbor0fnR937ROW...
+DEBUG:src.app_01.admin.sqladmin_views:   🔓 Verifying password with bcrypt...
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Password bytes length: 8
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Hash bytes length: 60
+ERROR:src.app_01.admin.sqladmin_views:   ❌ Password verification FAILED!
+DEBUG:src.app_01.admin.sqladmin_views:   🔒 Database connection closed
+INFO:src.app_01.admin.sqladmin_views:
+──────────────────────────────────────────────────────────────────────
+INFO:src.app_01.admin.sqladmin_views:🔍 Checking US database...
+INFO:src.app_01.admin.sqladmin_views:──────────────────────────────────────────────────────────────────────
+DEBUG:src.app_01.admin.sqladmin_views:   🔎 Searching for admin with username: 'admin'
+INFO:src.app_01.admin.sqladmin_views:   ✅ Found admin: ID=2, Username='admin'
+INFO:src.app_01.admin.sqladmin_views:   ✅ Admin is active
+INFO:src.app_01.admin.sqladmin_views:   🔐 Password hash found (length: 60 chars)
+DEBUG:src.app_01.admin.sqladmin_views:   🔐 Hash preview: $2b$12$Bp5iqLIWWcqTSYFMpNm7xuE...
+DEBUG:src.app_01.admin.sqladmin_views:   🔓 Verifying password with bcrypt...
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Password bytes length: 8
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Hash bytes length: 60
+ERROR:src.app_01.admin.sqladmin_views:   ❌ Password verification FAILED!
+DEBUG:src.app_01.admin.sqladmin_views:   🔒 Database connection closed
+ERROR:src.app_01.admin.sqladmin_views:
+======================================================================
+ERROR:src.app_01.admin.sqladmin_views:❌ LOGIN FAILED
+ERROR:src.app_01.admin.sqladmin_views:======================================================================
+ERROR:src.app_01.admin.sqladmin_views:   Username: 'admin'
+ERROR:src.app_01.admin.sqladmin_views:   Reason: Not found in any database OR password mismatch
+ERROR:src.app_01.admin.sqladmin_views:======================================================================
+
+INFO:     127.0.0.1:52520 - "POST /login HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:52520 - "GET /css/tabler.min.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:52524 - "GET /css/tabler-icons.min.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:52525 - "GET /css/fontawesome.min.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:52528 - "GET /css/main.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:52527 - "GET /css/flatpickr.min.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:52526 - "GET /css/select2.min.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:52524 - "GET /js/tabler.min.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:52520 - "GET /js/jquery.min.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:52525 - "GET /js/popper.min.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:52528 - "GET /js/bootstrap.min.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:52527 - "GET /js/select2.full.min.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:52526 - "GET /js/flatpickr.min.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:52524 - "GET /js/main.js HTTP/1.1" 304 Not Modified
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+INFO:src.app_01.admin.sqladmin_views:🔐 ADMIN LOGIN ATTEMPT
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+INFO:src.app_01.admin.sqladmin_views:📝 Received credentials:
+INFO:src.app_01.admin.sqladmin_views:   Username: 'admin'
+INFO:src.app_01.admin.sqladmin_views:   Password length: 9 chars
+INFO:src.app_01.admin.sqladmin_views:
+──────────────────────────────────────────────────────────────────────
+INFO:src.app_01.admin.sqladmin_views:🔍 Checking KG database...
+INFO:src.app_01.admin.sqladmin_views:──────────────────────────────────────────────────────────────────────
+DEBUG:src.app_01.admin.sqladmin_views:   🔎 Searching for admin with username: 'admin'
+INFO:src.app_01.admin.sqladmin_views:   ✅ Found admin: ID=4, Username='admin'
+INFO:src.app_01.admin.sqladmin_views:   ✅ Admin is active
+INFO:src.app_01.admin.sqladmin_views:   🔐 Password hash found (length: 60 chars)
+DEBUG:src.app_01.admin.sqladmin_views:   🔐 Hash preview: $2b$12$IBSmkTtoUbbor0fnR937ROW...
+DEBUG:src.app_01.admin.sqladmin_views:   🔓 Verifying password with bcrypt...
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Password bytes length: 9
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Hash bytes length: 60
+INFO:src.app_01.admin.sqladmin_views:   ✅ Password verification SUCCESS!
+INFO:src.app_01.admin.sqladmin_views:
+======================================================================
+INFO:src.app_01.admin.sqladmin_views:✅ AUTHENTICATION SUCCESSFUL!
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+INFO:src.app_01.admin.sqladmin_views:   User: admin
+INFO:src.app_01.admin.sqladmin_views:   ID: 4
+INFO:src.app_01.admin.sqladmin_views:   Database: kg
+INFO:src.app_01.admin.sqladmin_views:   Super Admin: True
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Updated last_login timestamp
+INFO:src.app_01.admin.sqladmin_views:   ✅ Session created with token: Nda1n42_EA2XC2KR...
+INFO:src.app_01.admin.sqladmin_views:======================================================================
+
+DEBUG:src.app_01.admin.sqladmin_views:   🔒 Database connection closed
+INFO:     127.0.0.1:52529 - "POST /login HTTP/1.1" 302 Found
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52529 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52529 - "GET /webfonts/fa-solid-900.woff2 HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52531 - "GET /order/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52533 - "GET /order/create HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'src/app_01/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [8582]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:src.app_01.main:✅ SQLAdmin static files mounted at /admin/statics
+INFO:src.app_01.main:✅ SQLAdmin initialized at /admin
+INFO:     Started server process [80813]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'src/app_01/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [80813]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:src.app_01.main:✅ SQLAdmin static files mounted at /admin/statics
+INFO:src.app_01.main:✅ SQLAdmin initialized at /admin
+INFO:     Started server process [80860]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52607 - "GET /order-item/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52607 - "GET /order-status-history/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52607 - "GET /order-status-history/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52607 - "GET /cart/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52607 - "GET /cart-item/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52607 - "GET /wishlist/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52607 - "GET /wishlist-item/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52607 - "GET /user/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52611 - "GET /phone-verification/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52618 - "GET /phone-verification/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52618 - "GET /user-address/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52618 - "GET /user-payment-method/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52621 - "GET /user-notification/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52621 - "GET /user-notification/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52624 - "GET /category/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52627 - "GET /subcategory/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52629 - "GET /brand/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52631 - "GET /product-filter/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52631 - "GET /product-season/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52631 - "GET /product-material/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52631 - "GET /product-style/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52631 - "GET /product-discount/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52633 - "GET /product-search/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52633 - "GET /product/list HTTP/1.1" 200 OK
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52634 - "GET /banner/list HTTP/1.1" 500 Internal Server Error
+ERROR:src.app_01.main:Unexpected error: (psycopg2.errors.UndefinedTable) relation "banners" does not exist
+LINE 2: FROM banners
+             ^
+
+[SQL: SELECT count(banners.id) AS count_1 
+FROM banners]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedTable: relation "banners" does not exist
+LINE 2: FROM banners
+             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 426, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 84, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/fastapi/applications.py", line 1106, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 83, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/sessions.py", line 86, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 109, in __call__
+    await response(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/responses.py", line 270, in __call__
+    async with anyio.create_task_group() as task_group:
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 597, in __aexit__
+    raise exceptions[0]
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/responses.py", line 273, in wrap
+    await func()
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 134, in stream_response
+    return await super().stream_response(send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/responses.py", line 262, in stream_response
+    async for chunk in self.body_iterator:
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 98, in body_stream
+    raise app_exc
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 70, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 20, in __call__
+    raise e
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 17, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/routing.py", line 443, in handle
+    await self.app(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/sessions.py", line 86, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/starlette/routing.py", line 66, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqladmin/authentication.py", line 68, in wrapper_decorator
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqladmin/application.py", line 442, in list
+    pagination = await model_view.list(request)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqladmin/models.py", line 811, in list
+    count = await self.count(request)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqladmin/models.py", line 792, in count
+    rows = await self._run_query(stmt)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqladmin/models.py", line 731, in _run_query
+    return await anyio.to_thread.run_sync(self._run_query_sync, stmt)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/anyio/to_thread.py", line 33, in run_sync
+    return await get_asynclib().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 877, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 807, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqladmin/models.py", line 722, in _run_query_sync
+    result = session.execute(stmt)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2308, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2199, in _execute_internal
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1416, in execute
+    return meth(
+           ^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 516, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1639, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2343, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedTable) relation "banners" does not exist
+LINE 2: FROM banners
+             ^
+
+[SQL: SELECT count(banners.id) AS count_1 
+FROM banners]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+WARNING:  WatchFiles detected changes in 'src/app_01/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [80860]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:src.app_01.main:✅ SQLAdmin static files mounted at /admin/statics
+INFO:src.app_01.main:✅ SQLAdmin initialized at /admin
+INFO:     Started server process [82400]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+DEBUG:src.app_01.admin.sqladmin_views:🔍 Checking authentication status...
+DEBUG:src.app_01.admin.sqladmin_views:   Session data: token=✓, admin_id=4, market=kg
+DEBUG:src.app_01.admin.sqladmin_views:   📊 Using KG database
+DEBUG:src.app_01.admin.sqladmin_views:   ✅ Authentication valid for admin (ID: 4)
+INFO:     127.0.0.1:52675 - "GET /product/list HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'src/app_01/admin/admin_app.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [82400]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:src.app_01.main:✅ SQLAdmin static files mounted at /admin/statics
+INFO:src.app_01.main:✅ SQLAdmin initialized at /admin
+INFO:     Started server process [28650]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'src/app_01/admin/admin_app.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [28650]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:src.app_01.main:✅ SQLAdmin static files mounted at /admin/statics
+INFO:src.app_01.main:✅ SQLAdmin initialized at /admin
+INFO:     Started server process [28705]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'src/app_01/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [28705]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:src.app_01.main:✅ SQLAdmin static files mounted from: /Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqladmin/statics
+INFO:src.app_01.main:✅ SQLAdmin initialized at /admin
+INFO:     Started server process [28795]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'src/app_01/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [28795]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:src.app_01.main:✅ SQLAdmin static files mounted from: /Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqladmin/statics
+INFO:src.app_01.main:✅ SQLAdmin initialized at /admin
+INFO:     Started server process [28849]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'src/app_01/admin/admin_app.py', 'src/app_01/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
+INFO:     Application shutdown complete.
+INFO:     Finished server process [28849]
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+/Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_banners" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+INFO:src.app_01.main:✅ SQLAdmin static files mounted from: /Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/sqladmin/statics
+INFO:src.app_01.main:✅ SQLAdmin initialized at /admin
+INFO:     Started server process [29471]
+INFO:     Waiting for application startup.
+INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
+INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
+INFO:src.app_01.main:Loaded 2 supported markets
+INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
+INFO:src.app_01.main:  - MarketEnum.US: United States ($)
+INFO:     Application startup complete.
