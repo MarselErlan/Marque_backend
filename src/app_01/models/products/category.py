@@ -13,6 +13,7 @@ class Category(Base):
     slug = Column(String(100), unique=True, nullable=False, index=True)  # "men", "women", "kids"
     description = Column(Text, nullable=True)
     icon = Column(String(50), nullable=True)  # FontAwesome icon class
+    image_url = Column(String(500), nullable=True)  # Category image/logo
     sort_order = Column(Integer, default=0)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

@@ -3,21 +3,31 @@ from starlette.requests import Request
 from ..models import Category, Subcategory, Brand
 
 class CategoryAdmin(ModelView, model=Category):
-    """Category management interface"""
+    """
+    Enhanced Category Management Interface
+    
+    Features:
+    - Image upload support
+    - Subcategory count display
+    - Product count display
+    - Visual indicators
+    """
     
     name = "Категории"
     name_plural = "Категории"
-    icon = "fa-solid fa-list"
+    icon = "fa-solid fa-folder-tree"
+    category = "🛍️ Каталог"
     
     column_list = [
-        "id", "name", "slug", "sort_order", "is_active", "created_at"
+        "id", "name", "slug", "subcategory_count", "product_count", "is_active"
     ]
     column_details_list = [
-        "id", "name", "slug", "description", "icon", "sort_order", "is_active", "created_at", "updated_at"
+        "id", "name", "slug", "description", "icon", "image_url", 
+        "sort_order", "is_active", "created_at", "updated_at", "subcategories"
     ]
     
     form_columns = [
-        "name", "slug", "description", "icon", "sort_order", "is_active"
+        "name", "slug", "description", "icon", "image_url", "sort_order", "is_active"
     ]
     
     column_searchable_list = ["name", "slug", "description"]
@@ -30,10 +40,14 @@ class CategoryAdmin(ModelView, model=Category):
         "slug": "URL-адрес",
         "description": "Описание",
         "icon": "Иконка",
+        "image_url": "Изображение",
         "sort_order": "Порядок",
         "is_active": "Активна",
         "created_at": "Создана",
-        "updated_at": "Обновлена"
+        "updated_at": "Обновлена",
+        "subcategories": "Подкатегории",
+        "subcategory_count": "Подкатегорий",
+        "product_count": "Товаров"
     }
     
     form_label = "Категория"
@@ -42,32 +56,66 @@ class CategoryAdmin(ModelView, model=Category):
         "slug": "URL-адрес (slug)",
         "description": "Описание категории",
         "icon": "Иконка (FontAwesome класс)",
+        "image_url": "URL изображения категории",
         "sort_order": "Порядок сортировки",
         "is_active": "Активна"
     }
     
-    def can_create(self, request: Request) -> bool:
-        return True
+    # Custom formatters for better display
+    column_formatters = {
+        "subcategory_count": lambda model, _: (
+            f'<span class="badge badge-info">{len(model.subcategories)}</span>'
+        ),
+        "product_count": lambda model, _: (
+            f'<span class="badge badge-success">{model.product_count}</span>'
+        ),
+        "is_active": lambda model, _: (
+            '<span class="badge badge-success">✅ Активна</span>' if model.is_active 
+            else '<span class="badge badge-secondary">⏸️ Неактивна</span>'
+        ),
+        "image_url": lambda model, _: (
+            f'<img src="{model.image_url}" style="max-width: 50px; max-height: 50px; border-radius: 4px;">' 
+            if model.image_url else "-"
+        )
+    }
     
-    def can_edit(self, request: Request) -> bool:
-        return True
+    can_create = True
+    can_edit = True
+    can_delete = True
+    can_export = True
     
-    def can_delete(self, request: Request) -> bool:
-        return True
+    page_size = 50
+    page_size_options = [25, 50, 100]
+    
+    column_descriptions = {
+        "image_url": "URL изображения/логотипа для категории (рекомендуемый размер: 200x200px)",
+        "subcategory_count": "Количество подкатегорий в этой категории",
+        "product_count": "Общее количество товаров в этой категории"
+    }
 
 
 class SubcategoryAdmin(ModelView, model=Subcategory):
-    """Subcategory management interface"""
+    """
+    Enhanced Subcategory Management Interface
+    
+    Features:
+    - Image upload support
+    - Parent category display
+    - Product count display
+    - Visual indicators
+    """
     
     name = "Подкатегории"
     name_plural = "Подкатегории"
-    icon = "fa-solid fa-list-ul"
+    icon = "fa-solid fa-layer-group"
+    category = "🛍️ Каталог"
     
     column_list = [
-        "id", "category_id", "name", "slug", "sort_order", "is_active"
+        "id", "category", "name", "slug", "product_count", "is_active"
     ]
     column_details_list = [
-        "id", "category_id", "name", "slug", "description", "image_url", "sort_order", "is_active", "created_at"
+        "id", "category_id", "category", "name", "slug", "description", 
+        "image_url", "sort_order", "is_active", "created_at", "updated_at", "products"
     ]
     
     form_columns = [
@@ -80,25 +128,62 @@ class SubcategoryAdmin(ModelView, model=Subcategory):
     
     column_labels = {
         "id": "ID",
-        "category_id": "ID категории",
+        "category": "Категория",
+        "category_id": "Категория",
         "name": "Название",
         "slug": "URL-адрес",
         "description": "Описание",
-        "image_url": "URL изображения",
+        "image_url": "Изображение",
         "sort_order": "Порядок",
         "is_active": "Активна",
-        "created_at": "Создана"
+        "created_at": "Создана",
+        "updated_at": "Обновлена",
+        "products": "Товары",
+        "product_count": "Товаров"
     }
     
     form_label = "Подкатегория"
     form_columns_labels = {
-        "category_id": "ID родительской категории",
+        "category_id": "Родительская категория",
         "name": "Название подкатегории",
         "slug": "URL-адрес (slug)",
         "description": "Описание подкатегории",
         "image_url": "URL изображения подкатегории",
         "sort_order": "Порядок сортировки",
         "is_active": "Активна"
+    }
+    
+    # Custom formatters for better display
+    column_formatters = {
+        "category": lambda model, _: (
+            f'<span class="badge badge-primary">{model.category.name}</span>' 
+            if model.category else "-"
+        ),
+        "product_count": lambda model, _: (
+            f'<span class="badge badge-success">{model.product_count}</span>'
+        ),
+        "is_active": lambda model, _: (
+            '<span class="badge badge-success">✅ Активна</span>' if model.is_active 
+            else '<span class="badge badge-secondary">⏸️ Неактивна</span>'
+        ),
+        "image_url": lambda model, _: (
+            f'<img src="{model.image_url}" style="max-width: 50px; max-height: 50px; border-radius: 4px;">' 
+            if model.image_url else "-"
+        )
+    }
+    
+    can_create = True
+    can_edit = True
+    can_delete = True
+    can_export = True
+    
+    page_size = 50
+    page_size_options = [25, 50, 100]
+    
+    column_descriptions = {
+        "category_id": "Выберите родительскую категорию (например: Мужчинам, Женщинам)",
+        "image_url": "URL изображения для подкатегории (рекомендуемый размер: 200x200px)",
+        "product_count": "Количество товаров в этой подкатегории"
     }
 
 
