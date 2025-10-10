@@ -15,12 +15,14 @@ from .user_admin_views import (
     UserAdmin, PhoneVerificationAdmin, UserAddressAdmin, 
     UserPaymentMethodAdmin, UserNotificationAdmin
 )
-# NEW: Import all missing admin views
+# Import order management views
 from .order_admin_views import OrderAdmin, OrderItemAdmin, OrderStatusHistoryAdmin
 from .banner_admin_views import BannerAdmin
 from .cart_admin_views import CartAdmin, CartItemAdmin
 from .wishlist_admin_views import WishlistAdmin, WishlistItemAdmin
 from .admin_user_admin_views import AdminUserAdmin
+# Import dashboard
+from .dashboard_admin_views import DashboardView
 
 
 def create_sqladmin_app(app: FastAPI) -> Admin:
@@ -42,6 +44,11 @@ def create_sqladmin_app(app: FastAPI) -> Admin:
     )
     
     # Add all admin views
+    
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # 📊 DASHBOARD (MAIN VIEW - Business Intelligence)
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    admin.add_view(DashboardView(name="Dashboard", icon="fa-solid fa-chart-line"))
     
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     # 🛒 ORDER MANAGEMENT (CRITICAL for e-commerce)
