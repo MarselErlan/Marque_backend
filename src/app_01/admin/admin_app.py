@@ -48,7 +48,8 @@ def create_sqladmin_app(app: FastAPI) -> Admin:
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     # 📊 DASHBOARD (MAIN VIEW - Business Intelligence)
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    admin.add_view(DashboardView)
+    # TODO: Fix DashboardView routing issue - temporarily disabled
+    # admin.add_view(DashboardView)
     
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     # 🛒 ORDER MANAGEMENT (CRITICAL for e-commerce)
