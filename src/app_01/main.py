@@ -31,6 +31,22 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
+# ProxyHeadersMiddleware (CRITICAL for SQLAdmin HTTPS URLs)
+class ProxyHeadersMiddleware(BaseHTTPMiddleware):
+    """
+    Force HTTPS scheme for Railway deployment.
+    This fixes SQLAdmin generating http:// URLs instead of https://
+    which causes Mixed Content errors in the browser.
+    """
+    async def dispatch(self, request: Request, call_next):
+        # Railway sets x-forwarded-proto to 'https'
+        forwarded_proto = request.headers.get("x-forwarded-proto")
+        if forwarded_proto == "https":
+            # Force the request to use HTTPS scheme for URL generation
+            request.scope["scheme"] = "https"
+        response = await call_next(request)
+        return response
+
 # HTTPS Redirect Middleware (for Railway and production)
 class HTTPSRedirectMiddleware(BaseHTTPMiddleware):
     """Redirect HTTP to HTTPS in production (Railway)"""
@@ -47,6 +63,9 @@ class HTTPSRedirectMiddleware(BaseHTTPMiddleware):
         
         response = await call_next(request)
         return response
+
+# Add proxy headers middleware FIRST (critical for HTTPS URL generation)
+app.add_middleware(ProxyHeadersMiddleware)
 
 # Add HTTPS redirect middleware (before other middlewares)
 app.add_middleware(HTTPSRedirectMiddleware)
