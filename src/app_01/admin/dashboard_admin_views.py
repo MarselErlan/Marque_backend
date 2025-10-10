@@ -35,6 +35,10 @@ class DashboardView(BaseView):
     name = "Dashboard"
     icon = "fa-solid fa-chart-line"
     
+    def __init__(self):
+        """Initialize dashboard view"""
+        super().__init__()
+    
     async def index(self, request: Request) -> HTMLResponse:
         """
         Render dashboard with real-time business metrics
