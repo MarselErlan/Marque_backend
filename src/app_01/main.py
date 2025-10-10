@@ -16,6 +16,7 @@ from .routers.category_router import router as category_router
 from .routers.cart_router import router as cart_router
 from .routers.wishlist_router import router as wishlist_router
 from .routers.banner_router import router as banner_router
+from .routers.upload_router import router as upload_router
 from .services.auth_service import auth_service
 
 # Setup logging
@@ -99,8 +100,15 @@ try:
     # Mount static files BEFORE creating SQLAdmin instance
     app.mount("/admin/statics", StaticFiles(directory=str(sqladmin_static_path)), name="admin-statics")
     logger.info(f"✅ SQLAdmin static files mounted from: {sqladmin_static_path}")
+    
+    # Mount uploads directory for user-uploaded images
+    uploads_dir = pathlib.Path(__file__).parent.parent.parent / "static" / "uploads"
+    uploads_dir.mkdir(parents=True, exist_ok=True)
+    app.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")
+    logger.info(f"✅ Uploads directory mounted from: {uploads_dir}")
+    
 except Exception as static_error:
-    logger.error(f"❌ Failed to mount SQLAdmin static files: {static_error}")
+    logger.error(f"❌ Failed to mount static files: {static_error}")
     import traceback
     traceback.print_exc()
 
@@ -131,6 +139,7 @@ app.include_router(category_router, prefix="/api/v1")
 app.include_router(cart_router, prefix="/api/v1")
 app.include_router(wishlist_router, prefix="/api/v1")
 app.include_router(banner_router, prefix="/api/v1")
+app.include_router(upload_router, prefix="/api/v1")  # Image upload endpoints
 
 # Global exception handlers
 @app.exception_handler(HTTPException)

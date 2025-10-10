@@ -1,6 +1,7 @@
 from sqladmin import ModelView
 from starlette.requests import Request
 from ..models import Category, Subcategory, Brand
+from .widgets import ImageUploadField
 
 class CategoryAdmin(ModelView, model=Category):
     """
@@ -85,6 +86,11 @@ class CategoryAdmin(ModelView, model=Category):
         "image_url": "URL изображения/логотипа для категории (рекомендуемый размер: 200x200px)",
         "subcategory_count": "Количество подкатегорий в этой категории",
         "product_count": "Общее количество товаров в этой категории"
+    }
+    
+    # Custom form fields
+    form_overrides = {
+        "image_url": ImageUploadField
     }
 
 
@@ -171,6 +177,11 @@ class SubcategoryAdmin(ModelView, model=Subcategory):
         "category_id": "Выберите родительскую категорию (например: Мужчинам, Женщинам)",
         "image_url": "URL изображения для подкатегории (рекомендуемый размер: 200x200px)",
         "product_count": "Количество товаров в этой подкатегории"
+    }
+    
+    # Custom form fields
+    form_overrides = {
+        "image_url": ImageUploadField
     }
 
 
