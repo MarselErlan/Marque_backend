@@ -42,6 +42,7 @@ class CategoryWithCountSchema(BaseModel):
     name: str
     slug: str
     icon: Optional[str] = None
+    image_url: Optional[str] = None  # Category image/logo
     product_count: int
     is_active: bool = True
     sort_order: int = 0
@@ -57,6 +58,7 @@ class CategoryDetailSchema(BaseModel):
     slug: str
     description: Optional[str] = None
     icon: Optional[str] = None
+    image_url: Optional[str] = None  # Category image/logo
     product_count: int
     subcategories: List[SubcategoryWithCountSchema] = []
     is_active: bool = True
