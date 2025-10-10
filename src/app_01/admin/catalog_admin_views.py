@@ -19,7 +19,7 @@ class CategoryAdmin(ModelView, model=Category):
     category = "🛍️ Каталог"
     
     column_list = [
-        "id", "name", "slug", "subcategory_count", "product_count", "is_active"
+        "id", "name", "slug", "icon", "is_active", "sort_order"
     ]
     column_details_list = [
         "id", "name", "slug", "description", "icon", "image_url", 
@@ -33,9 +33,6 @@ class CategoryAdmin(ModelView, model=Category):
     column_searchable_list = ["name", "slug", "description"]
     column_sortable_list = ["id", "name", "sort_order", "is_active", "created_at"]
     column_filters = ["is_active"]
-    
-    # Eager load relationships to avoid lazy loading errors
-    column_select_related_list = ["subcategories", "products"]
     
     column_labels = {
         "id": "ID",
@@ -66,12 +63,6 @@ class CategoryAdmin(ModelView, model=Category):
     
     # Custom formatters for better display
     column_formatters = {
-        "subcategory_count": lambda model, _: (
-            f'<span class="badge badge-info">{len(model.subcategories)}</span>'
-        ),
-        "product_count": lambda model, _: (
-            f'<span class="badge badge-success">{model.product_count}</span>'
-        ),
         "is_active": lambda model, _: (
             '<span class="badge badge-success">✅ Активна</span>' if model.is_active 
             else '<span class="badge badge-secondary">⏸️ Неактивна</span>'
@@ -114,7 +105,7 @@ class SubcategoryAdmin(ModelView, model=Subcategory):
     category = "🛍️ Каталог"
     
     column_list = [
-        "id", "category", "name", "slug", "product_count", "is_active"
+        "id", "category_id", "name", "slug", "is_active", "sort_order"
     ]
     column_details_list = [
         "id", "category_id", "category", "name", "slug", "description", 
@@ -128,9 +119,6 @@ class SubcategoryAdmin(ModelView, model=Subcategory):
     column_searchable_list = ["name", "slug", "description"]
     column_sortable_list = ["id", "name", "sort_order", "is_active", "created_at"]
     column_filters = ["is_active", "category_id"]
-    
-    # Eager load relationships to avoid lazy loading errors
-    column_select_related_list = ["category", "products"]
     
     column_labels = {
         "id": "ID",
@@ -161,13 +149,6 @@ class SubcategoryAdmin(ModelView, model=Subcategory):
     
     # Custom formatters for better display
     column_formatters = {
-        "category": lambda model, _: (
-            f'<span class="badge badge-primary">{model.category.name}</span>' 
-            if model.category else "-"
-        ),
-        "product_count": lambda model, _: (
-            f'<span class="badge badge-success">{model.product_count}</span>'
-        ),
         "is_active": lambda model, _: (
             '<span class="badge badge-success">✅ Активна</span>' if model.is_active 
             else '<span class="badge badge-secondary">⏸️ Неактивна</span>'
