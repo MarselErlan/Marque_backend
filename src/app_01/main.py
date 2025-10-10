@@ -68,27 +68,33 @@ app.add_middleware(
     https_only=is_production  # Only require HTTPS in production
 )
 
-# Initialize SQLAdmin
+# Mount static files for SQLAdmin FIRST (before initializing SQLAdmin)
+try:
+    from fastapi.staticfiles import StaticFiles
+    import sqladmin
+    import pathlib
+    
+    # Get SQLAdmin's static files directory
+    sqladmin_static_path = pathlib.Path(sqladmin.__file__).parent / "statics"
+    
+    # Mount static files BEFORE creating SQLAdmin instance
+    app.mount("/admin/statics", StaticFiles(directory=str(sqladmin_static_path)), name="admin-statics")
+    logger.info(f"✅ SQLAdmin static files mounted from: {sqladmin_static_path}")
+except Exception as static_error:
+    logger.error(f"❌ Failed to mount SQLAdmin static files: {static_error}")
+    import traceback
+    traceback.print_exc()
+
+# Initialize SQLAdmin AFTER static files are mounted
 try:
     from .admin.admin_app import create_sqladmin_app
-    from fastapi.staticfiles import StaticFiles
     
     admin = create_sqladmin_app(app)
-    
-    # Mount static files for SQLAdmin (fixes missing CSS/JS in production)
-    # SQLAdmin serves its static files from /admin/statics
-    try:
-        import sqladmin
-        import pathlib
-        sqladmin_static_path = pathlib.Path(sqladmin.__file__).parent / "statics"
-        app.mount("/admin/statics", StaticFiles(directory=str(sqladmin_static_path)), name="admin-statics")
-        logger.info("✅ SQLAdmin static files mounted at /admin/statics")
-    except Exception as static_error:
-        logger.warning(f"⚠️  Could not mount SQLAdmin static files: {static_error}")
-    
     logger.info("✅ SQLAdmin initialized at /admin")
 except Exception as e:
-    logger.warning(f"⚠️  SQLAdmin initialization failed: {e}")
+    logger.error(f"❌ SQLAdmin initialization failed: {e}")
+    import traceback
+    traceback.print_exc()
 
 # CORS middleware
 app.add_middleware(

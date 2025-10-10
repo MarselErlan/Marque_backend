@@ -30,12 +30,15 @@ def create_sqladmin_app(app: FastAPI) -> Admin:
     engine = db_manager.get_engine(Market.KG)
     
     # Initialize SQLAdmin with authentication
+    # Note: templates_dir is required for custom templates, but we use default
     admin = Admin(
         app=app,
         engine=engine,
         authentication_backend=WebsiteContentAuthenticationBackend(secret_key="your-secret-key-here"),
         title="Marque - Admin Panel",
-        base_url="/admin"
+        base_url="/admin",
+        # Explicitly set middlewares list to empty to avoid conflicts
+        middlewares=[]
     )
     
     # Add all admin views
