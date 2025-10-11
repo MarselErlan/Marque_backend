@@ -26,26 +26,37 @@ router = APIRouter(prefix="/banners", tags=["banners"])
 def get_active_banners(db: Session = Depends(get_db)):
     """
     Get all active banners for main page display
-    Returns separate lists for sale and model banners
+    Returns separate lists for hero, promo, and category banners
     """
     now = datetime.utcnow()
     
-    # Get active sale banners
-    sale_banners = db.query(Banner).filter(
+    # Get active hero banners (main carousel)
+    hero_banners = db.query(Banner).filter(
         and_(
             Banner.is_active == True,
-            Banner.banner_type == BannerType.SALE,
+            Banner.banner_type == BannerType.HERO,
             # Check date ranges
             (Banner.start_date == None) | (Banner.start_date <= now),
             (Banner.end_date == None) | (Banner.end_date >= now)
         )
     ).order_by(Banner.display_order, Banner.created_at.desc()).all()
     
-    # Get active model banners
-    model_banners = db.query(Banner).filter(
+    # Get active promo banners
+    promo_banners = db.query(Banner).filter(
         and_(
             Banner.is_active == True,
-            Banner.banner_type == BannerType.MODEL,
+            Banner.banner_type == BannerType.PROMO,
+            # Check date ranges
+            (Banner.start_date == None) | (Banner.start_date <= now),
+            (Banner.end_date == None) | (Banner.end_date >= now)
+        )
+    ).order_by(Banner.display_order, Banner.created_at.desc()).all()
+    
+    # Get active category banners
+    category_banners = db.query(Banner).filter(
+        and_(
+            Banner.is_active == True,
+            Banner.banner_type == BannerType.CATEGORY,
             # Check date ranges
             (Banner.start_date == None) | (Banner.start_date <= now),
             (Banner.end_date == None) | (Banner.end_date >= now)
@@ -53,20 +64,21 @@ def get_active_banners(db: Session = Depends(get_db)):
     ).order_by(Banner.display_order, Banner.created_at.desc()).all()
     
     return BannersListResponse(
-        sale_banners=sale_banners,
-        model_banners=model_banners,
-        total=len(sale_banners) + len(model_banners)
+        hero_banners=hero_banners,
+        promo_banners=promo_banners,
+        category_banners=category_banners,
+        total=len(hero_banners) + len(promo_banners) + len(category_banners)
     )
 
-@router.get("/sale", response_model=List[BannerResponse])
-def get_sale_banners(db: Session = Depends(get_db)):
-    """Get only active sale banners"""
+@router.get("/hero", response_model=List[BannerResponse])
+def get_hero_banners(db: Session = Depends(get_db)):
+    """Get only active hero/carousel banners"""
     now = datetime.utcnow()
     
     banners = db.query(Banner).filter(
         and_(
             Banner.is_active == True,
-            Banner.banner_type == BannerType.SALE,
+            Banner.banner_type == BannerType.HERO,
             (Banner.start_date == None) | (Banner.start_date <= now),
             (Banner.end_date == None) | (Banner.end_date >= now)
         )
@@ -74,15 +86,31 @@ def get_sale_banners(db: Session = Depends(get_db)):
     
     return banners
 
-@router.get("/model", response_model=List[BannerResponse])
-def get_model_banners(db: Session = Depends(get_db)):
-    """Get only active model banners"""
+@router.get("/promo", response_model=List[BannerResponse])
+def get_promo_banners(db: Session = Depends(get_db)):
+    """Get only active promotional banners"""
     now = datetime.utcnow()
     
     banners = db.query(Banner).filter(
         and_(
             Banner.is_active == True,
-            Banner.banner_type == BannerType.MODEL,
+            Banner.banner_type == BannerType.PROMO,
+            (Banner.start_date == None) | (Banner.start_date <= now),
+            (Banner.end_date == None) | (Banner.end_date >= now)
+        )
+    ).order_by(Banner.display_order, Banner.created_at.desc()).all()
+    
+    return banners
+
+@router.get("/category", response_model=List[BannerResponse])
+def get_category_banners(db: Session = Depends(get_db)):
+    """Get only active category showcase banners"""
+    now = datetime.utcnow()
+    
+    banners = db.query(Banner).filter(
+        and_(
+            Banner.is_active == True,
+            Banner.banner_type == BannerType.CATEGORY,
             (Banner.start_date == None) | (Banner.start_date <= now),
             (Banner.end_date == None) | (Banner.end_date >= now)
         )
@@ -123,10 +151,13 @@ def create_banner(
         # Create new banner
         new_banner = Banner(
             title=banner_data.title,
+            subtitle=banner_data.subtitle,
             description=banner_data.description,
             image_url=banner_data.image_url,
+            mobile_image_url=banner_data.mobile_image_url,
             banner_type=banner_data.banner_type,
-            link_url=banner_data.link_url,
+            cta_text=banner_data.cta_text,
+            cta_url=banner_data.cta_url,
             is_active=banner_data.is_active,
             display_order=banner_data.display_order,
             start_date=banner_data.start_date,

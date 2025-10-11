@@ -1,25 +1,25 @@
 """
 Banner Model
-Main page banners for sales and model showcases
+Main page banners for sales and promotions
 """
 
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum as SQLEnum
 from sqlalchemy.sql import func
-from sqlalchemy.ext.declarative import declarative_base
+from ...db import Base
 from enum import Enum
 
-# Create a base for banners
-Base = declarative_base()
 
 class BannerType(str, Enum):
     """Banner types"""
-    SALE = "sale"       # Promotional/discount banners
-    MODEL = "model"     # Product/model showcase banners
+    HERO = "hero"           # Main hero/carousel banner
+    PROMO = "promo"         # Promotional/discount banner
+    CATEGORY = "category"   # Category showcase banner
+
 
 class Banner(Base):
     """
-    Banner model for main page
-    Supports two types: sale banners and model banners
+    Banner model for homepage
+    Supports hero, promotional, and category showcase banners
     """
     __tablename__ = "banners"
 
@@ -27,14 +27,19 @@ class Banner(Base):
     
     # Banner details
     title = Column(String(255), nullable=False)
-    description = Column(String(500), nullable=True)
+    subtitle = Column(String(500), nullable=True)  # Secondary text
+    description = Column(String(1000), nullable=True)  # Full description
+    
+    # Images
     image_url = Column(String(500), nullable=False)  # Main banner image
+    mobile_image_url = Column(String(500), nullable=True)  # Optional mobile-optimized image
     
-    # Banner type (sale or model)
-    banner_type = Column(SQLEnum(BannerType), nullable=False, index=True)
+    # Banner type
+    banner_type = Column(SQLEnum(BannerType), nullable=False, default=BannerType.HERO, index=True)
     
-    # Link/action when banner is clicked
-    link_url = Column(String(500), nullable=True)  # Optional link to product/category
+    # Call to action
+    cta_text = Column(String(100), nullable=True)  # Button text (e.g., "Shop Now", "Learn More")
+    cta_url = Column(String(500), nullable=True)  # Button/link URL
     
     # Display settings
     is_active = Column(Boolean, default=True, index=True)  # Show/hide banner
@@ -47,23 +52,6 @@ class Banner(Base):
     # Optional: Scheduling
     start_date = Column(DateTime(timezone=True), nullable=True)  # When to start showing
     end_date = Column(DateTime(timezone=True), nullable=True)    # When to stop showing
-
-    def __init__(self, **kwargs):
-        """Initialize banner with default values"""
-        # Handle 'link' as alias for 'link_url' for backward compatibility
-        if 'link' in kwargs and 'link_url' not in kwargs:
-            kwargs['link_url'] = kwargs.pop('link')
-        
-        # Set defaults for fields not provided
-        kwargs.setdefault('is_active', True)
-        kwargs.setdefault('display_order', 0)
-        if 'created_at' not in kwargs:
-            from datetime import datetime
-            kwargs['created_at'] = datetime.utcnow()
-        if 'updated_at' not in kwargs:
-            from datetime import datetime
-            kwargs['updated_at'] = datetime.utcnow()
-        super().__init__(**kwargs)
 
     def __repr__(self):
         return f"<Banner(id={self.id}, type='{self.banner_type}', title='{self.title}', active={self.is_active})>"
