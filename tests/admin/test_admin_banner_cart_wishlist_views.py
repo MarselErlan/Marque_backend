@@ -30,7 +30,7 @@ class TestBannerAdminModel:
             title="Summer Sale",
             description="50% off summer collection",
             image_url="https://example.com/banner.jpg",
-            banner_type=BannerType.SALE,
+            banner_type=BannerType.HERO,
             link_url="/products/sale",
             is_active=True,
             display_order=1
@@ -41,7 +41,7 @@ class TestBannerAdminModel:
         
         assert banner.id is not None
         assert banner.title == "Summer Sale"
-        assert banner.banner_type == BannerType.SALE
+        assert banner.banner_type == BannerType.HERO
         assert banner.is_active is True
     
     def test_update_banner(self, admin_test_db):
@@ -49,7 +49,7 @@ class TestBannerAdminModel:
         banner = Banner(
             title="Test Banner",
             image_url="https://example.com/test.jpg",
-            banner_type=BannerType.MODEL,
+            banner_type=BannerType.PROMO,
             is_active=True
         )
         admin_test_db.add(banner)
@@ -70,7 +70,7 @@ class TestBannerAdminModel:
         banner = Banner(
             title="Delete Me",
             image_url="https://example.com/delete.jpg",
-            banner_type=BannerType.SALE,
+            banner_type=BannerType.HERO,
             is_active=True
         )
         admin_test_db.add(banner)
@@ -90,7 +90,7 @@ class TestBannerAdminModel:
         sale_banner = Banner(
             title="Sale",
             image_url="https://example.com/sale.jpg",
-            banner_type=BannerType.SALE,
+            banner_type=BannerType.HERO,
             is_active=True
         )
         admin_test_db.add(sale_banner)
@@ -98,11 +98,11 @@ class TestBannerAdminModel:
         
         # Filter
         sale_banners = admin_test_db.query(Banner).filter(
-            Banner.banner_type == BannerType.SALE
+            Banner.banner_type == BannerType.HERO
         ).all()
         
         assert len(sale_banners) > 0
-        assert all(b.banner_type == BannerType.SALE for b in sale_banners)
+        assert all(b.banner_type == BannerType.HERO for b in sale_banners)
     
     def test_schedule_banner(self, admin_test_db):
         """Test scheduling banner with dates"""
@@ -112,7 +112,7 @@ class TestBannerAdminModel:
         banner = Banner(
             title="Scheduled Banner",
             image_url="https://example.com/scheduled.jpg",
-            banner_type=BannerType.MODEL,
+            banner_type=BannerType.PROMO,
             is_active=True,
             start_date=now,
             end_date=future

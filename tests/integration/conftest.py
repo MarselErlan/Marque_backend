@@ -193,7 +193,7 @@ def sample_banner(test_db):
         title="Summer Sale",
         description="50% off all items",
         image_url="https://example.com/banner.jpg",
-        banner_type=BannerType.SALE,
+        banner_type=BannerType.HERO,
         is_active=True,
         display_order=1
     )

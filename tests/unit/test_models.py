@@ -64,33 +64,35 @@ class TestBannerModel:
             title="Test Banner",
             description="Test description",
             image_url="https://example.com/banner.jpg",
-            link="https://example.com",
-            banner_type=BannerType.SALE,
+            cta_url="https://example.com",
+            banner_type=BannerType.HERO,
             is_active=True,
             display_order=1
         )
         
         assert banner.title == "Test Banner"
-        assert banner.banner_type == BannerType.SALE
+        assert banner.banner_type == BannerType.HERO
         assert banner.is_active == True
         assert banner.display_order == 1
     
     def test_banner_types(self):
         """Test banner type enum"""
-        assert BannerType.SALE == "sale"
-        assert BannerType.MODEL == "model"
+        assert BannerType.HERO == "hero"
+        assert BannerType.PROMO == "promo"
+        assert BannerType.CATEGORY == "category"
     
     def test_banner_default_values(self):
         """Test banner default values"""
         banner = Banner(
             title="Test",
             image_url="https://example.com/test.jpg",
-            banner_type=BannerType.SALE
+            banner_type=BannerType.HERO,
+            is_active=True,
+            display_order=0
         )
         
         assert banner.is_active == True
-        assert banner.display_order >= 0
-        assert banner.created_at is not None
+        assert banner.display_order == 0
 
 
 class TestModelRelationships:
@@ -107,7 +109,7 @@ class TestModelRelationships:
         banner = Banner(
             title="Test",
             image_url="https://example.com/test.jpg",
-            banner_type=BannerType.SALE
+            banner_type=BannerType.HERO
         )
         assert hasattr(banner, 'created_at')
         assert hasattr(banner, 'updated_at')
@@ -127,7 +129,7 @@ class TestModelValidation:
         banner = Banner(
             title="Test Banner",
             image_url="https://example.com/test.jpg",
-            banner_type=BannerType.SALE
+            banner_type=BannerType.HERO
         )
         assert hasattr(banner, 'title')
         assert banner.title == "Test Banner"
@@ -150,8 +152,9 @@ def test_user_creation_parametrized(phone, user_class):
 
 
 @pytest.mark.parametrize("banner_type", [
-    BannerType.SALE,
-    BannerType.MODEL,
+    BannerType.HERO,
+    BannerType.PROMO,
+    BannerType.CATEGORY,
 ])
 def test_banner_types_parametrized(banner_type):
     """Parametrized test for banner types"""

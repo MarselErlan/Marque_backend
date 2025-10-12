@@ -78,7 +78,7 @@ class TestBannerWithDatabase:
         """Test banner type enum"""
         from src.app_01.models.banners.banner import BannerType
         
-        assert sample_banner.banner_type == BannerType.SALE
+        assert sample_banner.banner_type == BannerType.HERO
 
 
 @pytest.mark.integration
