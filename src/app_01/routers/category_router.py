@@ -261,7 +261,58 @@ def get_products_by_subcategory(
     # Apply pagination
     products = query.offset(offset).limit(limit).all()
     
-    # Build response
+    # Get filter metadata (available options from ALL products in this subcategory, not just current page)
+    # Query all SKUs in this subcategory for filter data
+    all_products_query = db.query(models.products.product.Product).filter(
+        models.products.product.Product.subcategory_id == subcategory.id,
+        models.products.product.Product.is_active == True
+    )
+    all_products = all_products_query.all()
+    
+    # Collect available sizes, colors, brands, prices
+    available_sizes = set()
+    available_colors = set()
+    available_brands = {}
+    all_prices = []
+    
+    for product in all_products:
+        for sku in product.skus:
+            if sku.is_active and sku.stock > 0:
+                if sku.size:
+                    available_sizes.add(sku.size)
+                if sku.color:
+                    available_colors.add(sku.color)
+                all_prices.append(sku.price)
+        
+        if product.brand and product.brand_id:
+            available_brands[product.brand.slug] = product.brand.name
+    
+    # Build filter metadata
+    filters_data = {
+        "available_sizes": sorted(list(available_sizes)),
+        "available_colors": sorted(list(available_colors)),
+        "available_brands": [{"slug": slug, "name": name} for slug, name in available_brands.items()],
+        "price_range": {
+            "min": min(all_prices) if all_prices else 0,
+            "max": max(all_prices) if all_prices else 0
+        }
+    }
+    
+    # Get category info
+    category = subcategory.category
+    category_data = {
+        "id": category.id,
+        "slug": category.slug,
+        "name": category.name
+    } if category else None
+    
+    subcategory_data = {
+        "id": subcategory.id,
+        "slug": subcategory.slug,
+        "name": subcategory.name
+    }
+    
+    # Build product list
     product_list = []
     for product in products:
         # Get min/max prices from SKUs
@@ -305,5 +356,8 @@ def get_products_by_subcategory(
         total=total,
         page=page,
         limit=limit,
-        total_pages=total_pages
+        total_pages=total_pages,
+        filters=filters_data,
+        category=category_data,
+        subcategory=subcategory_data
     )

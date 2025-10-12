@@ -208,3 +208,6 @@ class ProductListResponse(BaseModel):
     page: int
     limit: int
     total_pages: int
+    filters: Optional[dict] = None  # Available filters (sizes, colors, brands, price_range)
+    category: Optional[dict] = None  # Category info
+    subcategory: Optional[dict] = None  # Subcategory info
