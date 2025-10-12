@@ -35,7 +35,7 @@ class Banner(Base):
     mobile_image_url = Column(String(500), nullable=True)  # Optional mobile-optimized image
     
     # Banner type
-    banner_type = Column(SQLEnum(BannerType), nullable=False, default=BannerType.HERO, index=True)
+    banner_type = Column(SQLEnum(BannerType, values_callable=lambda obj: [e.value for e in obj]), nullable=False, default=BannerType.HERO, index=True)
     
     # Call to action
     cta_text = Column(String(100), nullable=True)  # Button text (e.g., "Shop Now", "Learn More")

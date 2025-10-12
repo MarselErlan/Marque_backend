@@ -6,22 +6,22 @@ Main API endpoints organized by feature
 from fastapi import APIRouter, Depends, HTTPException, Request
 from typing import Dict, Any
 
-from ..dependencies import get_current_user, get_market_from_request
-from ..schemas.auth import (
+from src.app_01.presentation.dependencies import get_current_user, get_market_from_request
+from src.app_01.schemas.auth import (
     PhoneLoginRequest, PhoneVerificationRequest, 
     UserProfileResponse, UserProfileUpdateRequest
 )
-from ...core.config import Market
-from ...core.container import get_container
-from ...application.services import (
+from src.app_01.core.config import Market
+from src.app_01.core.container import get_container
+from src.app_01.application.services import (
     AuthService, UserService, PhoneVerificationService, MarketService
 )
 
-from ....routers.auth_router import router as auth_router
+from src.app_01.routers.auth_router import router as auth_router
 from ....routers.product_router import router as product_router
-from ....routers.category_router import router as category_router
-from ....routers.cart_router import router as cart_router
-from ....routers.wishlist_router import router as wishlist_router
+from src.app_01.routers.category_router import router as category_router
+from src.app_01.routers.cart_router import router as cart_router
+from src.app_01.routers.wishlist_router import router as wishlist_router
 
 router = APIRouter()
 
@@ -141,7 +141,7 @@ async def get_user_addresses(
 ):
     """Get user addresses"""
     container = get_container()
-    from ...domain.repositories import RepositoryManager
+    from src.app_01.domain.repositories import RepositoryManager
     repo_manager = container.get(RepositoryManager)
     
     address_repo = await repo_manager.get_user_address_repository(market)
@@ -169,7 +169,7 @@ async def create_user_address(
 ):
     """Create user address"""
     container = get_container()
-    from ...domain.repositories import RepositoryManager
+    from src.app_01.domain.repositories import RepositoryManager
     repo_manager = container.get(RepositoryManager)
     
     body = await request.json()
@@ -196,7 +196,7 @@ async def get_user_payment_methods(
 ):
     """Get user payment methods"""
     container = get_container()
-    from ...domain.repositories import RepositoryManager
+    from src.app_01.domain.repositories import RepositoryManager
     repo_manager = container.get(RepositoryManager)
     
     payment_repo = await repo_manager.get_user_payment_method_repository(market)
@@ -226,7 +226,7 @@ async def get_user_notifications(
 ):
     """Get user notifications"""
     container = get_container()
-    from ...domain.repositories import RepositoryManager
+    from src.app_01.domain.repositories import RepositoryManager
     repo_manager = container.get(RepositoryManager)
     
     notification_repo = await repo_manager.get_user_notification_repository(market)
@@ -255,7 +255,7 @@ async def mark_notification_read(
 ):
     """Mark notification as read"""
     container = get_container()
-    from ...domain.repositories import RepositoryManager
+    from src.app_01.domain.repositories import RepositoryManager
     repo_manager = container.get(RepositoryManager)
     
     notification_repo = await repo_manager.get_user_notification_repository(market)
