@@ -4,8 +4,9 @@ from ..db.market_db import db_manager, Market
 from .sqladmin_views import (
     WebsiteContentAuthenticationBackend,
     ProductAdmin, SKUAdmin, ProductAssetAdmin, ProductAttributeAdmin,
-    ReviewAdmin, AdminLogAdmin, WebsiteContentDashboard
+    ReviewAdmin, WebsiteContentDashboard
 )
+from .admin_log_admin_views import AdminLogAdmin
 from .catalog_admin_views import CategoryAdmin, SubcategoryAdmin, BrandAdmin
 from .filter_admin_views import (
     ProductFilterAdmin, ProductSeasonAdmin, ProductMaterialAdmin, 
