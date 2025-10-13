@@ -210,7 +210,7 @@ class ProductAdmin(ModelView, model=Product):
     # Enhanced column configuration
     column_list = [
         "id", "title", "brand", "category", "subcategory",
-        "sold_count", "rating_avg", "is_active"
+        "sold_count", "rating_avg", "is_active", "is_featured"
     ]
     
     column_details_list = [
@@ -223,10 +223,50 @@ class ProductAdmin(ModelView, model=Product):
     
     # Form configuration
     form_columns = [
+        "title", "slug", "description",
         "brand_id", "category_id", "subcategory_id",
-        "title", "slug", "description", 
-        "is_active"
+        "is_active", "is_featured", "attributes"
     ]
+    
+    # Form arguments to configure widgets
+    form_args = {
+        "title": {
+            "label": "Название товара",
+            "description": "Полное название товара (например: 'Nike Air Max 90')"
+        },
+        "slug": {
+            "label": "URL-адрес",
+            "description": "Уникальный URL для товара (например: 'nike-air-max-90')"
+        },
+        "description": {
+            "label": "Описание",
+            "description": "Подробное описание товара"
+        },
+        "brand_id": {
+            "label": "Бренд",
+            "description": "Выберите бренд товара"
+        },
+        "category_id": {
+            "label": "Категория",
+            "description": "Выберите категорию (Мужчинам, Женщинам и т.д.)"
+        },
+        "subcategory_id": {
+            "label": "Подкатегория",
+            "description": "Выберите подкатегорию (Футболки, Джинсы и т.д.)"
+        },
+        "is_active": {
+            "label": "Активен",
+            "description": "Отображать товар на сайте?"
+        },
+        "is_featured": {
+            "label": "В топе",
+            "description": "Показывать в разделе 'Хиты продаж'?"
+        },
+        "attributes": {
+            "label": "Атрибуты (JSON)",
+            "description": "Дополнительные характеристики в формате JSON"
+        }
+    }
     
     # Enhanced search - search by multiple fields
     column_searchable_list = ["title", "slug", "description"]
@@ -267,6 +307,8 @@ class ProductAdmin(ModelView, model=Product):
         "rating_avg": "Рейтинг",
         "rating_count": "Отзывов",
         "is_active": "Активен",
+        "is_featured": "В топе",
+        "attributes": "Атрибуты",
         "created_at": "Создан",
         "updated_at": "Обновлен",
         "skus": "Варианты (SKU)",
@@ -307,6 +349,12 @@ class ProductAdmin(ModelView, model=Product):
             else '<span class="badge badge-secondary">⏸️ Неактивен</span>'
         ),
         
+        # Featured status with badge
+        "is_featured": lambda model, _: (
+            '<span class="badge badge-warning">⭐ В топе</span>' if model.is_featured 
+            else '<span class="badge badge-light">-</span>'
+        ),
+        
         # Created date
         "created_at": lambda model, _: model.created_at.strftime("%d.%m.%Y") if model.created_at else "-"
     }
@@ -324,9 +372,17 @@ class ProductAdmin(ModelView, model=Product):
     
     # Description hints
     column_descriptions = {
+        "title": "Название товара, которое будет отображаться на сайте",
+        "slug": "Уникальный URL-адрес (например: 'nike-air-max-90')",
+        "description": "Подробное описание товара для карточки товара",
         "is_active": "Активные товары отображаются на сайте. Неактивные скрыты от покупателей.",
+        "is_featured": "Товары в топе показываются в разделе 'Хиты продаж' на главной странице",
         "sold_count": "Количество проданных единиц товара (всех вариантов)",
-        "rating_avg": "Средний рейтинг из всех отзывов"
+        "rating_avg": "Средний рейтинг из всех отзывов",
+        "brand_id": "Бренд товара (Nike, Adidas и т.д.)",
+        "category_id": "Основная категория (Мужчинам, Женщинам, Детям)",
+        "subcategory_id": "Подкатегория (Футболки, Джинсы, Обувь и т.д.)",
+        "attributes": "Дополнительные характеристики в JSON формате. ВАЖНО: После создания товара добавьте SKU (цены, размеры, цвета, склад) и изображения!"
     }
 
 

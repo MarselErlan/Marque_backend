@@ -5,7 +5,7 @@ from typing import List, Optional
 from .. import models
 from ..db import get_db
 from ..schemas.product import (
-    ProductSchema, ProductSearchResponse, ProductDetailSchema,
+    ProductSchema, ProductDetailSchema,
     BrandSchema, CategoryBreadcrumbSchema, SubcategoryBreadcrumbSchema,
     ProductImageSchema, SKUDetailSchema, ReviewSchema, BreadcrumbSchema,
     SimilarProductSchema, ProductListItemSchema, ProductListResponse
@@ -223,21 +223,23 @@ def search_products(
             if not prices:
                 prices = [sku.price for sku in product.skus]
             
-            min_price = min(prices) if prices else 0.0
+            price_min = min(prices) if prices else 0.0
+            price_max = max(prices) if prices else 0.0
             
             # Get original price for discount calculation
             original_prices = [sku.original_price for sku in product.skus if sku.original_price and sku.original_price > 0]
-            original_price = min(original_prices) if original_prices else None
+            original_price_min = min(original_prices) if original_prices else None
             
-            discount_percentage = None
-            if original_price and original_price > min_price:
-                discount_percentage = int(((original_price - min_price) / original_price) * 100)
+            discount_percent = None
+            if original_price_min and original_price_min > price_min:
+                discount_percent = int(((original_price_min - price_min) / original_price_min) * 100)
             
             in_stock = any(sku.stock > 0 for sku in product.skus)
         else:
-            min_price = 0.0
-            original_price = None
-            discount_percentage = None
+            price_min = 0.0
+            price_max = 0.0
+            original_price_min = None
+            discount_percent = None
             in_stock = False
         
         product_list.append(ProductListItemSchema(
@@ -245,10 +247,12 @@ def search_products(
             title=product.title,
             slug=product.slug,
             brand_name=product.brand.name if product.brand else "Unknown",
-            main_image=main_image,
-            price=min_price,
-            original_price=original_price,
-            discount_percentage=discount_percentage,
+            brand_slug=product.brand.slug if product.brand else "unknown",
+            image=main_image,
+            price_min=price_min,
+            price_max=price_max,
+            original_price_min=original_price_min,
+            discount_percent=discount_percent,
             rating_avg=product.rating_avg or 0.0,
             rating_count=product.rating_count or 0,
             sold_count=product.sold_count or 0,
@@ -506,157 +510,6 @@ def get_products(
         ))
     return response_products
 
-@router.get("/products/search", response_model=ProductSearchResponse)
-def search_products(
-    db: Session = Depends(get_db),
-    q: str = Query(..., min_length=1, description="Search query (min 1 character)"),
-    category: Optional[str] = Query(None, description="Filter by category slug"),
-    brand: Optional[str] = Query(None, description="Filter by brand slug"),
-    min_price: Optional[float] = Query(None, description="Minimum price"),
-    max_price: Optional[float] = Query(None, description="Maximum price"),
-    sort_by: Optional[str] = Query(None, description="Sort: newest, popular, price_low, price_high, relevance"),
-    page: int = Query(1, ge=1, description="Page number"),
-    limit: int = Query(20, ge=1, le=100, description="Items per page")
-):
-    """
-    Advanced product search with filters
-    Searches in: product title, description, brand name
-    """
-    # Base query with relationships
-    base_query = db.query(models.products.product.Product).options(
-        joinedload(models.products.product.Product.brand),
-        joinedload(models.products.product.Product.category),
-        joinedload(models.products.product.Product.subcategory),
-        joinedload(models.products.product.Product.skus),
-        joinedload(models.products.product.Product.assets),
-        joinedload(models.products.product.Product.reviews)
-    )
-
-    # Search in title, description, and brand
-    search_term = f"%{q}%"
-    query = base_query.outerjoin(models.products.product.Product.brand).filter(
-        or_(
-            models.products.product.Product.title.ilike(search_term),
-            models.products.product.Product.description.ilike(search_term),
-            models.products.brand.Brand.name.ilike(search_term)
-        )
-    )
-
-    # Category filter
-    if category:
-        query = query.join(models.products.product.Product.category).filter(
-            models.products.category.Category.slug == category
-        )
-
-    # Brand filter
-    if brand:
-        query = query.join(models.products.product.Product.brand).filter(
-            models.products.brand.Brand.slug == brand
-        )
-
-    # Price range filter
-    if min_price is not None or max_price is not None:
-        query = query.join(models.products.product.Product.skus)
-        if min_price is not None:
-            query = query.filter(models.products.sku.SKU.price >= min_price)
-        if max_price is not None:
-            query = query.filter(models.products.sku.SKU.price <= max_price)
-
-    # Get total count before pagination
-    # Use group_by to count distinct products
-    from sqlalchemy import func as sql_func
-    count_query = query.with_entities(models.products.product.Product.id).group_by(models.products.product.Product.id)
-    total_count = count_query.count()
-
-    # Sorting - must include Product.id first when using DISTINCT ON
-    if sort_by == "newest":
-        query = query.order_by(
-            models.products.product.Product.id,
-            models.products.product.Product.created_at.desc()
-        )
-    elif sort_by == "popular":
-        query = query.order_by(
-            models.products.product.Product.id,
-            models.products.product.Product.sold_count.desc()
-        )
-    elif sort_by == "price_low":
-        query = query.join(models.products.product.Product.skus).order_by(
-            models.products.product.Product.id,
-            models.products.sku.SKU.price.asc()
-        )
-    elif sort_by == "price_high":
-        query = query.join(models.products.product.Product.skus).order_by(
-            models.products.product.Product.id,
-            models.products.sku.SKU.price.desc()
-        )
-    elif sort_by == "relevance":
-        # Simple relevance: prioritize title matches over description
-        from sqlalchemy import case
-        query = query.order_by(
-            models.products.product.Product.id,
-            case(
-                (models.products.product.Product.title.ilike(search_term), 1),
-                else_=2
-            )
-        )
-    else:
-        # Default: relevance
-        from sqlalchemy import case
-        query = query.order_by(
-            models.products.product.Product.id,
-            case(
-                (models.products.product.Product.title.ilike(search_term), 1),
-                else_=2
-            )
-        )
-
-    # Pagination
-    offset = (page - 1) * limit
-    # Use distinct on ID to avoid duplicates from joins
-    products = query.distinct(models.products.product.Product.id).offset(offset).limit(limit).all()
-
-    # Format response
-    response_products = []
-    for p in products:
-        skus = p.skus
-        images = [asset.url for asset in p.assets if asset.type == 'image']
-        
-        price = skus[0].price if skus else 0
-        original_price = skus[0].original_price if skus and skus[0].original_price else None
-        discount = int(((original_price - price) / original_price) * 100) if original_price and price and original_price > price else 0
-
-        response_products.append(ProductSchema(
-            id=str(p.id),
-            name=p.title,
-            brand=p.brand.name if p.brand else "",
-            price=price,
-            originalPrice=original_price,
-            discount=discount,
-            image=images[0] if images else "",
-            images=images,
-            category=p.category.name if p.category else "",
-            subcategory=p.subcategory.name if p.subcategory else "",
-            sizes=list(set(s.size for s in skus if s.size)),
-            colors=list(set(s.color for s in skus if s.color)),
-            rating=p.rating_avg,
-            reviews=p.rating_count,
-            salesCount=p.sold_count,
-            inStock=p.is_in_stock,
-            description=p.description,
-            features=[]
-        ))
-
-    total_pages = (total_count + limit - 1) // limit
-
-    return ProductSearchResponse(
-        query=q,
-        results=response_products,
-        total=total_count,
-        page=page,
-        limit=limit,
-        total_pages=total_pages,
-        has_more=page < total_pages
-    )
 
 @router.get("/products/{product_id}", response_model=ProductSchema)
 def get_product(product_id: int, db: Session = Depends(get_db)):
