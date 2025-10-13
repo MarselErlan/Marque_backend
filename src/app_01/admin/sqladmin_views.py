@@ -221,12 +221,15 @@ class ProductAdmin(ModelView, model=Product):
         "skus", "assets", "reviews"
     ]
     
-    # Form configuration
+    # Form configuration - Use relationship names for proper dropdowns
     form_columns = [
         "title", "slug", "description",
-        "brand_id", "category_id", "subcategory_id",
+        "brand", "category", "subcategory",
         "is_active", "is_featured", "attributes"
     ]
+    
+    # Include relationships for the form
+    form_include_pk = False
     
     # Form arguments to configure widgets
     form_args = {
@@ -242,15 +245,15 @@ class ProductAdmin(ModelView, model=Product):
             "label": "Описание",
             "description": "Подробное описание товара"
         },
-        "brand_id": {
+        "brand": {
             "label": "Бренд",
             "description": "Выберите бренд товара"
         },
-        "category_id": {
+        "category": {
             "label": "Категория",
             "description": "Выберите категорию (Мужчинам, Женщинам и т.д.)"
         },
-        "subcategory_id": {
+        "subcategory": {
             "label": "Подкатегория",
             "description": "Выберите подкатегорию (Футболки, Джинсы и т.д.)"
         },
@@ -316,17 +319,8 @@ class ProductAdmin(ModelView, model=Product):
         "reviews": "Отзывы"
     }
     
-    # Form labels
+    # Form labels (removed - using form_args for labels now)
     form_label = "Товар"
-    form_columns_labels = {
-        "brand_id": "Бренд",
-        "category_id": "Категория",
-        "subcategory_id": "Подкатегория",
-        "title": "Название товара",
-        "slug": "URL-адрес",
-        "description": "Описание",
-        "is_active": "Активен"
-    }
     
     # Enhanced formatters for better display
     column_formatters = {
@@ -379,9 +373,9 @@ class ProductAdmin(ModelView, model=Product):
         "is_featured": "Товары в топе показываются в разделе 'Хиты продаж' на главной странице",
         "sold_count": "Количество проданных единиц товара (всех вариантов)",
         "rating_avg": "Средний рейтинг из всех отзывов",
-        "brand_id": "Бренд товара (Nike, Adidas и т.д.)",
-        "category_id": "Основная категория (Мужчинам, Женщинам, Детям)",
-        "subcategory_id": "Подкатегория (Футболки, Джинсы, Обувь и т.д.)",
+        "brand": "Бренд товара (Nike, Adidas и т.д.)",
+        "category": "Основная категория (Мужчинам, Женщинам, Детям)",
+        "subcategory": "Подкатегория (Футболки, Джинсы, Обувь и т.д.)",
         "attributes": "Дополнительные характеристики в JSON формате. ВАЖНО: После создания товара добавьте SKU (цены, размеры, цвета, склад) и изображения!"
     }
 
