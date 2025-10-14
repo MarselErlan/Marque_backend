@@ -215,16 +215,17 @@ class ProductAdmin(ModelView, model=Product):
     
     # Enhanced column configuration
     column_list = [
-        "id", "main_image", "title", "brand", "category", "subcategory",
+        "id", "title", "brand", "category", "subcategory",
         "season", "material", "style",
         "sold_count", "rating_avg", "is_active", "is_featured"
+        # Note: main_image removed until migration runs on production
     ]
     
     column_details_list = [
         "id", "brand", "category", "subcategory", 
         "season", "material", "style",
         "title", "slug", "description",
-        "main_image", "additional_images",
+        # Note: main_image and additional_images removed until migration runs
         "sold_count", "rating_avg", "rating_count", 
         "is_active", "is_featured", "attributes",
         "created_at", "updated_at",
@@ -236,8 +237,8 @@ class ProductAdmin(ModelView, model=Product):
         "title", "slug", "description", 
         "brand", "category", "subcategory",
         "season", "material", "style",
-        "is_active", "is_featured", "attributes",
-        "main_image", "additional_images"  # Image upload fields
+        "is_active", "is_featured", "attributes"
+        # Note: main_image and additional_images are in form_extra_fields
     ]
     
     # Include relationships for the form
@@ -372,7 +373,7 @@ class ProductAdmin(ModelView, model=Product):
         # Main image thumbnail (from Product.main_image column)
         "main_image": lambda model, _: (
             f'<img src="{model.main_image}" style="max-width: 80px; max-height: 80px; object-fit: cover; border-radius: 4px;" />'
-            if model.main_image
+            if hasattr(model, 'main_image') and model.main_image
             else '<span class="badge badge-secondary">Нет фото</span>'
         ),
         
@@ -387,7 +388,7 @@ class ProductAdmin(ModelView, model=Product):
                 for idx, url in enumerate(model.additional_images)
             ]) +
             '</div>'
-            if model.additional_images and len(model.additional_images) > 0
+            if hasattr(model, 'additional_images') and model.additional_images and len(model.additional_images) > 0
             else '<span class="badge badge-secondary">Нет дополнительных изображений</span>'
         ),
         
