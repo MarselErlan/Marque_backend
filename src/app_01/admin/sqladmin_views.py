@@ -20,7 +20,6 @@ from ..models import (
 )
 from ..db.market_db import db_manager, Market
 from ..utils.image_upload import image_uploader
-from .image_upload_mixin import ImageUploadMixin
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -196,258 +195,71 @@ class WebsiteContentAuthenticationBackend(AuthenticationBackend):
             db.close()
 
 
-class ProductAdmin(ImageUploadMixin, ModelView, model=Product):
-    """
-    Enhanced Product Management Interface
-    
-    Features:
-    - Stock status display
-    - SKU count
-    - Better brand/category display
-    - Enhanced search and filters
-    - Export functionality
-    """
-    
-    # Display settings
-    name = "Товары"
-    name_plural = f"Товары (Обновление от {datetime.now().strftime('%H:%M:%S')})"
+class ProductAdmin(ModelView, model=Product):
+    """Admin interface for managing products."""
+
+    name = "Товар"
+    name_plural = f"Товары"
     icon = "fa-solid fa-box"
-    category = "🛍️ Каталог"  # Group in sidebar
-    
-    # Enhanced column configuration
+    category = "🛍️ Каталог"
+
     column_list = [
-        "id", "main_image", "title", "brand", "category", "subcategory",
-        "season", "material", "style",
-        "sold_count", "rating_avg", "is_active", "is_featured"
+        "id", "main_image", "title", "brand", "category",
+        "is_active", "is_featured"
     ]
-    
+
     column_details_list = [
-        "id", "brand", "category", "subcategory", 
+        "id", "title", "slug", "description",
+        "brand", "category", "subcategory",
         "season", "material", "style",
-        "title", "slug", "description",
-        "main_image", "additional_images",
-        "sold_count", "rating_avg", "rating_count", 
-        "is_active", "is_featured", "attributes",
+        "is_active", "is_featured",
         "created_at", "updated_at",
+        "main_image", "additional_images",
         "skus", "reviews"
     ]
-    
-    # Form configuration - Use relationship names for proper dropdowns
+
     form_columns = [
-        "title", "slug", "description", 
+        "title", "slug", "description",
         "brand", "category", "subcategory",
         "season", "material", "style",
         "is_active", "is_featured", "attributes"
-        # Note: main_image and additional_images are now handled by ImageUploadMixin
     ]
-    
-    # Include relationships for the form
-    form_include_pk = False
-    
-    # Form arguments to configure widgets
-    form_args = {
-        "title": {
-            "label": "Название товара",
-            "description": "Полное название товара (например: 'Nike Air Max 90')"
-        },
-        "slug": {
-            "label": "URL-адрес",
-            "description": "Уникальный URL для товара (например: 'nike-air-max-90')"
-        },
-        "description": {
-            "label": "Описание",
-            "description": "Подробное описание товара"
-        },
-        "brand": {
-            "label": "Бренд",
-            "description": "Выберите бренд товара"
-        },
-        "category": {
-            "label": "Категория",
-            "description": "Выберите категорию (Мужчинам, Женщинам и т.д.)"
-        },
-        "subcategory": {
-            "label": "Подкатегория",
-            "description": "Выберите подкатегорию (Футболки, Джинсы и т.д.)"
-        },
-        "season": {
-            "label": "Сезон",
-            "description": "Сезон (Зима, Лето, Осень, Весна, Всесезонный) - необязательно"
-        },
-        "material": {
-            "label": "Материал",
-            "description": "Основной материал (Хлопок, Полиэстер, Шерсть и т.д.) - необязательно"
-        },
-        "style": {
-            "label": "Стиль",
-            "description": "Стиль одежды (Casual, Formal, Sport и т.д.) - необязательно"
-        },
-        "is_active": {
-            "label": "Активен",
-            "description": "Отображать товар на сайте?"
-        },
-        "is_featured": {
-            "label": "В топе",
-            "description": "Показывать в разделе 'Хиты продаж'?"
-        },
-        "attributes": {
-            "label": "Атрибуты (JSON)",
-            "description": "Дополнительные характеристики в формате JSON"
-        }
-        # Note: main_image and additional_images labels are defined in form_extra_fields (FileField)
-    }
-    
-    # Enhanced search - search by multiple fields
-    column_searchable_list = ["title", "slug", "description"]
-    
-    # Sortable columns
-    column_sortable_list = [
-        "id", "title", "sold_count", 
-        "rating_avg", "created_at", "is_active"
-    ]
-    
-    # Enhanced filters
-    column_filters = [
-        "brand_id",
-        "category_id",
-        "subcategory_id",
-        "is_active",
-        "sold_count",
-        "rating_avg",
-        "created_at"
-    ]
-    
-    # Default sorting (most popular first)
-    column_default_sort = [("sold_count", True)]  # Descending
-    
-    # Russian labels
-    column_labels = {
-        "id": "ID",
-        "main_image": "Главное фото",
-        "additional_images": "Доп. фото",
-        "brand": "Бренд",
-        "brand_id": "Бренд",
-        "category": "Категория",
-        "category_id": "Категория",
-        "subcategory": "Подкатегория",
-        "subcategory_id": "Подкатегория",
-        "season": "Сезон",
-        "season_id": "Сезон",
-        "material": "Материал",
-        "material_id": "Материал",
-        "style": "Стиль",
-        "style_id": "Стиль",
-        "title": "Название",
-        "slug": "URL",
-        "description": "Описание",
-        "sold_count": "Продано",
-        "rating_avg": "Рейтинг",
-        "rating_count": "Отзывов",
-        "is_active": "Активен",
-        "is_featured": "В топе",
-        "attributes": "Атрибуты",
-        "created_at": "Создан",
-        "updated_at": "Обновлен",
-        "skus": "Варианты (SKU)",
-        "reviews": "Отзывы"
-    }
-    
-    # Form labels (removed - using form_args for labels now)
-    form_label = "Товар"
-    
-    # Enhanced formatters for better display
-    column_formatters = {
-        # Main image thumbnail (from Product.main_image column)
-        "main_image": lambda model, _: (
-            f'<img src="{model.main_image}" style="max-width: 80px; max-height: 80px; object-fit: cover; border-radius: 4px;" />'
-            if hasattr(model, 'main_image') and model.main_image
-            else '<span class="badge badge-secondary">Нет фото</span>'
+
+    form_extra_fields = {
+        "main_image": FileField(
+            "Главное изображение",
+            description="Загрузите главное фото (JPEG/PNG, будет оптимизировано)"
         ),
-        
-        # Additional images gallery (from Product.additional_images JSON column)
-        "additional_images": lambda model, _: (
-            '<div style="display: flex; flex-wrap: wrap; gap: 10px;">' +
-            ''.join([
-                f'<div style="position: relative;">'
-                f'<img src="{url}" style="max-width: 150px; max-height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd;" />'
-                f'<div style="text-align: center; font-size: 11px; color: #666; margin-top: 4px;">Изображение {idx + 1}</div>'
-                f'</div>'
-                for idx, url in enumerate(model.additional_images)
-            ]) +
-            '</div>'
-            if hasattr(model, 'additional_images') and model.additional_images and len(model.additional_images) > 0
-            else '<span class="badge badge-secondary">Нет дополнительных изображений</span>'
-        ),
-        
-        # Brand name
-        "brand": lambda model, _: model.brand.name if model.brand else "-",
-        
-        # Category/Subcategory
-        "category": lambda model, _: model.category.name if model.category else "-",
-        "subcategory": lambda model, _: model.subcategory.name if model.subcategory else "-",
-        
-        # Season, Material, Style
-        "season": lambda model, _: model.season.name if model.season else "-",
-        "material": lambda model, _: model.material.name if model.material else "-",
-        "style": lambda model, _: model.style.name if model.style else "-",
-        
-        # Rating with stars
-        "rating_avg": lambda model, _: f"⭐ {model.rating_avg:.1f}" if model.rating_avg else "-",
-        
-        # Sold count with badge
-        "sold_count": lambda model, _: f"<span class='badge badge-info'>{model.sold_count}</span>",
-        
-        # Active status with badge
-        "is_active": lambda model, _: (
-            '<span class="badge badge-success">✅ Активен</span>' if model.is_active 
-            else '<span class="badge badge-secondary">⏸️ Неактивен</span>'
-        ),
-        
-        # Featured status with badge
-        "is_featured": lambda model, _: (
-            '<span class="badge badge-warning">⭐ В топе</span>' if model.is_featured 
-            else '<span class="badge badge-light">-</span>'
-        ),
-        
-        # Created date
-        "created_at": lambda model, _: model.created_at.strftime("%d.%m.%Y") if model.created_at else "-"
-    }
-    
-    # Permissions
-    can_create = True
-    can_edit = True
-    can_delete = False  # Don't delete products (set inactive instead)
-    can_view_details = True
-    can_export = True  # Enable CSV export
-    
-    # Pagination
-    page_size = 50
-    page_size_options = [25, 50, 100, 200]
-    
-    # Description hints
-    column_descriptions = {
-        "title": "Название товара, которое будет отображаться на сайте",
-        "slug": "Уникальный URL-адрес (например: 'nike-air-max-90')",
-        "description": "Подробное описание товара для карточки товара",
-        "is_active": "Активные товары отображаются на сайте. Неактивные скрыты от покупателей.",
-        "is_featured": "Товары в топе показываются в разделе 'Хиты продаж' на главной странице",
-        "sold_count": "Количество проданных единиц товара (всех вариантов)",
-        "rating_avg": "Средний рейтинг из всех отзывов",
-        "brand": "Бренд товара (Nike, Adidas и т.д.)",
-        "category": "Основная категория (Мужчинам, Женщинам, Детям)",
-        "subcategory": "Подкатегория (Футболки, Джинсы, Обувь и т.д.)",
-        "season": "Сезон товара (Зима, Лето, Осень, Весна, Всесезонный)",
-        "material": "Основной материал (Хлопок, Полиэстер, Шерсть, Кожа и т.д.)",
-        "style": "Стиль товара (Casual, Formal, Sport, Street и т.д.)",
-        "main_image": "Главное изображение (500x500px, оптимизировано Pillow, хранится в /uploads/products/)",
-        "additional_images": "Дополнительные фото (до 5 шт., оптимизированы Pillow, хранятся локально)",
-        "attributes": "Дополнительные характеристики в JSON формате"
+        "additional_images": MultipleFileField(
+            "Дополнительные изображения",
+            description="Загрузите до 5 фото (будут оптимизированы)"
+        )
     }
 
-    # Image upload configuration
-    image_fields = ["main_image"]
-    multiple_image_fields = ["additional_images"]
+    column_searchable_list = [
+        "title", "description", "brand.name", "category.name", "subcategory.name"
+    ]
     
+    column_sortable_list = ["id", "title", "brand", "category", "is_active", "created_at"]
+    
+    column_filters = [
+        "is_active", "is_featured", "brand", "category", "subcategory",
+        "season", "material", "style"
+    ]
+
+    column_labels = {
+        "id": "ID", "title": "Название", "slug": "URL", "description": "Описание",
+        "brand": "Бренд", "category": "Категория", "subcategory": "Подкатегория",
+        "season": "Сезон", "material": "Материал", "style": "Стиль",
+        "is_active": "Активен", "is_featured": "В избранном",
+        "created_at": "Создан", "updated_at": "Обновлен",
+        "main_image": "Главное фото", "additional_images": "Доп. фото",
+        "skus": "SKU (Размеры/Цвета)", "reviews": "Отзывы", "attributes": "Атрибуты (JSON)"
+    }
+    
+    column_formatters = {
+        "main_image": lambda m, a: f'<img src="{m.main_image}" width="40">' if m.main_image else ""
+    }
 
 
 class SKUAdmin(ModelView, model=SKU):

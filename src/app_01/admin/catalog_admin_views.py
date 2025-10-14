@@ -2,29 +2,29 @@ from datetime import datetime
 from sqladmin import ModelView
 from starlette.requests import Request
 from wtforms import FileField
-from wtforms.validators import Optional as OptionalValidator
+from PIL import Image
+import io
+import logging
 
 from ..models import Category, Subcategory, Brand
-from .image_upload_mixin import ImageUploadMixin
+from ..utils.image_upload import image_uploader
+from fastapi import UploadFile
+
+logger = logging.getLogger(__name__)
 
 
-class CategoryAdmin(ImageUploadMixin, ModelView, model=Category):
+class CategoryAdmin(ModelView, model=Category):
     """Enhanced Category Management Interface"""
-    
+
     name = "Категории"
     name_plural = "Категории"
     icon = "fa-solid fa-folder-tree"
     category = "🛍️ Каталог"
-    
-    image_fields = ["image_url"]
 
     column_list = [
         "id", "image_url", "name", "slug", "icon", "is_active", "sort_order"
     ]
-    column_details_list = [
-        "id", "name", "slug", "description", "icon", "image_url", 
-        "sort_order", "is_active", "created_at", "updated_at", "subcategories"
-    ]
+    column_details_exclude_list = ["products"]
     
     form_columns = [
         "name", "slug", "description", "icon", "sort_order", "is_active"
@@ -32,99 +32,80 @@ class CategoryAdmin(ImageUploadMixin, ModelView, model=Category):
     
     column_searchable_list = ["name", "slug", "description"]
     column_sortable_list = ["id", "name", "sort_order", "is_active", "created_at"]
-    column_filters = ["is_active"]
-    
-    column_labels = {
-        "id": "ID", "name": "Название", "slug": "URL-адрес", "description": "Описание",
-        "icon": "Иконка", "image_url": "Фото", "sort_order": "Порядок",
-        "is_active": "Активна", "created_at": "Создана", "updated_at": "Обновлена",
-        "subcategories": "Подкатегории"
-    }
-    
-    form_label = "Категория"
-    
-    column_formatters = {
-        "is_active": lambda m, _: '<span class="badge badge-success">✅</span>' if m.is_active else '<span class="badge badge-secondary">❌</span>',
-        "image_url": lambda m, _: f'<img src="{m.image_url}" style="height: 40px; width: 40px; object-fit: cover; border-radius: 4px;">' if m.image_url else "-"
-    }
 
 
-class SubcategoryAdmin(ImageUploadMixin, ModelView, model=Subcategory):
+class SubcategoryAdmin(ModelView, model=Subcategory):
     """Enhanced Subcategory Management Interface"""
-    
+
     name = "Подкатегории"
-    name_plural = f"Подкатегории (ДЕПЛОЙ {datetime.now().strftime('%H:%M:%S')})"
+    name_plural = f"Подкатегории"
     icon = "fa-solid fa-folder"
     category = "🛍️ Каталог"
 
-    image_fields = ["image_url"]
-    
-    column_list = [
-        "id", "image_url", "category", "name", "slug", "is_active", "sort_order"
-    ]
-    column_details_list = [
-        "id", "category", "name", "slug", "description", 
-        "image_url", "sort_order", "is_active", "created_at", "updated_at", "products"
-    ]
-    
+    column_list = ["id", "image_url", "name", "slug", "is_active", "sort_order"]
+    column_details_exclude_list = ["products"]
+
     form_columns = [
         "category", "name", "slug", "description", "sort_order", "is_active"
     ]
     
+    form_extra_fields = {
+        "image_url": FileField("Изображение", description="Загрузите фото для подкатегории")
+    }
+
     column_searchable_list = ["name", "slug", "description"]
     column_sortable_list = ["id", "name", "sort_order", "is_active", "created_at"]
-    column_filters = ["is_active", "category"]
-    
-    column_labels = {
-        "id": "ID", "category": "Категория", "name": "Название", "slug": "URL-адрес",
-        "description": "Описание", "image_url": "Фото", "sort_order": "Порядок",
-        "is_active": "Активна", "created_at": "Создана", "updated_at": "Обновлена",
-        "products": "Товары"
-    }
-    
-    form_label = "Подкатегория"
-    
-    column_formatters = {
-        "is_active": lambda m, _: '<span class="badge badge-success">✅</span>' if m.is_active else '<span class="badge badge-secondary">❌</span>',
-        "image_url": lambda m, _: f'<img src="{m.image_url}" style="height: 40px; width: 40px; object-fit: cover; border-radius: 4px;">' if m.image_url else "-",
-        "category": lambda m, a: m.category.name if m.category else "-"
-    }
+
+    async def _save_image(self, file_data):
+        if not (file_data and hasattr(file_data, "filename") and file_data.filename):
+            return None
+        try:
+            # Re-read file bytes for processing
+            await file_data.seek(0)
+            file_bytes = await file_data.read()
+            
+            # Validate with Pillow
+            Image.open(io.BytesIO(file_bytes)).verify()
+            
+            upload_file = UploadFile(filename=file_data.filename, file=io.BytesIO(file_bytes))
+            
+            url = await image_uploader.save_image(
+                file=upload_file, category="subcategory"
+            )
+            return url
+        except Exception as e:
+            logger.error(f"Failed to save subcategory image: {e}")
+            return None
+
+    async def on_model_change(
+        self, data: dict, model: any, is_created: bool, request: Request
+    ) -> None:
+        """
+        Handle image upload after model is created/updated.
+        """
+        image_file = data.pop("image_url", None)
+
+        if image_file and hasattr(image_file, "filename") and image_file.filename:
+            image_url = await self._save_image(image_file)
+            model.image_url = image_url
+
+        await super().on_model_change(data, model, is_created, request)
 
 
-class BrandAdmin(ImageUploadMixin, ModelView, model=Brand):
-    """Brand management interface"""
-    
+class BrandAdmin(ModelView, model=Brand):
+    """Enhanced Brand Management Interface"""
+
     name = "Бренды"
     name_plural = "Бренды"
-    icon = "fa-solid fa-tags"
+    icon = "fa-solid fa-copyright"
     category = "🛍️ Каталог"
 
-    image_fields = ["logo_url"]
-    
-    column_list = [
-        "id", "logo_url", "name", "slug", "country", "sort_order", "is_active"
-    ]
-    column_details_list = [
-        "id", "name", "slug", "description", "logo_url", "website_url", "country", "sort_order", "is_active", "created_at"
-    ]
-    
+    column_list = ["id", "logo_url", "name", "slug", "is_active", "sort_order"]
+    column_details_exclude_list = ["products"]
+
     form_columns = [
         "name", "slug", "description", "website_url", "country", "sort_order", "is_active"
     ]
-    
+
     column_searchable_list = ["name", "slug", "description", "country"]
     column_sortable_list = ["id", "name", "sort_order", "is_active", "created_at"]
-    column_filters = ["is_active", "country"]
-    
-    column_labels = {
-        "id": "ID", "name": "Название", "slug": "URL-адрес", "description": "Описание",
-        "logo_url": "Лого", "website_url": "URL сайта", "country": "Страна",
-        "sort_order": "Порядок", "is_active": "Активен", "created_at": "Создан"
-    }
-    
-    form_label = "Бренд"
-
-    column_formatters = {
-        "is_active": lambda m, _: '<span class="badge badge-success">✅</span>' if m.is_active else '<span class="badge badge-secondary">❌</span>',
-        "logo_url": lambda m, _: f'<img src="{m.logo_url}" style="height: 40px; width: 40px; object-fit: contain; border-radius: 4px;">' if m.logo_url else "-"
-    }
