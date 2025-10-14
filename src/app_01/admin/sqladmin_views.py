@@ -261,6 +261,172 @@ class ProductAdmin(ModelView, model=Product):
         "main_image": lambda m, a: f'<img src="{m.main_image}" width="40">' if m.main_image else ""
     }
 
+    async def _save_single_image(self, file_data, image_type="main"):
+        """Save a single product image."""
+        from fastapi import UploadFile
+        
+        logger.info(f"🔍 [PRODUCT {image_type.upper()}] Starting _save_single_image method")
+        
+        if not file_data:
+            logger.warning(f"⚠️ [PRODUCT {image_type.upper()}] No file_data provided")
+            return None
+            
+        if not hasattr(file_data, "filename"):
+            logger.warning(f"⚠️ [PRODUCT {image_type.upper()}] file_data has no filename attribute")
+            return None
+            
+        if not file_data.filename:
+            logger.warning(f"⚠️ [PRODUCT {image_type.upper()}] filename is empty")
+            return None
+            
+        logger.info(f"📁 [PRODUCT {image_type.upper()}] Processing file: {file_data.filename}")
+        
+        try:
+            # Re-read file bytes for processing
+            await file_data.seek(0)
+            file_bytes = await file_data.read()
+            logger.info(f"📊 [PRODUCT {image_type.upper()}] Read {len(file_bytes)} bytes from uploaded file")
+            
+            # Validate with Pillow
+            img = Image.open(io.BytesIO(file_bytes))
+            img.verify()
+            logger.info(f"✅ [PRODUCT {image_type.upper()}] Pillow validation passed - Image format: {img.format}")
+            
+            upload_file = UploadFile(filename=file_data.filename, file=io.BytesIO(file_bytes))
+            
+            logger.info(f"💾 [PRODUCT {image_type.upper()}] Calling image_uploader.save_image...")
+            url = await image_uploader.save_image(
+                file=upload_file, category="product"
+            )
+            logger.info(f"✅ [PRODUCT {image_type.upper()}] Image uploaded successfully to: {url}")
+            return url
+        except Exception as e:
+            logger.error(f"❌ [PRODUCT {image_type.upper()}] Failed to save image: {type(e).__name__}: {e}")
+            import traceback
+            logger.error(f"📋 [PRODUCT {image_type.upper()}] Traceback: {traceback.format_exc()}")
+            return None
+
+    async def insert_model(self, request: Request, data: dict) -> any:
+        """Handle image uploads when creating a new product."""
+        logger.info("🆕 [PRODUCT INSERT] Starting insert_model")
+        logger.info(f"📦 [PRODUCT INSERT] Data keys received: {list(data.keys())}")
+        
+        # Extract main image file
+        main_image_file = data.pop("main_image", None)
+        logger.info(f"🖼️ [PRODUCT INSERT] Extracted main_image_file: {main_image_file}")
+        
+        # Extract additional images files (multiple)
+        additional_files = data.pop("additional_images", None)
+        logger.info(f"📸 [PRODUCT INSERT] Extracted additional_images: {additional_files}")
+        
+        # Save main image if provided
+        if main_image_file and hasattr(main_image_file, "filename") and main_image_file.filename:
+            logger.info(f"📤 [PRODUCT INSERT] Uploading main image: {main_image_file.filename}")
+            main_url = await self._save_single_image(main_image_file, "main")
+            if main_url:
+                data["main_image"] = main_url
+                logger.info(f"✅ [PRODUCT INSERT] Main image URL set: {main_url}")
+            else:
+                logger.error("❌ [PRODUCT INSERT] Main image upload failed")
+        else:
+            logger.info("ℹ️ [PRODUCT INSERT] No main image provided")
+        
+        # Save additional images if provided (multiple files)
+        additional_urls = []
+        if additional_files:
+            # MultipleFileField returns a list of FileStorage objects
+            files_to_process = additional_files if isinstance(additional_files, list) else [additional_files]
+            logger.info(f"📸 [PRODUCT INSERT] Processing {len(files_to_process)} additional images")
+            
+            for idx, file_data in enumerate(files_to_process):
+                if file_data and hasattr(file_data, "filename") and file_data.filename:
+                    logger.info(f"📤 [PRODUCT INSERT] Uploading additional image {idx+1}: {file_data.filename}")
+                    url = await self._save_single_image(file_data, f"additional-{idx+1}")
+                    if url:
+                        additional_urls.append(url)
+                        logger.info(f"✅ [PRODUCT INSERT] Additional image {idx+1} URL: {url}")
+                    else:
+                        logger.error(f"❌ [PRODUCT INSERT] Additional image {idx+1} upload failed")
+            
+            if additional_urls:
+                data["additional_images"] = additional_urls
+                logger.info(f"✅ [PRODUCT INSERT] Set {len(additional_urls)} additional image URLs")
+        else:
+            logger.info("ℹ️ [PRODUCT INSERT] No additional images provided")
+        
+        # Call parent to create the model
+        logger.info("💾 [PRODUCT INSERT] Calling parent insert_model to save to DB")
+        result = await super().insert_model(request, data)
+        
+        if result:
+            logger.info(f"✅ [PRODUCT INSERT] SUCCESS - Product created with ID: {result.id}")
+            logger.info(f"🖼️ [PRODUCT INSERT] Main image in DB: {result.main_image}")
+            logger.info(f"📸 [PRODUCT INSERT] Additional images in DB: {result.additional_images}")
+        else:
+            logger.error("❌ [PRODUCT INSERT] Failed to create product")
+        
+        return result
+
+    async def update_model(self, request: Request, pk: str, data: dict) -> any:
+        """Handle image uploads when updating a product."""
+        logger.info(f"🔄 [PRODUCT UPDATE] Starting update_model for ID: {pk}")
+        logger.info(f"📦 [PRODUCT UPDATE] Data keys received: {list(data.keys())}")
+        
+        # Extract main image file
+        main_image_file = data.pop("main_image", None)
+        logger.info(f"🖼️ [PRODUCT UPDATE] Extracted main_image_file: {main_image_file}")
+        
+        # Extract additional images files (multiple)
+        additional_files = data.pop("additional_images", None)
+        logger.info(f"📸 [PRODUCT UPDATE] Extracted additional_images: {additional_files}")
+        
+        # Save main image if provided
+        if main_image_file and hasattr(main_image_file, "filename") and main_image_file.filename:
+            logger.info(f"📤 [PRODUCT UPDATE] Uploading new main image: {main_image_file.filename}")
+            main_url = await self._save_single_image(main_image_file, "main")
+            if main_url:
+                data["main_image"] = main_url
+                logger.info(f"✅ [PRODUCT UPDATE] Main image URL set: {main_url}")
+            else:
+                logger.error("❌ [PRODUCT UPDATE] Main image upload failed")
+        else:
+            logger.info("ℹ️ [PRODUCT UPDATE] No new main image, keeping existing")
+        
+        # Save additional images if provided (multiple files)
+        if additional_files:
+            additional_urls = []
+            files_to_process = additional_files if isinstance(additional_files, list) else [additional_files]
+            logger.info(f"📸 [PRODUCT UPDATE] Processing {len(files_to_process)} additional images")
+            
+            for idx, file_data in enumerate(files_to_process):
+                if file_data and hasattr(file_data, "filename") and file_data.filename:
+                    logger.info(f"📤 [PRODUCT UPDATE] Uploading additional image {idx+1}: {file_data.filename}")
+                    url = await self._save_single_image(file_data, f"additional-{idx+1}")
+                    if url:
+                        additional_urls.append(url)
+                        logger.info(f"✅ [PRODUCT UPDATE] Additional image {idx+1} URL: {url}")
+                    else:
+                        logger.error(f"❌ [PRODUCT UPDATE] Additional image {idx+1} upload failed")
+            
+            if additional_urls:
+                data["additional_images"] = additional_urls
+                logger.info(f"✅ [PRODUCT UPDATE] Set {len(additional_urls)} additional image URLs")
+        else:
+            logger.info("ℹ️ [PRODUCT UPDATE] No new additional images, keeping existing")
+        
+        # Call parent to update the model
+        logger.info("💾 [PRODUCT UPDATE] Calling parent update_model to save to DB")
+        result = await super().update_model(request, pk, data)
+        
+        if result:
+            logger.info(f"✅ [PRODUCT UPDATE] SUCCESS - Product updated with ID: {result.id}")
+            logger.info(f"🖼️ [PRODUCT UPDATE] Main image in DB: {result.main_image}")
+            logger.info(f"📸 [PRODUCT UPDATE] Additional images in DB: {result.additional_images}")
+        else:
+            logger.error("❌ [PRODUCT UPDATE] Failed to update product")
+        
+        return result
+
 
 class SKUAdmin(ModelView, model=SKU):
     """
