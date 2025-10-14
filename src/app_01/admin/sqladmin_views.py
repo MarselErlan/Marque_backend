@@ -221,7 +221,7 @@ class ProductAdmin(ModelView, model=Product):
     ]
     
     column_details_list = [
-        "id", "brand", "category", "subcategory",
+        "id", "brand", "category", "subcategory", 
         "season", "material", "style",
         "title", "slug", "description",
         "main_image", "additional_images",
@@ -233,7 +233,7 @@ class ProductAdmin(ModelView, model=Product):
     
     # Form configuration - Use relationship names for proper dropdowns
     form_columns = [
-        "title", "slug", "description",
+        "title", "slug", "description", 
         "brand", "category", "subcategory",
         "season", "material", "style",
         "is_active", "is_featured", "attributes",
@@ -248,12 +248,12 @@ class ProductAdmin(ModelView, model=Product):
         "main_image": FileField(
             "Главное изображение",
             validators=[OptionalValidator()],
-            description="Загрузите главное изображение товара (JPEG, PNG)"
+            description="Загрузите главное фото (JPEG/PNG, автоматически изменится до 500x500px, оптимизируется Pillow)"
         ),
         "additional_images": MultipleFileField(
             "Дополнительные изображения",
             validators=[OptionalValidator()],
-            description="Загрузите дополнительные изображения товара (до 5 шт.)"
+            description="Загрузите до 5 фото (автоматически оптимизируются и сохраняются в /uploads/products/)"
         )
     }
     
@@ -335,7 +335,8 @@ class ProductAdmin(ModelView, model=Product):
     # Russian labels
     column_labels = {
         "id": "ID",
-        "main_image_preview": "Фото",
+        "main_image": "Главное фото",
+        "additional_images": "Доп. фото",
         "brand": "Бренд",
         "brand_id": "Бренд",
         "category": "Категория",
@@ -360,7 +361,6 @@ class ProductAdmin(ModelView, model=Product):
         "created_at": "Создан",
         "updated_at": "Обновлен",
         "skus": "Варианты (SKU)",
-        "assets": "Изображения",
         "reviews": "Отзывы"
     }
     
@@ -451,8 +451,8 @@ class ProductAdmin(ModelView, model=Product):
         "season": "Сезон товара (Зима, Лето, Осень, Весна, Всесезонный)",
         "material": "Основной материал (Хлопок, Полиэстер, Шерсть, Кожа и т.д.)",
         "style": "Стиль товара (Casual, Formal, Sport, Street и т.д.)",
-        "main_image": "Главное изображение товара (обработано Pillow, хранится в БД)",
-        "additional_images": "Дополнительные фотографии (массив URL, обработаны Pillow)",
+        "main_image": "Главное изображение (500x500px, оптимизировано Pillow, хранится в /uploads/products/)",
+        "additional_images": "Дополнительные фото (до 5 шт., оптимизированы Pillow, хранятся локально)",
         "attributes": "Дополнительные характеристики в JSON формате"
     }
     
