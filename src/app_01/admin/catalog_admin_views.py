@@ -82,24 +82,39 @@ class SubcategoryAdmin(ModelView, model=Subcategory):
             url = await image_uploader.save_image(
                 file=upload_file, category="subcategory"
             )
+            logger.info(f"✅ Image uploaded successfully: {url}")
             return url
         except Exception as e:
-            logger.error(f"Failed to save subcategory image: {e}")
+            logger.error(f"❌ Failed to save subcategory image: {e}")
             return None
 
-    async def on_model_change(
-        self, data: dict, model: any, is_created: bool, request: Request
-    ) -> None:
-        """
-        Handle image upload after model is created/updated.
-        """
+    async def insert_model(self, request: Request, data: dict) -> any:
+        """Handle image upload when creating a new subcategory."""
+        # Extract image file before SQLAlchemy tries to process it
         image_file = data.pop("image_url", None)
-
+        
+        # Save the image if provided
         if image_file and hasattr(image_file, "filename") and image_file.filename:
             image_url = await self._save_image(image_file)
-            model.image_url = image_url
+            if image_url:
+                data["image_url"] = image_url
+        
+        # Call parent to create the model
+        return await super().insert_model(request, data)
 
-        await super().on_model_change(data, model, is_created, request)
+    async def update_model(self, request: Request, pk: str, data: dict) -> any:
+        """Handle image upload when updating a subcategory."""
+        # Extract image file before SQLAlchemy tries to process it
+        image_file = data.pop("image_url", None)
+        
+        # Save the image if provided
+        if image_file and hasattr(image_file, "filename") and image_file.filename:
+            image_url = await self._save_image(image_file)
+            if image_url:
+                data["image_url"] = image_url
+        
+        # Call parent to update the model
+        return await super().update_model(request, pk, data)
 
 
 class BrandAdmin(ModelView, model=Brand):
