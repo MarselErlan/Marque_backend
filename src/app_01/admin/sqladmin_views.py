@@ -225,16 +225,25 @@ class ProductAdmin(ModelView, model=Product):
         "is_active", "is_featured", "attributes"
     ]
 
-    form_extra_fields = {
-        "main_image": FileField(
+    async def scaffold_form(self):
+        """Override to add image upload fields programmatically"""
+        form_class = await super().scaffold_form()
+        
+        # Add main image upload field
+        form_class.main_image = FileField(
             "Главное изображение",
-            description="Загрузите главное фото (JPEG/PNG, будет оптимизировано)"
-        ),
-        "additional_images": MultipleFileField(
-            "Дополнительные изображения",
-            description="Загрузите до 5 фото (будут оптимизированы)"
+            validators=[OptionalValidator()],
+            description="Загрузите главное фото товара (JPEG/PNG)"
         )
-    }
+        
+        # Add multiple additional images upload field
+        form_class.additional_images = MultipleFileField(
+            "Дополнительные изображения",
+            validators=[OptionalValidator()],
+            description="Загрузите до 5 дополнительных фото (JPEG/PNG)"
+        )
+        
+        return form_class
 
     column_searchable_list = [
         "title", "description", "brand.name", "category.name", "subcategory.name"
