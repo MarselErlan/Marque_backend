@@ -42,18 +42,6 @@ class BannerAdmin(ImageUploadMixin, ModelView, model=Banner):
         "start_date", "end_date"
     ]
 
-    form_extra_fields = {
-        "image_url": FileField(
-            "Изображение (десктоп)",
-            description="Загрузите изображение для десктопа (рекомендуемый размер: 1920x600px)"
-        ),
-        "mobile_image_url": FileField(
-            "Изображение (мобильное)",
-            validators=[OptionalValidator()],
-            description="Загрузите изображение для мобильных устройств (опционально, 800x1200px)"
-        )
-    }
-    
     column_searchable_list = ["title", "subtitle", "description"]
     column_sortable_list = ["id", "title", "display_order", "banner_type", "created_at"]
     column_filters = ["banner_type", "is_active"]

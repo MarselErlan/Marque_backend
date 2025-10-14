@@ -238,26 +238,11 @@ class ProductAdmin(ImageUploadMixin, ModelView, model=Product):
         "brand", "category", "subcategory",
         "season", "material", "style",
         "is_active", "is_featured", "attributes"
-        # Note: main_image and additional_images are in form_extra_fields below (file upload)
+        # Note: main_image and additional_images are now handled by ImageUploadMixin
     ]
     
     # Include relationships for the form
     form_include_pk = False
-    
-    # Custom form fields for image uploads with Pillow processing
-    form_extra_fields = {
-        "main_image": FileField(
-            "Главное изображение (Тест)",
-            validators=[OptionalValidator()],
-            description="Тестовая загрузка для диагностики. Сохранение пока не будет работать."
-        ),
-        # Temporarily disabling for diagnostics
-        # "additional_images": MultipleFileField(
-        #     "Дополнительные изображения",
-        #     validators=[OptionalValidator()],
-        #     description="Загрузите до 5 фото (автоматически оптимизируются и сохраняются в /uploads/products/)"
-        # )
-    }
     
     # Form arguments to configure widgets
     form_args = {

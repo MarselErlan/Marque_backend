@@ -28,10 +28,6 @@ class CategoryAdmin(ImageUploadMixin, ModelView, model=Category):
     form_columns = [
         "name", "slug", "description", "icon", "sort_order", "is_active"
     ]
-
-    form_extra_fields = {
-        "image_url": FileField("Изображение", validators=[OptionalValidator()])
-    }
     
     column_searchable_list = ["name", "slug", "description"]
     column_sortable_list = ["id", "name", "sort_order", "is_active", "created_at"]
@@ -73,10 +69,6 @@ class SubcategoryAdmin(ImageUploadMixin, ModelView, model=Subcategory):
     form_columns = [
         "category", "name", "slug", "description", "sort_order", "is_active"
     ]
-
-    form_extra_fields = {
-        "image_url": FileField("Изображение", validators=[OptionalValidator()])
-    }
     
     column_searchable_list = ["name", "slug", "description"]
     column_sortable_list = ["id", "name", "sort_order", "is_active", "created_at"]
@@ -118,11 +110,7 @@ class BrandAdmin(ImageUploadMixin, ModelView, model=Brand):
     form_columns = [
         "name", "slug", "description", "website_url", "country", "sort_order", "is_active"
     ]
-
-    form_extra_fields = {
-        "logo_url": FileField("Логотип", validators=[OptionalValidator()])
-    }
-
+    
     column_searchable_list = ["name", "slug", "description", "country"]
     column_sortable_list = ["id", "name", "sort_order", "is_active", "created_at"]
     column_filters = ["is_active", "country"]

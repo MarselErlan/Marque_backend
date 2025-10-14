@@ -30,6 +30,31 @@ class ImageUploadMixin:
     image_fields: List[str] = []
     multiple_image_fields: List[str] = []
 
+    async def scaffold_form(self) -> type:
+        """
+        Forcefully add FileField widgets to the form.
+        This is a workaround for environments where `form_extra_fields` fails.
+        """
+        Form = await super().scaffold_form()
+        
+        # Add single image upload fields
+        for field_name in self.image_fields:
+            setattr(Form, field_name, FileField(
+                label=self.column_labels.get(field_name, field_name.replace("_", " ").title()),
+                validators=[OptionalValidator()],
+                description=self.column_descriptions.get(field_name, "")
+            ))
+
+        # Add multiple image upload fields
+        for field_name in self.multiple_image_fields:
+            setattr(Form, field_name, MultipleFileField(
+                label=self.column_labels.get(field_name, field_name.replace("_", " ").title()),
+                validators=[OptionalValidator()],
+                description=self.column_descriptions.get(field_name, "")
+            ))
+            
+        return Form
+
     async def _save_image(self, file_data, model_name: str) -> Optional[str]:
         """Generic method to save an uploaded image using Pillow."""
         if not (file_data and hasattr(file_data, 'filename') and file_data.filename):
