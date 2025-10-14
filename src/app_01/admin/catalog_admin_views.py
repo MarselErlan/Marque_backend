@@ -2,6 +2,7 @@ from datetime import datetime
 from sqladmin import ModelView
 from starlette.requests import Request
 from wtforms import FileField
+from wtforms.validators import Optional as OptionalValidator
 from PIL import Image
 import io
 import logging
@@ -48,13 +49,22 @@ class SubcategoryAdmin(ModelView, model=Subcategory):
     form_columns = [
         "category", "name", "slug", "description", "sort_order", "is_active"
     ]
-    
-    form_extra_fields = {
-        "image_url": FileField("Изображение", description="Загрузите фото для подкатегории")
-    }
 
     column_searchable_list = ["name", "slug", "description"]
     column_sortable_list = ["id", "name", "sort_order", "is_active", "created_at"]
+
+    async def scaffold_form(self):
+        """Override to add the image upload field programmatically"""
+        form_class = await super().scaffold_form()
+        
+        # Add the image upload field
+        form_class.image_url = FileField(
+            "Изображение",
+            validators=[OptionalValidator()],
+            description="Загрузите фото для подкатегории (JPEG/PNG)"
+        )
+        
+        return form_class
 
     async def _save_image(self, file_data):
         if not (file_data and hasattr(file_data, "filename") and file_data.filename):
