@@ -225,6 +225,7 @@ class ProductAdmin(ModelView, model=Product):
     form_columns = [
         "title", "slug", "description",
         "brand", "category", "subcategory",
+        "season", "material", "style",
         "is_active", "is_featured", "attributes"
     ]
     
@@ -256,6 +257,18 @@ class ProductAdmin(ModelView, model=Product):
         "subcategory": {
             "label": "Подкатегория",
             "description": "Выберите подкатегорию (Футболки, Джинсы и т.д.)"
+        },
+        "season": {
+            "label": "Сезон",
+            "description": "Сезон (Зима, Лето, Осень, Весна, Всесезонный) - необязательно"
+        },
+        "material": {
+            "label": "Материал",
+            "description": "Основной материал (Хлопок, Полиэстер, Шерсть и т.д.) - необязательно"
+        },
+        "style": {
+            "label": "Стиль",
+            "description": "Стиль одежды (Casual, Formal, Sport и т.д.) - необязательно"
         },
         "is_active": {
             "label": "Активен",
@@ -376,6 +389,9 @@ class ProductAdmin(ModelView, model=Product):
         "brand": "Бренд товара (Nike, Adidas и т.д.)",
         "category": "Основная категория (Мужчинам, Женщинам, Детям)",
         "subcategory": "Подкатегория (Футболки, Джинсы, Обувь и т.д.)",
+        "season": "Сезон товара (Зима, Лето, Осень, Весна, Всесезонный)",
+        "material": "Основной материал (Хлопок, Полиэстер, Шерсть, Кожа и т.д.)",
+        "style": "Стиль товара (Casual, Formal, Sport, Street и т.д.)",
         "attributes": "Дополнительные характеристики в JSON формате. ВАЖНО: После создания товара добавьте SKU (цены, размеры, цвета, склад) и изображения!"
     }
 
