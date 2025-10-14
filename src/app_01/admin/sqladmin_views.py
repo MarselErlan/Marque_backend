@@ -209,7 +209,7 @@ class ProductAdmin(ModelView, model=Product):
     
     # Enhanced column configuration
     column_list = [
-        "id", "title", "brand", "category", "subcategory",
+        "id", "main_image_preview", "title", "brand", "category", "subcategory",
         "season", "material", "style",
         "sold_count", "rating_avg", "is_active", "is_featured"
     ]
@@ -313,6 +313,7 @@ class ProductAdmin(ModelView, model=Product):
     # Russian labels
     column_labels = {
         "id": "ID",
+        "main_image_preview": "Фото",
         "brand": "Бренд",
         "brand_id": "Бренд",
         "category": "Категория",
@@ -346,6 +347,29 @@ class ProductAdmin(ModelView, model=Product):
     
     # Enhanced formatters for better display
     column_formatters = {
+        # Main image preview thumbnail in list view
+        "main_image_preview": lambda model, _: (
+            f'<img src="{model.assets[0].url}" style="max-width: 80px; max-height: 80px; object-fit: cover; border-radius: 4px;" />'
+            if model.assets and len(model.assets) > 0
+            else '<span class="badge badge-secondary">Нет фото</span>'
+        ),
+        
+        # Assets - display all images in detail view
+        "assets": lambda model, _: (
+            '<div style="display: flex; flex-wrap: wrap; gap: 10px;">' +
+            ''.join([
+                f'<div style="position: relative;">'
+                f'<img src="{asset.url}" style="max-width: 150px; max-height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd;" />'
+                f'<div style="text-align: center; font-size: 11px; color: #666; margin-top: 4px;">Порядок: {asset.order}</div>'
+                f'</div>'
+                for asset in sorted(model.assets, key=lambda a: a.order)
+                if asset.type == 'image'
+            ]) +
+            '</div>'
+            if model.assets and any(a.type == 'image' for a in model.assets)
+            else '<span class="badge badge-secondary">Нет изображений</span>'
+        ),
+        
         # Brand name
         "brand": lambda model, _: model.brand.name if model.brand else "-",
         
@@ -393,6 +417,7 @@ class ProductAdmin(ModelView, model=Product):
     
     # Description hints
     column_descriptions = {
+        "main_image_preview": "Миниатюра главного изображения товара",
         "title": "Название товара, которое будет отображаться на сайте",
         "slug": "Уникальный URL-адрес (например: 'nike-air-max-90')",
         "description": "Подробное описание товара для карточки товара",
@@ -406,6 +431,7 @@ class ProductAdmin(ModelView, model=Product):
         "season": "Сезон товара (Зима, Лето, Осень, Весна, Всесезонный)",
         "material": "Основной материал (Хлопок, Полиэстер, Шерсть, Кожа и т.д.)",
         "style": "Стиль товара (Casual, Formal, Sport, Street и т.д.)",
+        "assets": "Все изображения товара (добавляются в разделе 'Медиа файлы')",
         "attributes": "Дополнительные характеристики в JSON формате. ВАЖНО: После создания товара добавьте SKU (цены, размеры, цвета, склад) и изображения!"
     }
 

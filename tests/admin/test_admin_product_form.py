@@ -131,8 +131,8 @@ class TestAdminProductForm:
             f"Form columns mismatch. Expected: {expected_columns}, Got: {ProductAdmin.form_columns}"
     
     def test_product_admin_column_list(self):
-        """Test that ProductAdmin column_list includes season, material, style"""
-        expected_in_list = ["season", "material", "style", "is_featured"]
+        """Test that ProductAdmin column_list includes season, material, style, and image preview"""
+        expected_in_list = ["main_image_preview", "season", "material", "style", "is_featured"]
         
         assert hasattr(ProductAdmin, 'column_list'), "ProductAdmin should have column_list"
         
@@ -154,8 +154,8 @@ class TestAdminProductForm:
                 f"Field '{field}' should be in column_details_list. Current list: {ProductAdmin.column_details_list}"
     
     def test_product_admin_column_formatters(self):
-        """Test that ProductAdmin has formatters for season, material, style"""
-        expected_formatters = ["season", "material", "style", "is_featured"]
+        """Test that ProductAdmin has formatters for season, material, style, and images"""
+        expected_formatters = ["main_image_preview", "assets", "season", "material", "style", "is_featured"]
         
         assert hasattr(ProductAdmin, 'column_formatters'), "ProductAdmin should have column_formatters"
         
