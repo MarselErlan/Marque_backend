@@ -3,17 +3,23 @@ from sqladmin.authentication import AuthenticationBackend
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
 from typing import Optional
+from wtforms import FileField, MultipleFileField
+from wtforms.validators import Optional as OptionalValidator
 import secrets
 import bcrypt
 from sqlalchemy.orm import Session
 from datetime import datetime
 import logging
+import os
+from PIL import Image
+import io
 
 from ..models import (
     Product, SKU, ProductAsset, Review, ProductAttribute,
     User, Admin, AdminLog
 )
 from ..db.market_db import db_manager, Market
+from ..utils.image_upload import image_uploader
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -229,11 +235,26 @@ class ProductAdmin(ModelView, model=Product):
         "title", "slug", "description",
         "brand", "category", "subcategory",
         "season", "material", "style",
-        "is_active", "is_featured", "attributes"
+        "is_active", "is_featured", "attributes",
+        "main_image", "additional_images"  # Image upload fields
     ]
     
     # Include relationships for the form
     form_include_pk = False
+    
+    # Custom form fields for image uploads
+    form_extra_fields = {
+        "main_image": FileField(
+            "Главное изображение",
+            validators=[OptionalValidator()],
+            description="Загрузите главное изображение товара (JPEG, PNG)"
+        ),
+        "additional_images": MultipleFileField(
+            "Дополнительные изображения",
+            validators=[OptionalValidator()],
+            description="Загрузите дополнительные изображения товара (до 5 шт.)"
+        )
+    }
     
     # Form arguments to configure widgets
     form_args = {
@@ -431,9 +452,199 @@ class ProductAdmin(ModelView, model=Product):
         "season": "Сезон товара (Зима, Лето, Осень, Весна, Всесезонный)",
         "material": "Основной материал (Хлопок, Полиэстер, Шерсть, Кожа и т.д.)",
         "style": "Стиль товара (Casual, Formal, Sport, Street и т.д.)",
-        "assets": "Все изображения товара (добавляются в разделе 'Медиа файлы')",
-        "attributes": "Дополнительные характеристики в JSON формате. ВАЖНО: После создания товара добавьте SKU (цены, размеры, цвета, склад) и изображения!"
+        "main_image": "Главное изображение товара (будет первым на сайте)",
+        "additional_images": "Дополнительные фотографии товара (до 5 изображений)",
+        "assets": "Все изображения товара (добавленные через форму)",
+        "attributes": "Дополнительные характеристики в JSON формате"
     }
+    
+    async def insert_model(self, request: Request, data: dict) -> bool:
+        """Custom insert with image upload handling"""
+        try:
+            # Extract image fields before saving product
+            main_image_data = data.pop("main_image", None)
+            additional_images_data = data.pop("additional_images", None)
+            
+            # Create the product first (call parent method)
+            result = await super().insert_model(request, data)
+            
+            if not result:
+                return False
+            
+            # Get the created product ID
+            db = self.session_maker()
+            try:
+                # Find the just-created product
+                product = db.query(Product).filter_by(slug=data.get("slug")).first()
+                
+                if not product:
+                    logger.error("Failed to find created product")
+                    return False
+                
+                # Handle main image upload
+                if main_image_data and hasattr(main_image_data, 'filename') and main_image_data.filename:
+                    logger.info(f"📸 Uploading main image: {main_image_data.filename}")
+                    url = await self._save_product_image(main_image_data, product.id, order=0)
+                    if url:
+                        asset = ProductAsset(
+                            product_id=product.id,
+                            url=url,
+                            type="image",
+                            alt_text=f"{product.title} - Main Image",
+                            order=0
+                        )
+                        db.add(asset)
+                
+                # Handle additional images
+                if additional_images_data:
+                    for idx, image_data in enumerate(additional_images_data, start=1):
+                        if hasattr(image_data, 'filename') and image_data.filename:
+                            logger.info(f"📸 Uploading additional image {idx}: {image_data.filename}")
+                            url = await self._save_product_image(image_data, product.id, order=idx)
+                            if url:
+                                asset = ProductAsset(
+                                    product_id=product.id,
+                                    url=url,
+                                    type="image",
+                                    alt_text=f"{product.title} - Image {idx + 1}",
+                                    order=idx
+                                )
+                                db.add(asset)
+                
+                db.commit()
+                logger.info(f"✅ Product created with images: {product.title}")
+                return True
+                
+            except Exception as e:
+                db.rollback()
+                logger.error(f"❌ Error saving images: {e}")
+                return False
+            finally:
+                db.close()
+                
+        except Exception as e:
+            logger.error(f"❌ Error in insert_model: {e}")
+            return False
+    
+    async def update_model(self, request: Request, pk: str, data: dict) -> bool:
+        """Custom update with image upload handling"""
+        try:
+            # Extract image fields
+            main_image_data = data.pop("main_image", None)
+            additional_images_data = data.pop("additional_images", None)
+            
+            # Update the product (call parent method)
+            result = await super().update_model(request, pk, data)
+            
+            if not result:
+                return False
+            
+            # Handle new image uploads
+            if main_image_data or additional_images_data:
+                db = self.session_maker()
+                try:
+                    product = db.query(Product).filter_by(id=pk).first()
+                    
+                    if not product:
+                        return False
+                    
+                    # Get current max order
+                    max_order = 0
+                    if product.assets:
+                        max_order = max([asset.order for asset in product.assets], default=0)
+                    
+                    # Handle main image (replace order=0 if exists)
+                    if main_image_data and hasattr(main_image_data, 'filename') and main_image_data.filename:
+                        logger.info(f"📸 Updating main image: {main_image_data.filename}")
+                        
+                        # Delete old main image
+                        old_main = db.query(ProductAsset).filter_by(product_id=product.id, order=0).first()
+                        if old_main:
+                            db.delete(old_main)
+                        
+                        url = await self._save_product_image(main_image_data, product.id, order=0)
+                        if url:
+                            asset = ProductAsset(
+                                product_id=product.id,
+                                url=url,
+                                type="image",
+                                alt_text=f"{product.title} - Main Image",
+                                order=0
+                            )
+                            db.add(asset)
+                    
+                    # Handle additional images
+                    if additional_images_data:
+                        for idx, image_data in enumerate(additional_images_data, start=1):
+                            if hasattr(image_data, 'filename') and image_data.filename:
+                                logger.info(f"📸 Adding additional image {idx}: {image_data.filename}")
+                                url = await self._save_product_image(image_data, product.id, order=max_order + idx)
+                                if url:
+                                    asset = ProductAsset(
+                                        product_id=product.id,
+                                        url=url,
+                                        type="image",
+                                        alt_text=f"{product.title} - Image {max_order + idx + 1}",
+                                        order=max_order + idx
+                                    )
+                                    db.add(asset)
+                    
+                    db.commit()
+                    logger.info(f"✅ Product updated with images: {product.title}")
+                    return True
+                    
+                except Exception as e:
+                    db.rollback()
+                    logger.error(f"❌ Error updating images: {e}")
+                    return False
+                finally:
+                    db.close()
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Error in update_model: {e}")
+            return False
+    
+    async def _save_product_image(self, file_data, product_id: int, order: int) -> Optional[str]:
+        """Save uploaded image using Pillow and image_uploader"""
+        try:
+            # Read file data
+            file_bytes = await file_data.read()
+            
+            # Validate it's an image using Pillow
+            try:
+                img = Image.open(io.BytesIO(file_bytes))
+                img.verify()
+                logger.info(f"✅ Valid image: {img.format}, {img.size}")
+            except Exception as e:
+                logger.error(f"❌ Invalid image file: {e}")
+                return None
+            
+            # Reset file pointer
+            await file_data.seek(0)
+            
+            # Create a temporary UploadFile-like object for image_uploader
+            from fastapi import UploadFile
+            upload_file = UploadFile(
+                filename=file_data.filename,
+                file=io.BytesIO(file_bytes)
+            )
+            
+            # Use image_uploader to save with Pillow processing
+            url = await image_uploader.save_image(
+                file=upload_file,
+                category="products",
+                resize_to="medium",  # 500x500px
+                optimize=True
+            )
+            
+            logger.info(f"✅ Image saved: {url}")
+            return url
+            
+        except Exception as e:
+            logger.error(f"❌ Error saving image: {e}")
+            return None
 
 
 class SKUAdmin(ModelView, model=SKU):
