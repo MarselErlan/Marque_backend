@@ -5,29 +5,28 @@ SQLAdmin interface for managing homepage banners
 
 from sqladmin import ModelView
 from starlette.requests import Request
+from wtforms import FileField, MultipleFileField
+from wtforms.validators import Optional as OptionalValidator
+
 from ..models.banners.banner import Banner, BannerType
-from .widgets import ImageUploadField
+from .image_upload_mixin import ImageUploadMixin
 
 
-class BannerAdmin(ModelView, model=Banner):
+class BannerAdmin(ImageUploadMixin, ModelView, model=Banner):
     """
-    Enhanced Banner Management Interface
-    
-    Features:
-    - Image upload with Pillow processing
-    - Banner type management (hero, promo, category)
-    - Scheduling support
-    - Display order control
-    - CTA (Call-to-Action) configuration
+    Enhanced Banner Management Interface, now with standardized image uploads.
     """
     
     name = "Баннеры"
     name_plural = "Баннеры"
     icon = "fa-solid fa-rectangle-ad"
     category = "🎨 Контент"
+
+    # Image Upload Configuration
+    image_fields = ["image_url", "mobile_image_url"]
     
     column_list = [
-        "id", "title", "banner_type", "is_active", 
+        "id", "image_url", "title", "banner_type", "is_active", 
         "display_order", "start_date", "end_date"
     ]
     
@@ -38,10 +37,22 @@ class BannerAdmin(ModelView, model=Banner):
     ]
     
     form_columns = [
-        "title", "subtitle", "description", "image_url", "mobile_image_url",
+        "title", "subtitle", "description",
         "banner_type", "cta_text", "cta_url", "is_active", "display_order",
         "start_date", "end_date"
     ]
+
+    form_extra_fields = {
+        "image_url": FileField(
+            "Изображение (десктоп)",
+            description="Загрузите изображение для десктопа (рекомендуемый размер: 1920x600px)"
+        ),
+        "mobile_image_url": FileField(
+            "Изображение (мобильное)",
+            validators=[OptionalValidator()],
+            description="Загрузите изображение для мобильных устройств (опционально, 800x1200px)"
+        )
+    }
     
     column_searchable_list = ["title", "subtitle", "description"]
     column_sortable_list = ["id", "title", "display_order", "banner_type", "created_at"]
@@ -53,8 +64,8 @@ class BannerAdmin(ModelView, model=Banner):
         "title": "Заголовок",
         "subtitle": "Подзаголовок",
         "description": "Описание",
-        "image_url": "Изображение (десктоп)",
-        "mobile_image_url": "Изображение (мобильное)",
+        "image_url": "Фото (PC)",
+        "mobile_image_url": "Фото (моб.)",
         "banner_type": "Тип баннера",
         "cta_text": "Текст кнопки",
         "cta_url": "Ссылка кнопки",
@@ -67,20 +78,6 @@ class BannerAdmin(ModelView, model=Banner):
     }
     
     form_label = "Баннер"
-    form_columns_labels = {
-        "title": "Заголовок баннера",
-        "subtitle": "Подзаголовок (опционально)",
-        "description": "Полное описание (опционально)",
-        "image_url": "Изображение баннера (десктоп)",
-        "mobile_image_url": "Изображение для мобильных устройств (опционально)",
-        "banner_type": "Тип баннера",
-        "cta_text": "Текст кнопки призыва (опционально)",
-        "cta_url": "URL кнопки призыва (опционально)",
-        "is_active": "Показывать на главной странице",
-        "display_order": "Порядок отображения (0 = первый)",
-        "start_date": "Начать показ с (опционально)",
-        "end_date": "Закончить показ (опционально)"
-    }
     
     column_formatters = {
         "is_active": lambda m, _: (
@@ -93,35 +90,14 @@ class BannerAdmin(ModelView, model=Banner):
             BannerType.CATEGORY: '<span class="badge badge-info">📂 Category</span>'
         }.get(m.banner_type, str(m.banner_type)),
         "image_url": lambda m, _: (
-            f'<img src="{m.image_url}" style="max-width: 100px; max-height: 50px; border-radius: 4px;">' 
+            f'<img src="{m.image_url}" style="width: 120px; height: 50px; object-fit: cover; border-radius: 4px;">' 
             if m.image_url else "-"
-        )
+        ),
+        "mobile_image_url": lambda m, _: (
+            f'<img src="{m.mobile_image_url}" style="width: 50px; height: 80px; object-fit: cover; border-radius: 4px;">' 
+            if m.mobile_image_url else "-"
+        ),
     }
-    
-    column_descriptions = {
-        "title": "Основной заголовок баннера (отображается крупным шрифтом)",
-        "subtitle": "Дополнительный текст под заголовком",
-        "image_url": "Изображение баннера для десктопа (рекомендуемый размер: 1920x600px)",
-        "mobile_image_url": "Оптимизированное изображение для мобильных устройств (рекомендуемый размер: 800x1200px)",
-        "banner_type": "Hero - главный баннер, Promo - акционный, Category - категория товаров",
-        "cta_text": "Текст на кнопке (например: 'Купить сейчас', 'Узнать больше')",
-        "cta_url": "Ссылка при клике на баннер или кнопку",
-        "display_order": "Порядок показа (меньшее число = выше)",
-        "start_date": "Баннер начнет показываться с этой даты",
-        "end_date": "Баннер перестанет показываться после этой даты"
-    }
-    
-    # Image upload fields
-    form_overrides = {
-        "image_url": ImageUploadField,
-        "mobile_image_url": ImageUploadField
-    }
-    
-    can_create = True
-    can_edit = True
-    can_delete = True
-    can_view_details = True
-    can_export = True
     
     page_size = 20
     page_size_options = [10, 20, 50]

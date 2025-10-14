@@ -20,6 +20,7 @@ from ..models import (
 )
 from ..db.market_db import db_manager, Market
 from ..utils.image_upload import image_uploader
+from .image_upload_mixin import ImageUploadMixin
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -195,7 +196,7 @@ class WebsiteContentAuthenticationBackend(AuthenticationBackend):
             db.close()
 
 
-class ProductAdmin(ModelView, model=Product):
+class ProductAdmin(ImageUploadMixin, ModelView, model=Product):
     """
     Enhanced Product Management Interface
     
@@ -457,138 +458,11 @@ class ProductAdmin(ModelView, model=Product):
         "additional_images": "Дополнительные фото (до 5 шт., оптимизированы Pillow, хранятся локально)",
         "attributes": "Дополнительные характеристики в JSON формате"
     }
+
+    # Image upload configuration
+    image_fields = ["main_image"]
+    multiple_image_fields = ["additional_images"]
     
-    # Temporarily disable custom save logic for diagnostics
-    # async def insert_model(self, request: Request, data: dict) -> bool:
-    #     """Custom insert with image upload handling"""
-    #     try:
-    #         # Extract image fields before saving product
-    #         main_image_data = data.pop("main_image", None)
-    #         additional_images_data = data.pop("additional_images", None)
-    #         
-    #         # Handle main image upload
-    #         if main_image_data and hasattr(main_image_data, 'filename') and main_image_data.filename:
-    #             logger.info(f"📸 Uploading main image: {main_image_data.filename}")
-    #             url = await self._save_product_image(main_image_data, 0, order=0)
-    #             if url:
-    #                 data["main_image"] = url
-    #         
-    #         # Handle additional images
-    #         additional_urls = []
-    #         if additional_images_data:
-    #             for idx, image_data in enumerate(additional_images_data, start=1):
-    #                 if hasattr(image_data, 'filename') and image_data.filename:
-    #                     logger.info(f"📸 Uploading additional image {idx}: {image_data.filename}")
-    #                     url = await self._save_product_image(image_data, 0, order=idx)
-    #                     if url:
-    #                         additional_urls.append(url)
-    #         
-    #         if additional_urls:
-    #             data["additional_images"] = additional_urls
-    #         
-    #         # Create the product with image URLs in columns
-    #         result = await super().insert_model(request, data)
-    #         
-    #         if result:
-    #             logger.info(f"✅ Product created with {len(additional_urls) + (1 if data.get('main_image') else 0)} images")
-    #         
-    #         return result
-    #             
-    #     except Exception as e:
-    #         logger.error(f"❌ Error in insert_model: {e}")
-    #         return False
-    # 
-    # async def update_model(self, request: Request, pk: str, data: dict) -> bool:
-    #     """Custom update with image upload handling"""
-    #     try:
-    #         # Extract image fields
-    #         main_image_data = data.pop("main_image", None)
-    #         additional_images_data = data.pop("additional_images", None)
-    #         
-    #         # Handle main image upload (replaces existing)
-    #         if main_image_data and hasattr(main_image_data, 'filename') and main_image_data.filename:
-    #             logger.info(f"📸 Updating main image: {main_image_data.filename}")
-    #             url = await self._save_product_image(main_image_data, pk, order=0)
-    #             if url:
-    #                 data["main_image"] = url
-    #         
-    #         # Handle additional images (appends to existing)
-    #         if additional_images_data:
-    #             db = self.session_maker()
-    #             try:
-    #                 product = db.query(Product).filter_by(id=pk).first()
-    #                 if product:
-    #                     # Get existing additional images
-    #                     existing_images = product.additional_images if product.additional_images else []
-    #                     
-    #                     # Upload new images
-    #                     new_urls = []
-    #                     for idx, image_data in enumerate(additional_images_data, start=1):
-    #                         if hasattr(image_data, 'filename') and image_data.filename:
-    #                             logger.info(f"📸 Adding additional image {idx}: {image_data.filename}")
-    #                             url = await self._save_product_image(image_data, pk, order=len(existing_images) + idx)
-    #                             if url:
-    #                                 new_urls.append(url)
-    #                     
-    #                     # Merge with existing
-    #                     if new_urls:
-    #                         data["additional_images"] = existing_images + new_urls
-    #                 db.close()
-    #             except Exception as e:
-    #                 logger.error(f"❌ Error processing additional images: {e}")
-    #                 db.close()
-    #         
-    #         # Update the product with new image URLs
-    #         result = await super().update_model(request, pk, data)
-    #         
-    #         if result:
-    #             logger.info(f"✅ Product updated with images")
-    #         
-    #         return result
-    #         
-    #     except Exception as e:
-    #         logger.error(f"❌ Error in update_model: {e}")
-    #         return False
-    # 
-    # async def _save_product_image(self, file_data, product_id: int, order: int) -> Optional[str]:
-    #     """Save uploaded image using Pillow and image_uploader"""
-    #     try:
-    #         # Read file data
-    #         file_bytes = await file_data.read()
-    #         
-    #         # Validate it's an image using Pillow
-    #         try:
-    #             img = Image.open(io.BytesIO(file_bytes))
-    #             img.verify()
-    #             logger.info(f"✅ Valid image: {img.format}, {img.size}")
-    #         except Exception as e:
-    #             logger.error(f"❌ Invalid image file: {e}")
-    #             return None
-    #         
-    #         # Reset file pointer
-    #         await file_data.seek(0)
-    #         
-    #         # Create a temporary UploadFile-like object for image_uploader
-    #         from fastapi import UploadFile
-    #         upload_file = UploadFile(
-    #             filename=file_data.filename,
-    #             file=io.BytesIO(file_bytes)
-    #         )
-    #         
-    #         # Use image_uploader to save with Pillow processing
-    #         url = await image_uploader.save_image(
-    #             file=upload_file,
-    #             category="products",
-    #             resize_to="medium",  # 500x500px
-    #             optimize=True
-    #         )
-    #         
-    #         logger.info(f"✅ Image saved: {url}")
-    #         return url
-    #         
-    #     except Exception as e:
-    #         logger.error(f"❌ Error saving image: {e}")
-    #         return None
 
 
 class SKUAdmin(ModelView, model=SKU):
