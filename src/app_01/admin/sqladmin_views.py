@@ -215,17 +215,16 @@ class ProductAdmin(ModelView, model=Product):
     
     # Enhanced column configuration
     column_list = [
-        "id", "title", "brand", "category", "subcategory",
+        "id", "main_image", "title", "brand", "category", "subcategory",
         "season", "material", "style",
         "sold_count", "rating_avg", "is_active", "is_featured"
-        # Note: main_image removed until migration runs on production
     ]
     
     column_details_list = [
         "id", "brand", "category", "subcategory", 
         "season", "material", "style",
         "title", "slug", "description",
-        # Note: main_image and additional_images removed until migration runs
+        "main_image", "additional_images",
         "sold_count", "rating_avg", "rating_count", 
         "is_active", "is_featured", "attributes",
         "created_at", "updated_at",
@@ -237,8 +236,8 @@ class ProductAdmin(ModelView, model=Product):
         "title", "slug", "description", 
         "brand", "category", "subcategory",
         "season", "material", "style",
+        "main_image", "additional_images",  # Image URL fields (text input)
         "is_active", "is_featured", "attributes"
-        # Note: Image upload temporarily disabled - will add back after testing
     ]
     
     # Include relationships for the form
@@ -307,6 +306,14 @@ class ProductAdmin(ModelView, model=Product):
         "attributes": {
             "label": "Атрибуты (JSON)",
             "description": "Дополнительные характеристики в формате JSON"
+        },
+        "main_image": {
+            "label": "Главное изображение (URL)",
+            "description": "URL главного изображения товара (например: /uploads/products/image.jpg)"
+        },
+        "additional_images": {
+            "label": "Дополнительные изображения (JSON)",
+            "description": "Массив URL дополнительных изображений в формате JSON (например: [\"/uploads/products/img1.jpg\", \"/uploads/products/img2.jpg\"])"
         }
     }
     

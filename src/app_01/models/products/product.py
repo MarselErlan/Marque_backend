@@ -101,14 +101,14 @@ class Product(Base):
         return self.total_stock > 0
 
     @property
-    def main_image(self):
-        """Get main product image"""
+    def main_asset_image(self):
+        """Get main product image from assets (legacy - use main_image column instead)"""
         main_assets = [asset for asset in self.assets if asset.type == "image" and asset.order == 1]
         return main_assets[0] if main_assets else None
 
     @property
-    def all_images(self):
-        """Get all product images ordered by order"""
+    def all_asset_images(self):
+        """Get all product images from assets (legacy - use additional_images column instead)"""
         return sorted([asset for asset in self.assets if asset.type == "image"], key=lambda x: x.order)
 
     @property
