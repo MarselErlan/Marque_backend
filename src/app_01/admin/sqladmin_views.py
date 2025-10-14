@@ -213,12 +213,9 @@ class ProductAdmin(ModelView, model=Product):
     icon = "fa-solid fa-box"
     category = "🛍️ Каталог"  # Group in sidebar
     
-    # Eager load relationships to avoid lazy load errors
-    column_select_related_list = ["brand", "category", "subcategory", "season", "material", "style", "assets"]
-    
     # Enhanced column configuration
     column_list = [
-        "id", "main_image_preview", "title", "brand", "category", "subcategory",
+        "id", "title", "brand", "category", "subcategory",
         "season", "material", "style",
         "sold_count", "rating_avg", "is_active", "is_featured"
     ]
