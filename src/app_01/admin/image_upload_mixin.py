@@ -24,10 +24,8 @@ class ImageUploadMixin:
        `image_fields: List[str] = ["image_url"]`
        `multiple_image_fields: List[str] = ["gallery_images"]`
 
-    3. Add `FileField` and `MultipleFileField` to `form_extra_fields`.
-
-    4. The mixin's `insert_model` and `update_model` will automatically
-       process and save the images.
+    3. The mixin's `insert_model` and `update_model` will automatically
+       process and save the images, replacing the need for `on_model_change`.
     """
     image_fields: List[str] = []
     multiple_image_fields: List[str] = []
@@ -91,62 +89,60 @@ class ImageUploadMixin:
             logger.error(f"❌ Critical error saving image '{file_data.filename}': {e}")
             return None
 
-    async def on_model_change(self, data: dict, model: any, is_created: bool, request: Request) -> None:
-        """
-        Overridden to handle image uploads after model is saved.
-        This is safer than insert_model/update_model as it guarantees an ID exists.
-        """
-        db_session = self.session_maker()
-        
-        # Process single image fields
-        for field in self.image_fields:
-            file_data = getattr(request, f"_image_{field}", None)
-            if file_data:
-                url = await self._save_image(file_data, model.__class__.__name__)
-                if url:
-                    setattr(model, field, url)
-
-        # Process multiple image fields
-        for field in self.multiple_image_fields:
-            files_data = getattr(request, f"_images_{field}", None)
-            if files_data:
-                new_urls = []
-                for file_data in files_data:
-                    url = await self._save_image(file_data, model.__class__.__name__)
-                    if url:
-                        new_urls.append(url)
-                
-                if new_urls:
-                    # For updates, append to existing images
-                    if not is_created and hasattr(model, field) and getattr(model, field):
-                        existing_urls = getattr(model, field)
-                        setattr(model, field, existing_urls + new_urls)
-                    else:
-                        setattr(model, field, new_urls)
-        
-        try:
-            db_session.add(model)
-            db_session.commit()
-        except Exception as e:
-            logger.error(f"Error saving model after image upload: {e}")
-            db_session.rollback()
-        finally:
-            db_session.close()
-
     async def insert_model(self, request: Request, data: dict) -> any:
-        # Temporarily store file data on the request object
+        # Process and save single images, update data with URL
         for field in self.image_fields:
-            setattr(request, f"_image_{field}", data.pop(field, None))
-        for field in self.multiple_image_fields:
-            setattr(request, f"_images_{field}", data.pop(field, None))
+            file_data = data.pop(field, None)
+            if file_data:
+                url = await self._save_image(file_data, self.model.__name__)
+                data[field] = url
         
+        # Process and save multiple images, update data with list of URLs
+        for field in self.multiple_image_fields:
+            files_data = data.pop(field, None)
+            if files_data:
+                urls = []
+                for file_data in files_data:
+                    url = await self._save_image(file_data, self.model.__name__)
+                    if url:
+                        urls.append(url)
+                data[field] = urls
+
         return await super().insert_model(request, data)
 
     async def update_model(self, request: Request, pk: str, data: dict) -> any:
-        # Temporarily store file data on the request object
+        # Process single images if a new file is provided
         for field in self.image_fields:
-            setattr(request, f"_image_{field}", data.pop(field, None))
+            file_data = data.get(field)
+            if file_data and hasattr(file_data, 'filename') and file_data.filename:
+                url = await self._save_image(file_data, self.model.__name__)
+                data[field] = url
+            else:
+                # No new file, so remove from data to avoid overwriting existing value
+                data.pop(field, None)
+
+        # Process multiple images, appending to existing ones
         for field in self.multiple_image_fields:
-            setattr(request, f"_images_{field}", data.pop(field, None))
-            
+            files_data = data.get(field)
+            if files_data and any(hasattr(f, 'filename') and f.filename for f in files_data):
+                session = self.session_maker()
+                try:
+                    obj = session.get(self.model, int(pk))
+                finally:
+                    session.close()
+
+                existing_urls = getattr(obj, field) or []
+                new_urls = []
+
+                for file_data in files_data:
+                    if hasattr(file_data, 'filename') and file_data.filename:
+                        url = await self._save_image(file_data, self.model.__name__)
+                        if url:
+                            new_urls.append(url)
+                
+                data[field] = existing_urls + new_urls
+            else:
+                # No new files, so remove from data to avoid overwriting existing value
+                data.pop(field, None)
+
         return await super().update_model(request, pk, data)
