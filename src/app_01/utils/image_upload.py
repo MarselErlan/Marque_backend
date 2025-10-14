@@ -140,6 +140,10 @@ class ImageUploader:
         save_dir = self.upload_dir / category
         save_path = save_dir / unique_filename
         
+        # Create directory if it doesn't exist
+        save_dir.mkdir(parents=True, exist_ok=True)
+        logger.info(f"📁 Ensured directory exists: {save_dir}")
+        
         # Read and process image
         content = await file.read()
         image = Image.open(io.BytesIO(content))
