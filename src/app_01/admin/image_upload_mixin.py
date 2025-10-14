@@ -100,7 +100,7 @@ class ImageUploadMixin:
         
         # Process single image fields
         for field in self.image_fields:
-            file_data = data.pop(field, None)
+            file_data = getattr(request, f"_image_{field}", None)
             if file_data:
                 url = await self._save_image(file_data, model.__class__.__name__)
                 if url:
@@ -108,7 +108,7 @@ class ImageUploadMixin:
 
         # Process multiple image fields
         for field in self.multiple_image_fields:
-            files_data = data.pop(field, None)
+            files_data = getattr(request, f"_images_{field}", None)
             if files_data:
                 new_urls = []
                 for file_data in files_data:
@@ -134,19 +134,19 @@ class ImageUploadMixin:
             db_session.close()
 
     async def insert_model(self, request: Request, data: dict) -> any:
-        # We pop the image fields so the default insert doesn't try to save them.
-        # The actual saving happens in `on_model_change`.
+        # Temporarily store file data on the request object
         for field in self.image_fields:
-            data.pop(field, None)
+            setattr(request, f"_image_{field}", data.pop(field, None))
         for field in self.multiple_image_fields:
-            data.pop(field, None)
+            setattr(request, f"_images_{field}", data.pop(field, None))
+        
         return await super().insert_model(request, data)
 
     async def update_model(self, request: Request, pk: str, data: dict) -> any:
-        # We pop the image fields so the default update doesn't try to save them.
-        # The actual saving happens in `on_model_change`.
+        # Temporarily store file data on the request object
         for field in self.image_fields:
-            data.pop(field, None)
+            setattr(request, f"_image_{field}", data.pop(field, None))
         for field in self.multiple_image_fields:
-            data.pop(field, None)
+            setattr(request, f"_images_{field}", data.pop(field, None))
+            
         return await super().update_model(request, pk, data)
