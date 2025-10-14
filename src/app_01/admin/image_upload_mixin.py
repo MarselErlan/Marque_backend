@@ -90,6 +90,7 @@ class ImageUploadMixin:
             return None
 
     async def insert_model(self, request: Request, data: dict) -> any:
+        logger.critical(">>> RUNNING LATEST insert_model REWRITE <<<")
         # Process and save single images, update data with URL
         for field in self.image_fields:
             file_data = data.pop(field, None)

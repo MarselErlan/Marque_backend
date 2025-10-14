@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqladmin import ModelView
 from starlette.requests import Request
 from wtforms import FileField
@@ -52,8 +53,8 @@ class SubcategoryAdmin(ImageUploadMixin, ModelView, model=Subcategory):
     """Enhanced Subcategory Management Interface"""
     
     name = "Подкатегории"
-    name_plural = "Подкатегории"
-    icon = "fa-solid fa-layer-group"
+    name_plural = f"Подкатегории (ДЕПЛОЙ {datetime.now().strftime('%H:%M:%S')})"
+    icon = "fa-solid fa-folder"
     category = "🛍️ Каталог"
 
     image_fields = ["image_url"]
