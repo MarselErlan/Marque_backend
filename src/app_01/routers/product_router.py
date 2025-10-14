@@ -66,8 +66,12 @@ def get_best_selling_products(
         if original_price_min_val and price_min_val < original_price_min_val:
             discount_percent = int(((original_price_min_val - price_min_val) / original_price_min_val) * 100)
         
-        # Get main image (first asset)
-        main_image = product.assets[0].url if product.assets else None
+        # Get main image from new fields or fallback to old assets
+        main_image = None
+        if product.main_image:
+            main_image = product.main_image
+        elif product.assets and len(product.assets) > 0:
+            main_image = product.assets[0].url
         
         product_list.append(ProductListItemSchema(
             id=product.id,
@@ -210,9 +214,11 @@ def search_products(
     # Build response (same format as subcategory pages)
     product_list = []
     for product in products:
-        # Get main image
+        # Get main image from new fields or fallback to old assets
         main_image = None
-        if product.assets:
+        if product.main_image:
+            main_image = product.main_image
+        elif product.assets:
             image_assets = sorted([a for a in product.assets if a.is_image], key=lambda x: x.order)
             if image_assets:
                 main_image = image_assets[0].url
@@ -311,17 +317,42 @@ def get_product_detail(slug: str, db: Session = Depends(get_db)):
         slug=product.subcategory.slug
     )
     
-    # Build images list (sorted by order)
-    images = [
-        ProductImageSchema(
-            id=asset.id,
-            url=asset.url,
-            alt_text=asset.alt_text,
-            type=asset.type,
-            order=asset.order
-        )
-        for asset in sorted(product.assets, key=lambda x: x.order)
-    ]
+    # Build images list from new main_image and additional_images fields
+    images = []
+    
+    # Add main image first (if exists)
+    if product.main_image:
+        images.append(ProductImageSchema(
+            id=0,  # Main image
+            url=product.main_image,
+            alt_text=product.title,
+            type='image',
+            order=0
+        ))
+    
+    # Add additional images (if exist)
+    if product.additional_images and isinstance(product.additional_images, list):
+        for idx, img_url in enumerate(product.additional_images, start=1):
+            images.append(ProductImageSchema(
+                id=idx,
+                url=img_url,
+                alt_text=f"{product.title} - изображение {idx}",
+                type='image',
+                order=idx
+            ))
+    
+    # Fallback: If no images in new fields, try old assets (for backward compatibility)
+    if not images and product.assets:
+        images = [
+            ProductImageSchema(
+                id=asset.id,
+                url=asset.url,
+                alt_text=asset.alt_text,
+                type=asset.type,
+                order=asset.order
+            )
+            for asset in sorted(product.assets, key=lambda x: x.order)
+        ]
     
     # Build SKUs list
     skus = [
@@ -382,8 +413,12 @@ def get_product_detail(slug: str, db: Session = Depends(get_db)):
     
     similar_products = []
     for sim_product in similar_products_query:
-        # Get first image if available
-        first_image = sim_product.assets[0].url if sim_product.assets else None
+        # Get first image from new fields or fallback to old assets
+        first_image = None
+        if sim_product.main_image:
+            first_image = sim_product.main_image
+        elif sim_product.assets and len(sim_product.assets) > 0:
+            first_image = sim_product.assets[0].url
         
         # Get min price from SKUs
         sim_prices = [sku.price for sku in sim_product.skus]

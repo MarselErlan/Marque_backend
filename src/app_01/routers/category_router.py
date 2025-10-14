@@ -332,8 +332,12 @@ def get_products_by_subcategory(
         if original_price_min_val and price_min_val < original_price_min_val:
             discount_percent = int(((original_price_min_val - price_min_val) / original_price_min_val) * 100)
         
-        # Get main image (first asset)
-        main_image = product.assets[0].url if product.assets else None
+        # Get main image from new fields or fallback to old assets
+        main_image = None
+        if product.main_image:
+            main_image = product.main_image
+        elif product.assets and len(product.assets) > 0:
+            main_image = product.assets[0].url
         
         product_list.append(ProductListItemSchema(
             id=product.id,
