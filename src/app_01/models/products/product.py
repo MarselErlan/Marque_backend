@@ -21,7 +21,7 @@ class Product(Base):
     
     # Image columns (Pillow-processed)
     main_image = Column(String(500), nullable=True)  # Main product image URL
-    additional_images = Column(JSON, nullable=True)  # Array of additional image URLs
+    additional_images = Column(JSON, nullable=True)  # Array of additional image URLs (list of strings)
     
     sold_count = Column(Integer, default=0)
     rating_avg = Column(Float, default=0.0)
