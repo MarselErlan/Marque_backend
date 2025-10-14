@@ -215,7 +215,7 @@ class ProductAdmin(ModelView, model=Product):
     
     # Enhanced column configuration
     column_list = [
-        "id", "title", "brand", "category", "subcategory",
+        "id", "main_image", "title", "brand", "category", "subcategory",
         "season", "material", "style",
         "sold_count", "rating_avg", "is_active", "is_featured"
     ]
@@ -224,10 +224,11 @@ class ProductAdmin(ModelView, model=Product):
         "id", "brand", "category", "subcategory",
         "season", "material", "style",
         "title", "slug", "description",
+        "main_image", "additional_images",
         "sold_count", "rating_avg", "rating_count", 
         "is_active", "is_featured", "attributes",
         "created_at", "updated_at",
-        "skus", "assets", "reviews"
+        "skus", "reviews"
     ]
     
     # Form configuration - Use relationship names for proper dropdowns
@@ -368,27 +369,26 @@ class ProductAdmin(ModelView, model=Product):
     
     # Enhanced formatters for better display
     column_formatters = {
-        # Main image preview thumbnail in list view
-        "main_image_preview": lambda model, _: (
-            f'<img src="{model.assets[0].url}" style="max-width: 80px; max-height: 80px; object-fit: cover; border-radius: 4px;" />'
-            if hasattr(model, 'assets') and model.assets and len(model.assets) > 0
+        # Main image thumbnail (from Product.main_image column)
+        "main_image": lambda model, _: (
+            f'<img src="{model.main_image}" style="max-width: 80px; max-height: 80px; object-fit: cover; border-radius: 4px;" />'
+            if model.main_image
             else '<span class="badge badge-secondary">Нет фото</span>'
         ),
         
-        # Assets - display all images in detail view
-        "assets": lambda model, _: (
+        # Additional images gallery (from Product.additional_images JSON column)
+        "additional_images": lambda model, _: (
             '<div style="display: flex; flex-wrap: wrap; gap: 10px;">' +
             ''.join([
                 f'<div style="position: relative;">'
-                f'<img src="{asset.url}" style="max-width: 150px; max-height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd;" />'
-                f'<div style="text-align: center; font-size: 11px; color: #666; margin-top: 4px;">Порядок: {asset.order}</div>'
+                f'<img src="{url}" style="max-width: 150px; max-height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd;" />'
+                f'<div style="text-align: center; font-size: 11px; color: #666; margin-top: 4px;">Изображение {idx + 1}</div>'
                 f'</div>'
-                for asset in sorted(model.assets, key=lambda a: a.order)
-                if asset.type == 'image'
+                for idx, url in enumerate(model.additional_images)
             ]) +
             '</div>'
-            if hasattr(model, 'assets') and model.assets and any(a.type == 'image' for a in model.assets)
-            else '<span class="badge badge-secondary">Нет изображений</span>'
+            if model.additional_images and len(model.additional_images) > 0
+            else '<span class="badge badge-secondary">Нет дополнительных изображений</span>'
         ),
         
         # Brand name
@@ -438,7 +438,6 @@ class ProductAdmin(ModelView, model=Product):
     
     # Description hints
     column_descriptions = {
-        "main_image_preview": "Миниатюра главного изображения товара",
         "title": "Название товара, которое будет отображаться на сайте",
         "slug": "Уникальный URL-адрес (например: 'nike-air-max-90')",
         "description": "Подробное описание товара для карточки товара",
@@ -452,9 +451,8 @@ class ProductAdmin(ModelView, model=Product):
         "season": "Сезон товара (Зима, Лето, Осень, Весна, Всесезонный)",
         "material": "Основной материал (Хлопок, Полиэстер, Шерсть, Кожа и т.д.)",
         "style": "Стиль товара (Casual, Formal, Sport, Street и т.д.)",
-        "main_image": "Главное изображение товара (будет первым на сайте)",
-        "additional_images": "Дополнительные фотографии товара (до 5 изображений)",
-        "assets": "Все изображения товара (добавленные через форму)",
+        "main_image": "Главное изображение товара (обработано Pillow, хранится в БД)",
+        "additional_images": "Дополнительные фотографии (массив URL, обработаны Pillow)",
         "attributes": "Дополнительные характеристики в JSON формате"
     }
     
@@ -465,62 +463,33 @@ class ProductAdmin(ModelView, model=Product):
             main_image_data = data.pop("main_image", None)
             additional_images_data = data.pop("additional_images", None)
             
-            # Create the product first (call parent method)
+            # Handle main image upload
+            if main_image_data and hasattr(main_image_data, 'filename') and main_image_data.filename:
+                logger.info(f"📸 Uploading main image: {main_image_data.filename}")
+                url = await self._save_product_image(main_image_data, 0, order=0)
+                if url:
+                    data["main_image"] = url
+            
+            # Handle additional images
+            additional_urls = []
+            if additional_images_data:
+                for idx, image_data in enumerate(additional_images_data, start=1):
+                    if hasattr(image_data, 'filename') and image_data.filename:
+                        logger.info(f"📸 Uploading additional image {idx}: {image_data.filename}")
+                        url = await self._save_product_image(image_data, 0, order=idx)
+                        if url:
+                            additional_urls.append(url)
+            
+            if additional_urls:
+                data["additional_images"] = additional_urls
+            
+            # Create the product with image URLs in columns
             result = await super().insert_model(request, data)
             
-            if not result:
-                return False
+            if result:
+                logger.info(f"✅ Product created with {len(additional_urls) + (1 if data.get('main_image') else 0)} images")
             
-            # Get the created product ID
-            db = self.session_maker()
-            try:
-                # Find the just-created product
-                product = db.query(Product).filter_by(slug=data.get("slug")).first()
-                
-                if not product:
-                    logger.error("Failed to find created product")
-                    return False
-                
-                # Handle main image upload
-                if main_image_data and hasattr(main_image_data, 'filename') and main_image_data.filename:
-                    logger.info(f"📸 Uploading main image: {main_image_data.filename}")
-                    url = await self._save_product_image(main_image_data, product.id, order=0)
-                    if url:
-                        asset = ProductAsset(
-                            product_id=product.id,
-                            url=url,
-                            type="image",
-                            alt_text=f"{product.title} - Main Image",
-                            order=0
-                        )
-                        db.add(asset)
-                
-                # Handle additional images
-                if additional_images_data:
-                    for idx, image_data in enumerate(additional_images_data, start=1):
-                        if hasattr(image_data, 'filename') and image_data.filename:
-                            logger.info(f"📸 Uploading additional image {idx}: {image_data.filename}")
-                            url = await self._save_product_image(image_data, product.id, order=idx)
-                            if url:
-                                asset = ProductAsset(
-                                    product_id=product.id,
-                                    url=url,
-                                    type="image",
-                                    alt_text=f"{product.title} - Image {idx + 1}",
-                                    order=idx
-                                )
-                                db.add(asset)
-                
-                db.commit()
-                logger.info(f"✅ Product created with images: {product.title}")
-                return True
-                
-            except Exception as e:
-                db.rollback()
-                logger.error(f"❌ Error saving images: {e}")
-                return False
-            finally:
-                db.close()
+            return result
                 
         except Exception as e:
             logger.error(f"❌ Error in insert_model: {e}")
@@ -533,74 +502,46 @@ class ProductAdmin(ModelView, model=Product):
             main_image_data = data.pop("main_image", None)
             additional_images_data = data.pop("additional_images", None)
             
-            # Update the product (call parent method)
-            result = await super().update_model(request, pk, data)
+            # Handle main image upload (replaces existing)
+            if main_image_data and hasattr(main_image_data, 'filename') and main_image_data.filename:
+                logger.info(f"📸 Updating main image: {main_image_data.filename}")
+                url = await self._save_product_image(main_image_data, pk, order=0)
+                if url:
+                    data["main_image"] = url
             
-            if not result:
-                return False
-            
-            # Handle new image uploads
-            if main_image_data or additional_images_data:
+            # Handle additional images (appends to existing)
+            if additional_images_data:
                 db = self.session_maker()
                 try:
                     product = db.query(Product).filter_by(id=pk).first()
-                    
-                    if not product:
-                        return False
-                    
-                    # Get current max order
-                    max_order = 0
-                    if product.assets:
-                        max_order = max([asset.order for asset in product.assets], default=0)
-                    
-                    # Handle main image (replace order=0 if exists)
-                    if main_image_data and hasattr(main_image_data, 'filename') and main_image_data.filename:
-                        logger.info(f"📸 Updating main image: {main_image_data.filename}")
+                    if product:
+                        # Get existing additional images
+                        existing_images = product.additional_images if product.additional_images else []
                         
-                        # Delete old main image
-                        old_main = db.query(ProductAsset).filter_by(product_id=product.id, order=0).first()
-                        if old_main:
-                            db.delete(old_main)
-                        
-                        url = await self._save_product_image(main_image_data, product.id, order=0)
-                        if url:
-                            asset = ProductAsset(
-                                product_id=product.id,
-                                url=url,
-                                type="image",
-                                alt_text=f"{product.title} - Main Image",
-                                order=0
-                            )
-                            db.add(asset)
-                    
-                    # Handle additional images
-                    if additional_images_data:
+                        # Upload new images
+                        new_urls = []
                         for idx, image_data in enumerate(additional_images_data, start=1):
                             if hasattr(image_data, 'filename') and image_data.filename:
                                 logger.info(f"📸 Adding additional image {idx}: {image_data.filename}")
-                                url = await self._save_product_image(image_data, product.id, order=max_order + idx)
+                                url = await self._save_product_image(image_data, pk, order=len(existing_images) + idx)
                                 if url:
-                                    asset = ProductAsset(
-                                        product_id=product.id,
-                                        url=url,
-                                        type="image",
-                                        alt_text=f"{product.title} - Image {max_order + idx + 1}",
-                                        order=max_order + idx
-                                    )
-                                    db.add(asset)
-                    
-                    db.commit()
-                    logger.info(f"✅ Product updated with images: {product.title}")
-                    return True
-                    
+                                    new_urls.append(url)
+                        
+                        # Merge with existing
+                        if new_urls:
+                            data["additional_images"] = existing_images + new_urls
+                    db.close()
                 except Exception as e:
-                    db.rollback()
-                    logger.error(f"❌ Error updating images: {e}")
-                    return False
-                finally:
+                    logger.error(f"❌ Error processing additional images: {e}")
                     db.close()
             
-            return True
+            # Update the product with new image URLs
+            result = await super().update_model(request, pk, data)
+            
+            if result:
+                logger.info(f"✅ Product updated with images")
+            
+            return result
             
         except Exception as e:
             logger.error(f"❌ Error in update_model: {e}")
