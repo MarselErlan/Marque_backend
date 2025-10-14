@@ -209,7 +209,7 @@ class ProductAdmin(ModelView, model=Product):
     
     # Display settings
     name = "Товары"
-    name_plural = "Товары"
+    name_plural = f"Товары (Обновление от {datetime.now().strftime('%H:%M:%S')})"
     icon = "fa-solid fa-box"
     category = "🛍️ Каталог"  # Group in sidebar
     
