@@ -44,7 +44,7 @@ class ImageUploadMixin:
             setattr(Form, field_name, FileField(
                 label=self.column_labels.get(field_name, field_name.replace("_", " ").title()),
                 validators=[OptionalValidator()],
-                description=self.column_descriptions.get(field_name, "")
+                description=getattr(self, 'column_descriptions', {}).get(field_name, "")
             ))
 
         # Add multiple image upload fields
@@ -52,7 +52,7 @@ class ImageUploadMixin:
             setattr(Form, field_name, MultipleFileField(
                 label=self.column_labels.get(field_name, field_name.replace("_", " ").title()),
                 validators=[OptionalValidator()],
-                description=self.column_descriptions.get(field_name, "")
+                description=getattr(self, 'column_descriptions', {}).get(field_name, "")
             ))
             
         return Form
