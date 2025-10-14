@@ -130,6 +130,39 @@ class TestAdminProductForm:
         assert ProductAdmin.form_columns == expected_columns, \
             f"Form columns mismatch. Expected: {expected_columns}, Got: {ProductAdmin.form_columns}"
     
+    def test_product_admin_column_list(self):
+        """Test that ProductAdmin column_list includes season, material, style"""
+        expected_in_list = ["season", "material", "style", "is_featured"]
+        
+        assert hasattr(ProductAdmin, 'column_list'), "ProductAdmin should have column_list"
+        
+        for field in expected_in_list:
+            assert field in ProductAdmin.column_list, \
+                f"Field '{field}' should be in column_list. Current list: {ProductAdmin.column_list}"
+    
+    def test_product_admin_column_details_list(self):
+        """Test that ProductAdmin column_details_list includes all important fields"""
+        expected_in_details = [
+            "season", "material", "style", "is_featured", "attributes",
+            "created_at", "updated_at"
+        ]
+        
+        assert hasattr(ProductAdmin, 'column_details_list'), "ProductAdmin should have column_details_list"
+        
+        for field in expected_in_details:
+            assert field in ProductAdmin.column_details_list, \
+                f"Field '{field}' should be in column_details_list. Current list: {ProductAdmin.column_details_list}"
+    
+    def test_product_admin_column_formatters(self):
+        """Test that ProductAdmin has formatters for season, material, style"""
+        expected_formatters = ["season", "material", "style", "is_featured"]
+        
+        assert hasattr(ProductAdmin, 'column_formatters'), "ProductAdmin should have column_formatters"
+        
+        for field in expected_formatters:
+            assert field in ProductAdmin.column_formatters, \
+                f"Formatter for '{field}' should be in column_formatters"
+    
     def test_product_admin_form_args(self):
         """Test that ProductAdmin has form_args for all fields"""
         required_form_args = [

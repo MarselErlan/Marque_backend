@@ -210,14 +210,17 @@ class ProductAdmin(ModelView, model=Product):
     # Enhanced column configuration
     column_list = [
         "id", "title", "brand", "category", "subcategory",
+        "season", "material", "style",
         "sold_count", "rating_avg", "is_active", "is_featured"
     ]
     
     column_details_list = [
-        "id", "brand", "category", "subcategory", 
+        "id", "brand", "category", "subcategory",
+        "season", "material", "style",
         "title", "slug", "description",
         "sold_count", "rating_avg", "rating_count", 
-        "is_active", "created_at", "updated_at",
+        "is_active", "is_featured", "attributes",
+        "created_at", "updated_at",
         "skus", "assets", "reviews"
     ]
     
@@ -316,6 +319,12 @@ class ProductAdmin(ModelView, model=Product):
         "category_id": "Категория",
         "subcategory": "Подкатегория",
         "subcategory_id": "Подкатегория",
+        "season": "Сезон",
+        "season_id": "Сезон",
+        "material": "Материал",
+        "material_id": "Материал",
+        "style": "Стиль",
+        "style_id": "Стиль",
         "title": "Название",
         "slug": "URL",
         "description": "Описание",
@@ -343,6 +352,11 @@ class ProductAdmin(ModelView, model=Product):
         # Category/Subcategory
         "category": lambda model, _: model.category.name if model.category else "-",
         "subcategory": lambda model, _: model.subcategory.name if model.subcategory else "-",
+        
+        # Season, Material, Style
+        "season": lambda model, _: model.season.name if model.season else "-",
+        "material": lambda model, _: model.material.name if model.material else "-",
+        "style": lambda model, _: model.style.name if model.style else "-",
         
         # Rating with stars
         "rating_avg": lambda model, _: f"⭐ {model.rating_avg:.1f}" if model.rating_avg else "-",
