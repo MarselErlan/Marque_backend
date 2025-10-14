@@ -213,6 +213,9 @@ class ProductAdmin(ModelView, model=Product):
     icon = "fa-solid fa-box"
     category = "🛍️ Каталог"  # Group in sidebar
     
+    # Eager load relationships to avoid lazy load errors
+    column_select_related_list = ["brand", "category", "subcategory", "season", "material", "style", "assets"]
+    
     # Enhanced column configuration
     column_list = [
         "id", "main_image_preview", "title", "brand", "category", "subcategory",
@@ -371,7 +374,7 @@ class ProductAdmin(ModelView, model=Product):
         # Main image preview thumbnail in list view
         "main_image_preview": lambda model, _: (
             f'<img src="{model.assets[0].url}" style="max-width: 80px; max-height: 80px; object-fit: cover; border-radius: 4px;" />'
-            if model.assets and len(model.assets) > 0
+            if hasattr(model, 'assets') and model.assets and len(model.assets) > 0
             else '<span class="badge badge-secondary">Нет фото</span>'
         ),
         
@@ -387,7 +390,7 @@ class ProductAdmin(ModelView, model=Product):
                 if asset.type == 'image'
             ]) +
             '</div>'
-            if model.assets and any(a.type == 'image' for a in model.assets)
+            if hasattr(model, 'assets') and model.assets and any(a.type == 'image' for a in model.assets)
             else '<span class="badge badge-secondary">Нет изображений</span>'
         ),
         
