@@ -3,6 +3,8 @@ from starlette.requests import Request
 from PIL import Image
 import io
 import logging
+from wtforms import FileField, MultipleFileField
+from wtforms.validators import Optional as OptionalValidator
 
 from ..utils.image_upload import image_uploader
 from ..db.market_db import db_manager
