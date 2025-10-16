@@ -516,7 +516,21 @@ def get_products(
     response_products = []
     for p in products:
         skus = p.skus
-        images = [asset.url for asset in p.assets if asset.type == 'image']
+        
+        # Build images list from new main_image and additional_images fields
+        images = []
+        
+        # Add main image first (if exists)
+        if p.main_image:
+            images.append(p.main_image)
+        
+        # Add additional images (if exist)
+        if p.additional_images and isinstance(p.additional_images, list):
+            images.extend(p.additional_images)
+        
+        # Fallback: If no images in new fields, try old assets (for backward compatibility)
+        if not images and p.assets:
+            images = [asset.url for asset in p.assets if asset.type == 'image']
         
         # Simplified price logic, can be improved
         price = skus[0].price if skus else 0
@@ -561,7 +575,21 @@ def get_product(product_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Product not found")
 
     skus = p.skus
-    images = [asset.url for asset in p.assets if asset.type == 'image']
+    
+    # Build images list from new main_image and additional_images fields
+    images = []
+    
+    # Add main image first (if exists)
+    if p.main_image:
+        images.append(p.main_image)
+    
+    # Add additional images (if exist)
+    if p.additional_images and isinstance(p.additional_images, list):
+        images.extend(p.additional_images)
+    
+    # Fallback: If no images in new fields, try old assets (for backward compatibility)
+    if not images and p.assets:
+        images = [asset.url for asset in p.assets if asset.type == 'image']
     
     price = skus[0].price if skus else 0
     original_price = skus[0].original_price if skus and skus[0].original_price else None
