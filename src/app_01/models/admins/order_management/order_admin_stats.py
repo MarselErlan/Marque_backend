@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, Date
+from sqlalchemy import Column, Integer, String, Float, DateTime, Date, Index
 from sqlalchemy.sql import func
 from ....db import Base
 
@@ -29,6 +29,13 @@ class OrderAdminStats(Base):
     # Timestamps
     last_updated = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # INDEXES for performance
+    __table_args__ = (
+        Index('idx_order_stats_date', 'date'),
+        Index('idx_order_stats_sales', 'today_sales_total'),
+        Index('idx_order_stats_last_updated', 'last_updated'),
+    )
 
     def __repr__(self):
         return f"<OrderAdminStats(date={self.date}, orders={self.today_orders_count}, sales={self.today_sales_total})>"
@@ -84,3 +91,32 @@ class OrderAdminStats(Base):
         
         if self.today_orders_count > 0:
             self.completion_rate = (self.today_orders_delivered / self.today_orders_count) * 100
+    
+    @classmethod
+    def get_stats_by_date(cls, session, date):
+        """Get statistics for a specific date"""
+        return session.query(cls).filter(cls.date == date).first()
+    
+    @classmethod
+    def get_stats_range(cls, session, start_date, end_date):
+        """Get statistics for a date range"""
+        return session.query(cls).filter(
+            cls.date >= start_date,
+            cls.date <= end_date
+        ).order_by(cls.date.desc()).all()
+    
+    @classmethod
+    def get_recent_stats(cls, session, days=7):
+        """Get statistics for last N days"""
+        from datetime import datetime, timedelta
+        start_date = datetime.now().date() - timedelta(days=days)
+        return session.query(cls).filter(
+            cls.date >= start_date
+        ).order_by(cls.date.desc()).all()
+    
+    @classmethod
+    def get_best_sales_days(cls, session, limit=10):
+        """Get days with highest sales"""
+        return session.query(cls).order_by(
+            cls.today_sales_total.desc()
+        ).limit(limit).all()

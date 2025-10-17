@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from ....db import Base
@@ -37,6 +37,12 @@ class OrderManagementAdmin(Base):
 
     # Relationships
     admin = relationship("Admin")
+    
+    # INDEXES for performance
+    __table_args__ = (
+        Index('idx_order_mgmt_admin_permissions', 'can_export_orders', 'can_bulk_update_orders', 'can_cancel_orders'),
+        Index('idx_order_mgmt_admin_notifications', 'notify_on_new_orders', 'show_order_notifications'),
+    )
 
     def __repr__(self):
         return f"<OrderManagementAdmin(id={self.id}, admin_id={self.admin_id})>"

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from ...db import Base
@@ -12,14 +12,24 @@ class ProductAttribute(Base):
     attribute_type = Column(String(50), nullable=False, index=True)  # size, color, category, brand
     attribute_value = Column(String(100), nullable=False)
     display_name = Column(String(100), nullable=True)  # Human-readable name
+    description = Column(Text, nullable=True)  # Detailed description
     sort_order = Column(Integer, default=0)  # For ordering in UI
     is_active = Column(Boolean, default=True)
+    is_featured = Column(Boolean, default=False)  # Featured attributes
+    usage_count = Column(Integer, default=0)  # Track how many products use this
     created_by_admin_id = Column(Integer, ForeignKey("admins.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
     created_by = relationship("Admin")
+    
+    # INDEXES for performance
+    __table_args__ = (
+        Index('idx_product_attr_type_active', 'attribute_type', 'is_active'),
+        Index('idx_product_attr_type_featured', 'attribute_type', 'is_featured'),
+        Index('idx_product_attr_usage', 'usage_count'),
+    )
 
     def __repr__(self):
         return f"<ProductAttribute(type='{self.attribute_type}', value='{self.attribute_value}')>"
@@ -112,3 +122,31 @@ class ProductAttribute(Base):
     def update_sort_order(self, new_order):
         """Update sort order"""
         self.sort_order = new_order
+    
+    def increment_usage(self):
+        """Increment usage count"""
+        self.usage_count += 1
+    
+    def decrement_usage(self):
+        """Decrement usage count"""
+        if self.usage_count > 0:
+            self.usage_count -= 1
+    
+    @classmethod
+    def get_featured_attributes(cls, session, attribute_type=None):
+        """Get featured attributes"""
+        query = session.query(cls).filter(
+            cls.is_featured == True,
+            cls.is_active == True
+        )
+        if attribute_type:
+            query = query.filter(cls.attribute_type == attribute_type)
+        return query.order_by(cls.sort_order, cls.display_name).all()
+    
+    @classmethod
+    def get_most_used_attributes(cls, session, attribute_type, limit=10):
+        """Get most popular attributes by usage"""
+        return session.query(cls).filter(
+            cls.attribute_type == attribute_type,
+            cls.is_active == True
+        ).order_by(cls.usage_count.desc()).limit(limit).all()

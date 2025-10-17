@@ -1,11 +1,14 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, ForeignKey, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from ...db import Base
 
 
 class CartOrder(Base):
-    """Shopping cart and order management model"""
+    """Shopping cart and order management model
+    NOTE: This model seems to duplicate Cart functionality.
+    Consider consolidating with Cart model for better architecture.
+    """
     __tablename__ = "cart_orders"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -23,6 +26,13 @@ class CartOrder(Base):
     # user = relationship("User", back_populates="cart_orders")
     # TODO: Re-enable when SKU model relationships are fixed
     # sku = relationship("SKU", back_populates="cart_orders")
+    
+    # INDEXES for performance
+    __table_args__ = (
+        Index('idx_cart_order_user_ordered', 'user_id', 'is_ordered'),
+        Index('idx_cart_order_sku', 'sku_id'),
+        Index('idx_cart_order_created', 'created_at'),
+    )
 
     def __repr__(self):
         return f"<CartOrder(id={self.id}, user_id={self.user_id}, sku_id={self.sku_id}, quantity={self.quantity})>"
