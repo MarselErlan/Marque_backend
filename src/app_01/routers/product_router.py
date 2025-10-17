@@ -540,6 +540,7 @@ def get_products(
         response_products.append(ProductSchema(
             id=str(p.id),
             name=p.title,
+            slug=p.slug,
             brand=p.brand.name if p.brand else "",
             price=price,
             originalPrice=original_price,
@@ -598,6 +599,7 @@ def get_product(product_id: int, db: Session = Depends(get_db)):
     return ProductSchema(
         id=str(p.id),
         name=p.title,
+        slug=p.slug,
         brand=p.brand.name if p.brand else "",
         price=price,
         originalPrice=original_price,

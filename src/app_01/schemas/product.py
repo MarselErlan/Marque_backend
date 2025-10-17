@@ -5,6 +5,7 @@ from datetime import datetime
 class ProductSchema(BaseModel):
     id: str
     name: str
+    slug: Optional[str] = None
     brand: str
     price: float
     originalPrice: Optional[float] = None
