@@ -107,6 +107,12 @@ try:
     app.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")
     logger.info(f"✅ Uploads directory mounted from: {uploads_dir}")
     
+    # Mount demo images directory (for testing/fallback)
+    demo_images_dir = pathlib.Path(__file__).parent.parent.parent / "static" / "demo-images"
+    demo_images_dir.mkdir(parents=True, exist_ok=True)
+    app.mount("/demo-images", StaticFiles(directory=str(demo_images_dir)), name="demo-images")
+    logger.info(f"✅ Demo images directory mounted from: {demo_images_dir}")
+    
 except Exception as static_error:
     logger.error(f"❌ Failed to mount static files: {static_error}")
     import traceback
