@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, Text, Float, DateTime, JSON, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, Float, DateTime, JSON, Boolean, ForeignKey, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+from datetime import datetime
 from ...db import Base
 
 
@@ -15,7 +16,7 @@ class Product(Base):
     season_id = Column(Integer, ForeignKey("product_seasons.id"), nullable=True, index=True)
     material_id = Column(Integer, ForeignKey("product_materials.id"), nullable=True, index=True)
     style_id = Column(Integer, ForeignKey("product_styles.id"), nullable=True, index=True)
-    title = Column(String(255), nullable=False)
+    title = Column(String(255), nullable=False, index=True)  # Added index for search performance
     slug = Column(String(255), unique=True, nullable=False, index=True)
     description = Column(Text)
     
@@ -23,14 +24,44 @@ class Product(Base):
     main_image = Column(String(500), nullable=True)  # Main product image URL
     additional_images = Column(JSON, nullable=True)  # Array of additional image URLs (list of strings)
     
-    sold_count = Column(Integer, default=0)
-    rating_avg = Column(Float, default=0.0)
+    # Business metrics
+    sold_count = Column(Integer, default=0, index=True)  # Added index for sorting
+    view_count = Column(Integer, default=0)  # Track product views for analytics
+    rating_avg = Column(Float, default=0.0, index=True)  # Added index for sorting
     rating_count = Column(Integer, default=0)
-    is_active = Column(Boolean, default=True)
-    is_featured = Column(Boolean, default=False)
+    
+    # Status flags
+    is_active = Column(Boolean, default=True, index=True)  # Added index for filtering
+    is_featured = Column(Boolean, default=False, index=True)  # Added index for homepage queries
+    is_new = Column(Boolean, default=True)  # Mark as new product (auto-set based on created_at)
+    is_trending = Column(Boolean, default=False)  # Manually curated trending products
+    
+    # SEO fields (CRITICAL for business!)
+    meta_title = Column(String(255), nullable=True)  # SEO page title
+    meta_description = Column(Text, nullable=True)  # SEO meta description
+    meta_keywords = Column(Text, nullable=True)  # SEO keywords (comma-separated)
+    
+    # Business attributes
     attributes = Column(JSON, nullable=True)  # {gender, season, composition, article}
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    tags = Column(JSON, nullable=True)  # Array of tags for better discoverability
+    
+    # Inventory alerts
+    low_stock_threshold = Column(Integer, default=5)  # Alert when total stock below this
+    
+    # Timestamps
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)  # Added index for sorting
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Composite indexes for common query patterns
+    __table_args__ = (
+        Index('idx_product_active_featured', 'is_active', 'is_featured'),
+        Index('idx_product_category_active', 'category_id', 'is_active'),
+        Index('idx_product_subcategory_active', 'subcategory_id', 'is_active'),
+        Index('idx_product_brand_active', 'brand_id', 'is_active'),
+        Index('idx_product_sold_count_desc', sold_count.desc()),
+        Index('idx_product_rating_desc', rating_avg.desc()),
+        Index('idx_product_created_desc', created_at.desc()),
+    )
 
     # Relationships
     brand = relationship("Brand", back_populates="products")
@@ -56,6 +87,11 @@ class Product(Base):
         return [sku for sku in self.skus if sku.is_active]
 
     @property
+    def in_stock_skus(self):
+        """Get only SKUs that have stock available"""
+        return [sku for sku in self.available_skus if sku.stock > 0]
+
+    @property
     def min_price(self):
         """Get minimum price from available SKUs"""
         if not self.available_skus:
@@ -68,11 +104,52 @@ class Product(Base):
         if not self.available_skus:
             return None
         return max(sku.price for sku in self.available_skus)
+    
+    @property
+    def display_price(self):
+        """Get the primary display price (minimum price or first SKU price)"""
+        if self.available_skus:
+            return self.min_price
+        return 0.0
+    
+    @property
+    def original_price(self):
+        """Get original price for discount calculation"""
+        if not self.available_skus:
+            return None
+        original_prices = [sku.original_price for sku in self.available_skus if sku.original_price]
+        if original_prices:
+            return min(original_prices)
+        return None
+    
+    @property
+    def discount_percentage(self):
+        """Calculate discount percentage"""
+        if self.original_price and self.display_price:
+            if self.original_price > self.display_price:
+                return int(((self.original_price - self.display_price) / self.original_price) * 100)
+        return 0
 
     @property
     def total_stock(self):
         """Get total stock across all SKUs"""
         return sum(sku.stock for sku in self.available_skus)
+    
+    @property
+    def is_low_stock(self):
+        """Check if product is running low on stock"""
+        return 0 < self.total_stock <= self.low_stock_threshold
+    
+    @property
+    def stock_status(self):
+        """Get human-readable stock status"""
+        stock = self.total_stock
+        if stock == 0:
+            return "out_of_stock"
+        elif stock <= self.low_stock_threshold:
+            return "low_stock"
+        else:
+            return "in_stock"
 
     def update_rating(self):
         """Update rating_avg and rating_count based on reviews"""
@@ -99,6 +176,58 @@ class Product(Base):
     def is_in_stock(self):
         """Check if product has any stock"""
         return self.total_stock > 0
+    
+    def increment_view_count(self):
+        """Increment product view count (call when product is viewed)"""
+        self.view_count += 1
+    
+    def increment_sold_count(self, quantity=1):
+        """Increment sold count when product is purchased"""
+        self.sold_count += quantity
+    
+    def check_new_status(self, days_threshold=30):
+        """Update is_new flag based on creation date"""
+        if self.created_at:
+            age_days = (datetime.now(self.created_at.tzinfo) - self.created_at).days
+            self.is_new = age_days <= days_threshold
+    
+    def get_all_images(self):
+        """Get all product images as a list"""
+        images = []
+        if self.main_image:
+            images.append(self.main_image)
+        if self.additional_images and isinstance(self.additional_images, list):
+            images.extend(self.additional_images)
+        return images
+    
+    def get_image_or_default(self, default_image="/static/images/no-image.png"):
+        """Get main image or default placeholder"""
+        return self.main_image if self.main_image else default_image
+    
+    def get_available_sizes(self):
+        """Get list of unique available sizes"""
+        return sorted(list(set(sku.size for sku in self.in_stock_skus)))
+    
+    def get_available_colors(self):
+        """Get list of unique available colors"""
+        return list(set(sku.color for sku in self.in_stock_skus))
+    
+    def validate_for_activation(self):
+        """Validate if product can be activated (has required data)"""
+        errors = []
+        if not self.title:
+            errors.append("Title is required")
+        if not self.slug:
+            errors.append("Slug is required")
+        if not self.main_image:
+            errors.append("Main image is required")
+        if not self.skus or len(self.skus) == 0:
+            errors.append("At least one SKU is required")
+        if not self.brand_id:
+            errors.append("Brand is required")
+        if not self.category_id:
+            errors.append("Category is required")
+        return len(errors) == 0, errors
 
     @property
     def main_asset_image(self):
@@ -130,6 +259,60 @@ class Product(Base):
         return None
 
     # Filter and search methods
+    @classmethod
+    def get_active_products(cls, session):
+        """Get all active products"""
+        return session.query(cls).filter(cls.is_active == True).all()
+    
+    @classmethod
+    def get_featured_products(cls, session, limit=10):
+        """Get featured products for homepage"""
+        return session.query(cls).filter(
+            cls.is_active == True,
+            cls.is_featured == True
+        ).order_by(cls.sold_count.desc()).limit(limit).all()
+    
+    @classmethod
+    def get_new_products(cls, session, limit=20):
+        """Get newest products"""
+        return session.query(cls).filter(
+            cls.is_active == True,
+            cls.is_new == True
+        ).order_by(cls.created_at.desc()).limit(limit).all()
+    
+    @classmethod
+    def get_trending_products(cls, session, limit=10):
+        """Get trending products"""
+        return session.query(cls).filter(
+            cls.is_active == True,
+            cls.is_trending == True
+        ).order_by(cls.sold_count.desc()).limit(limit).all()
+    
+    @classmethod
+    def get_best_sellers(cls, session, limit=10):
+        """Get best selling products"""
+        return session.query(cls).filter(
+            cls.is_active == True
+        ).order_by(cls.sold_count.desc()).limit(limit).all()
+    
+    @classmethod
+    def get_top_rated(cls, session, min_reviews=5, limit=10):
+        """Get top rated products (with minimum reviews)"""
+        return session.query(cls).filter(
+            cls.is_active == True,
+            cls.rating_count >= min_reviews
+        ).order_by(cls.rating_avg.desc()).limit(limit).all()
+    
+    @classmethod
+    def get_on_sale_products(cls, session):
+        """Get products with discounts"""
+        from .sku import SKU
+        return session.query(cls).join(SKU).filter(
+            cls.is_active == True,
+            SKU.original_price.isnot(None),
+            SKU.original_price > SKU.price
+        ).distinct().all()
+    
     @classmethod
     def search_by_term(cls, session, search_term):
         """Search products by title, description, or brand"""

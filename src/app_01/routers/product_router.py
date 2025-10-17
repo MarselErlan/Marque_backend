@@ -296,6 +296,10 @@ def get_product_detail(slug: str, db: Session = Depends(get_db)):
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     
+    # ✅ Track product view for analytics
+    product.increment_view_count()
+    db.commit()
+    
     # Build brand info
     brand_info = BrandSchema(
         id=product.brand.id,
@@ -532,10 +536,10 @@ def get_products(
         if not images and p.assets:
             images = [asset.url for asset in p.assets if asset.type == 'image']
         
-        # Simplified price logic, can be improved
-        price = skus[0].price if skus else 0
-        original_price = skus[0].original_price if skus and skus[0].original_price else None
-        discount = int(((original_price - price) / original_price) * 100) if original_price and price and original_price > price else 0
+        # ✅ NEW: Use smart properties from Product model
+        price = p.display_price
+        original_price = p.original_price
+        discount = p.discount_percentage
 
         response_products.append(ProductSchema(
             id=str(p.id),
@@ -592,9 +596,10 @@ def get_product(product_id: int, db: Session = Depends(get_db)):
     if not images and p.assets:
         images = [asset.url for asset in p.assets if asset.type == 'image']
     
-    price = skus[0].price if skus else 0
-    original_price = skus[0].original_price if skus and skus[0].original_price else None
-    discount = int(((original_price - price) / original_price) * 100) if original_price and price and original_price > price else 0
+    # ✅ NEW: Use smart properties from Product model
+    price = p.display_price
+    original_price = p.original_price
+    discount = p.discount_percentage
 
     return ProductSchema(
         id=str(p.id),
