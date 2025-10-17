@@ -17,6 +17,12 @@ from .routers.cart_router import router as cart_router
 from .routers.wishlist_router import router as wishlist_router
 from .routers.banner_router import router as banner_router
 from .routers.upload_router import router as upload_router
+# NEW: Enhanced model APIs
+from .routers.product_asset_router import router as product_asset_router
+from .routers.product_catalog_router import router as product_catalog_router
+from .routers.product_search_router import router as product_search_router
+from .routers.product_discount_router import router as product_discount_router
+from .routers.admin_analytics_router import router as admin_analytics_router
 from .services.auth_service import auth_service
 
 # Setup logging
@@ -146,6 +152,13 @@ app.include_router(cart_router, prefix="/api/v1")
 app.include_router(wishlist_router, prefix="/api/v1")
 app.include_router(banner_router, prefix="/api/v1")
 app.include_router(upload_router, prefix="/api/v1")  # Image upload endpoints
+
+# NEW: Enhanced APIs for improved models
+app.include_router(product_asset_router)  # Product images/videos management
+app.include_router(product_catalog_router)  # Attributes, filters, seasons, materials, styles
+app.include_router(product_search_router)  # Search analytics
+app.include_router(product_discount_router)  # Discounts & promotions
+app.include_router(admin_analytics_router)  # Admin dashboard statistics
 
 # Global exception handlers
 @app.exception_handler(HTTPException)
