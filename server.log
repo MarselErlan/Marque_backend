@@ -1,6 +1,6 @@
 INFO:     Will watch for changes in these directories: ['/Users/macbookpro/M4_Projects/Prodaction/Marque']
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [19474] using WatchFiles
+INFO:     Started reloader process [24629] using WatchFiles
 /Users/macbookpro/M4_Projects/Prodaction/Marque/venv/lib/python3.11/site-packages/pydantic/_internal/_config.py:318: UserWarning: Valid config keys have changed in V2:
 * 'orm_mode' has been renamed to 'from_attributes'
   warnings.warn(message, UserWarning)
@@ -8,7 +8,7 @@ INFO:src.app_01.main:✅ SQLAdmin static files mounted from: /Users/macbookpro/M
 INFO:src.app_01.main:✅ Uploads directory mounted from: /Users/macbookpro/M4_Projects/Prodaction/Marque/static/uploads
 INFO:src.app_01.main:✅ Demo images directory mounted from: /Users/macbookpro/M4_Projects/Prodaction/Marque/static/demo-images
 INFO:src.app_01.main:✅ SQLAdmin initialized at /admin
-INFO:     Started server process [19584]
+INFO:     Started server process [24678]
 INFO:     Waiting for application startup.
 INFO:src.app_01.main:Starting Marque Multi-Market Authentication API
 INFO:src.app_01.main:Supported markets: KG (Kyrgyzstan), US (United States)
@@ -16,12 +16,10 @@ INFO:src.app_01.main:Loaded 2 supported markets
 INFO:src.app_01.main:  - MarketEnum.KG: Kyrgyzstan (сом)
 INFO:src.app_01.main:  - MarketEnum.US: United States ($)
 INFO:     Application startup complete.
-INFO:     127.0.0.1:58852 - "GET /api/products/best-sellers?limit=1 HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:58931 - "GET /api/v1/products/best-sellers?limit=1 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58974 - "GET /api/v1/products?limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60338 - "GET /api/v1/products/on-sale?limit=1 HTTP/1.1" 200 OK
 INFO:     Shutting down
 INFO:     Waiting for application shutdown.
 INFO:src.app_01.main:Shutting down Marque Multi-Market Authentication API
 INFO:     Application shutdown complete.
-INFO:     Finished server process [19584]
-INFO:     Stopping reloader process [19474]
+INFO:     Finished server process [24678]
+INFO:     Stopping reloader process [24629]

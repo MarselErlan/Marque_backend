@@ -92,6 +92,217 @@ def get_best_selling_products(
     return product_list
 
 
+@router.get("/products/featured", response_model=List[ProductListItemSchema])
+def get_featured_products(
+    db: Session = Depends(get_db),
+    limit: int = Query(10, ge=1, le=100, description="Number of featured products")
+):
+    """
+    Get featured products for homepage
+    Uses the new Product.get_featured_products() method
+    """
+    products = models.products.product.Product.get_featured_products(db, limit=limit)
+    
+    product_list = []
+    for product in products:
+        # Use smart properties from Product model
+        price_min_val = product.display_price
+        price_max_val = product.max_price or price_min_val
+        original_price_min_val = product.original_price
+        discount_percent = product.discount_percentage if product.discount_percentage > 0 else None
+        
+        # Get main image
+        main_image = product.get_image_or_default() if hasattr(product, 'get_image_or_default') else (
+            product.main_image or (product.assets[0].url if product.assets else None)
+        )
+        
+        product_list.append(ProductListItemSchema(
+            id=product.id,
+            title=product.title,
+            slug=product.slug,
+            price_min=price_min_val,
+            price_max=price_max_val,
+            original_price_min=original_price_min_val,
+            discount_percent=discount_percent,
+            image=main_image,
+            rating_avg=product.rating_avg,
+            rating_count=product.rating_count,
+            sold_count=product.sold_count,
+            brand_name=product.brand.name if product.brand else "",
+            brand_slug=product.brand.slug if product.brand else ""
+        ))
+    
+    return product_list
+
+
+@router.get("/products/new-arrivals", response_model=List[ProductListItemSchema])
+def get_new_arrivals(
+    db: Session = Depends(get_db),
+    limit: int = Query(20, ge=1, le=100, description="Number of new products")
+):
+    """
+    Get newest products (new arrivals)
+    Uses the new Product.get_new_products() method
+    """
+    products = models.products.product.Product.get_new_products(db, limit=limit)
+    
+    product_list = []
+    for product in products:
+        price_min_val = product.display_price
+        price_max_val = product.max_price or price_min_val
+        original_price_min_val = product.original_price
+        discount_percent = product.discount_percentage if product.discount_percentage > 0 else None
+        
+        main_image = product.get_image_or_default() if hasattr(product, 'get_image_or_default') else (
+            product.main_image or (product.assets[0].url if product.assets else None)
+        )
+        
+        product_list.append(ProductListItemSchema(
+            id=product.id,
+            title=product.title,
+            slug=product.slug,
+            price_min=price_min_val,
+            price_max=price_max_val,
+            original_price_min=original_price_min_val,
+            discount_percent=discount_percent,
+            image=main_image,
+            rating_avg=product.rating_avg,
+            rating_count=product.rating_count,
+            sold_count=product.sold_count,
+            brand_name=product.brand.name if product.brand else "",
+            brand_slug=product.brand.slug if product.brand else ""
+        ))
+    
+    return product_list
+
+
+@router.get("/products/trending", response_model=List[ProductListItemSchema])
+def get_trending_products(
+    db: Session = Depends(get_db),
+    limit: int = Query(10, ge=1, le=100, description="Number of trending products")
+):
+    """
+    Get trending products (manually curated hot items)
+    Uses the new Product.get_trending_products() method
+    """
+    products = models.products.product.Product.get_trending_products(db, limit=limit)
+    
+    product_list = []
+    for product in products:
+        price_min_val = product.display_price
+        price_max_val = product.max_price or price_min_val
+        original_price_min_val = product.original_price
+        discount_percent = product.discount_percentage if product.discount_percentage > 0 else None
+        
+        main_image = product.get_image_or_default() if hasattr(product, 'get_image_or_default') else (
+            product.main_image or (product.assets[0].url if product.assets else None)
+        )
+        
+        product_list.append(ProductListItemSchema(
+            id=product.id,
+            title=product.title,
+            slug=product.slug,
+            price_min=price_min_val,
+            price_max=price_max_val,
+            original_price_min=original_price_min_val,
+            discount_percent=discount_percent,
+            image=main_image,
+            rating_avg=product.rating_avg,
+            rating_count=product.rating_count,
+            sold_count=product.sold_count,
+            brand_name=product.brand.name if product.brand else "",
+            brand_slug=product.brand.slug if product.brand else ""
+        ))
+    
+    return product_list
+
+
+@router.get("/products/top-rated", response_model=List[ProductListItemSchema])
+def get_top_rated_products(
+    db: Session = Depends(get_db),
+    limit: int = Query(10, ge=1, le=100, description="Number of top rated products"),
+    min_reviews: int = Query(5, ge=1, description="Minimum number of reviews required")
+):
+    """
+    Get top rated products (with minimum review count)
+    Uses the new Product.get_top_rated() method
+    """
+    products = models.products.product.Product.get_top_rated(db, min_reviews=min_reviews, limit=limit)
+    
+    product_list = []
+    for product in products:
+        price_min_val = product.display_price
+        price_max_val = product.max_price or price_min_val
+        original_price_min_val = product.original_price
+        discount_percent = product.discount_percentage if product.discount_percentage > 0 else None
+        
+        main_image = product.get_image_or_default() if hasattr(product, 'get_image_or_default') else (
+            product.main_image or (product.assets[0].url if product.assets else None)
+        )
+        
+        product_list.append(ProductListItemSchema(
+            id=product.id,
+            title=product.title,
+            slug=product.slug,
+            price_min=price_min_val,
+            price_max=price_max_val,
+            original_price_min=original_price_min_val,
+            discount_percent=discount_percent,
+            image=main_image,
+            rating_avg=product.rating_avg,
+            rating_count=product.rating_count,
+            sold_count=product.sold_count,
+            brand_name=product.brand.name if product.brand else "",
+            brand_slug=product.brand.slug if product.brand else ""
+        ))
+    
+    return product_list
+
+
+@router.get("/products/on-sale", response_model=List[ProductListItemSchema])
+def get_on_sale_products(
+    db: Session = Depends(get_db),
+    limit: int = Query(20, ge=1, le=100, description="Number of products on sale")
+):
+    """
+    Get products with discounts (on sale)
+    Uses the new Product.get_on_sale_products() method
+    """
+    products = models.products.product.Product.get_on_sale_products(db)
+    
+    # Apply limit
+    products = products[:limit]
+    
+    product_list = []
+    for product in products:
+        price_min_val = product.display_price
+        price_max_val = product.max_price or price_min_val
+        original_price_min_val = product.original_price
+        discount_percent = product.discount_percentage if product.discount_percentage > 0 else None
+        
+        main_image = product.get_image_or_default() if hasattr(product, 'get_image_or_default') else (
+            product.main_image or (product.assets[0].url if product.assets else None)
+        )
+        
+        product_list.append(ProductListItemSchema(
+            id=product.id,
+            title=product.title,
+            slug=product.slug,
+            price_min=price_min_val,
+            price_max=price_max_val,
+            original_price_min=original_price_min_val,
+            discount_percent=discount_percent,
+            image=main_image,
+            rating_avg=product.rating_avg,
+            rating_count=product.rating_count,
+            sold_count=product.sold_count,
+            brand_name=product.brand.name if product.brand else "",
+            brand_slug=product.brand.slug if product.brand else ""
+        ))
+    
+    return product_list
+
+
 @router.get("/products/search", response_model=ProductListResponse)
 def search_products(
     query: str = Query(..., min_length=1, max_length=200, description="Search query"),

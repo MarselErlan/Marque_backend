@@ -307,11 +307,12 @@ class Product(Base):
     def get_on_sale_products(cls, session):
         """Get products with discounts"""
         from .sku import SKU
+        # Use distinct(cls.id) to avoid PostgreSQL JSON comparison issues
         return session.query(cls).join(SKU).filter(
             cls.is_active == True,
             SKU.original_price.isnot(None),
             SKU.original_price > SKU.price
-        ).distinct().all()
+        ).distinct(cls.id).all()
     
     @classmethod
     def search_by_term(cls, session, search_term):
