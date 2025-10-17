@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Text, DateTime, ForeignKey, CheckConstraint
+from sqlalchemy import Column, Integer, Text, DateTime, ForeignKey, CheckConstraint, Boolean, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from ...db import Base
@@ -11,18 +11,35 @@ class Review(Base):
     id = Column(Integer, primary_key=True, index=True)
     product_id = Column(Integer, ForeignKey("products.id"), nullable=False, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
-    rating = Column(Integer, nullable=False)  # 1-5
+    rating = Column(Integer, nullable=False, index=True)  # 1-5, indexed for sorting
     text = Column(Text)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Review status
+    is_verified_purchase = Column(Boolean, default=False)  # Did user actually buy this?
+    is_approved = Column(Boolean, default=True)  # For moderation
+    is_featured = Column(Boolean, default=False)  # Highlight good reviews
+    
+    # Helpfulness tracking
+    helpful_count = Column(Integer, default=0)  # How many found this helpful
+    unhelpful_count = Column(Integer, default=0)  # How many found this not helpful
+    
+    # Admin response
+    admin_response = Column(Text, nullable=True)  # Store admin response
+    admin_response_date = Column(DateTime(timezone=True), nullable=True)
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
     product = relationship("Product", back_populates="reviews")
     # TODO: Re-enable when User model relationships are fixed
     # user = relationship("User", back_populates="reviews")
 
-    # Constraints
+    # Constraints and Indexes
     __table_args__ = (
         CheckConstraint('rating >= 1 AND rating <= 5', name='check_rating_range'),
+        Index('idx_review_product_rating', 'product_id', 'rating'),
+        Index('idx_review_approved', 'is_approved'),
     )
 
     def __repr__(self):
@@ -58,3 +75,75 @@ class Review(Base):
     def get_rating_stars(self):
         """Get rating as star symbols"""
         return "★" * self.rating + "☆" * (5 - self.rating)
+    
+    @property
+    def helpfulness_score(self):
+        """Calculate helpfulness score"""
+        total = self.helpful_count + self.unhelpful_count
+        if total == 0:
+            return 0
+        return (self.helpful_count / total) * 100
+    
+    @property
+    def has_admin_response(self):
+        """Check if review has admin response"""
+        return self.admin_response is not None and len(self.admin_response) > 0
+    
+    def mark_helpful(self):
+        """Increment helpful count"""
+        self.helpful_count += 1
+    
+    def mark_unhelpful(self):
+        """Increment unhelpful count"""
+        self.unhelpful_count += 1
+    
+    def add_admin_response(self, response_text):
+        """Add admin response to review"""
+        self.admin_response = response_text
+        self.admin_response_date = func.now()
+    
+    def approve(self):
+        """Approve review for display"""
+        self.is_approved = True
+    
+    def reject(self):
+        """Reject/hide review"""
+        self.is_approved = False
+    
+    def feature(self):
+        """Mark review as featured"""
+        self.is_featured = True
+    
+    @classmethod
+    def get_approved_reviews_for_product(cls, session, product_id):
+        """Get all approved reviews for a product"""
+        return session.query(cls).filter(
+            cls.product_id == product_id,
+            cls.is_approved == True
+        ).order_by(cls.created_at.desc()).all()
+    
+    @classmethod
+    def get_featured_reviews(cls, session, product_id):
+        """Get featured reviews for a product"""
+        return session.query(cls).filter(
+            cls.product_id == product_id,
+            cls.is_approved == True,
+            cls.is_featured == True
+        ).order_by(cls.helpful_count.desc()).all()
+    
+    @classmethod
+    def get_verified_reviews(cls, session, product_id):
+        """Get verified purchase reviews"""
+        return session.query(cls).filter(
+            cls.product_id == product_id,
+            cls.is_approved == True,
+            cls.is_verified_purchase == True
+        ).order_by(cls.created_at.desc()).all()
+    
+    @classmethod
+    def get_top_helpful_reviews(cls, session, product_id, limit=5):
+        """Get most helpful reviews"""
+        return session.query(cls).filter(
+            cls.product_id == product_id,
+            cls.is_approved == True
+        ).order_by(cls.helpful_count.desc()).limit(limit).all()

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from ...db import Base
@@ -15,9 +15,15 @@ class Category(Base):
     icon = Column(String(50), nullable=True)  # FontAwesome icon class
     image_url = Column(String(500), nullable=True)  # Category image/logo
     sort_order = Column(Integer, default=0)
-    is_active = Column(Boolean, default=True)
+    is_active = Column(Boolean, default=True, index=True)  # Indexed for filtering
+    is_featured = Column(Boolean, default=False)  # Featured categories for homepage
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Composite indexes
+    __table_args__ = (
+        Index('idx_category_active_sort', 'is_active', 'sort_order'),
+    )
 
     # Relationships
     subcategories = relationship("Subcategory", back_populates="category", cascade="all, delete-orphan")
@@ -45,6 +51,19 @@ class Category(Base):
     def get_all_active(cls, session):
         """Get all active categories ordered by sort_order"""
         return session.query(cls).filter(cls.is_active == True).order_by(cls.sort_order, cls.name).all()
+    
+    @classmethod
+    def get_featured_categories(cls, session):
+        """Get featured categories"""
+        return session.query(cls).filter(
+            cls.is_active == True,
+            cls.is_featured == True
+        ).order_by(cls.sort_order, cls.name).all()
+    
+    @property
+    def active_product_count(self):
+        """Get count of active products in this category"""
+        return len([p for p in self.products if p.is_active]) if self.products else 0
 
 
 class Subcategory(Base):
@@ -58,9 +77,16 @@ class Subcategory(Base):
     description = Column(Text, nullable=True)
     image_url = Column(String(500), nullable=True)  # Category image
     sort_order = Column(Integer, default=0)
-    is_active = Column(Boolean, default=True)
+    is_active = Column(Boolean, default=True, index=True)  # Indexed for filtering
+    is_featured = Column(Boolean, default=False)  # Featured subcategories
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Composite indexes
+    __table_args__ = (
+        Index('idx_subcategory_category_active', 'category_id', 'is_active'),
+        Index('idx_subcategory_active_sort', 'is_active', 'sort_order'),
+    )
 
     # Relationships
     category = relationship("Category", back_populates="subcategories")
@@ -73,6 +99,11 @@ class Subcategory(Base):
     def product_count(self):
         """Get total number of products in this subcategory"""
         return len(self.products) if self.products else 0
+    
+    @property
+    def active_product_count(self):
+        """Get count of active products in this subcategory"""
+        return len([p for p in self.products if p.is_active]) if self.products else 0
 
     @classmethod
     def get_by_category_slug(cls, session, category_slug):
