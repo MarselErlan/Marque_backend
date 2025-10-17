@@ -12,7 +12,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from pydantic import BaseModel
-from ..db import get_db_session
+from ..db import get_db
 from ..models.products.product_asset import ProductAsset
 from ..models.products.product import Product
 from ..utils.image_upload import image_uploader
@@ -87,7 +87,7 @@ async def upload_product_asset(
     alt_text: Optional[str] = Form(None),
     order: int = Form(0),
     is_primary: bool = Form(False),
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Upload a product image or video
@@ -195,7 +195,7 @@ async def upload_product_asset(
 def get_product_gallery(
     product_id: int,
     include_inactive: bool = False,
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get complete product gallery
@@ -249,7 +249,7 @@ def get_product_gallery(
 @router.patch("/{asset_id}/set-primary")
 def set_primary_image(
     asset_id: int,
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Set an asset as the primary product image
@@ -278,7 +278,7 @@ def set_primary_image(
 def update_product_asset(
     asset_id: int,
     update_data: UpdateProductAssetRequest,
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Update product asset details
@@ -322,7 +322,7 @@ def update_product_asset(
 def delete_product_asset(
     asset_id: int,
     hard_delete: bool = False,
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Delete or deactivate a product asset
@@ -368,7 +368,7 @@ def delete_product_asset(
 @router.post("/{asset_id}/restore")
 def restore_product_asset(
     asset_id: int,
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Restore a deactivated product asset
@@ -390,7 +390,7 @@ def restore_product_asset(
 
 
 @router.get("/stats")
-def get_asset_stats(db: Session = Depends(get_db_session)):
+def get_asset_stats(db: Session = Depends(get_db)):
     """
     Get statistics about product assets
     

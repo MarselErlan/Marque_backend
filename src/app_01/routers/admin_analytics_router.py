@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from pydantic import BaseModel
 from datetime import datetime, date, timedelta
-from ..db import get_db_session
+from ..db import get_db
 from ..models.admins.order_management.order_admin_stats import OrderAdminStats
 
 router = APIRouter(prefix="/api/v1/admin/analytics", tags=["Admin Analytics"])
@@ -65,7 +65,7 @@ class DashboardOverviewResponse(BaseModel):
 # ========================
 
 @router.get("/today", response_model=DailyStatsResponse)
-def get_today_stats(db: Session = Depends(get_db_session)):
+def get_today_stats(db: Session = Depends(get_db)):
     """
     Get today's statistics
     
@@ -106,7 +106,7 @@ def get_today_stats(db: Session = Depends(get_db_session)):
 @router.get("/date/{target_date}", response_model=DailyStatsResponse)
 def get_stats_by_date(
     target_date: date,
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get statistics for a specific date
@@ -132,7 +132,7 @@ def get_stats_by_date(
 def get_stats_range(
     start_date: date = Query(..., description="Start date (YYYY-MM-DD)"),
     end_date: date = Query(..., description="End date (YYYY-MM-DD)"),
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get statistics for a date range
@@ -186,7 +186,7 @@ def get_stats_range(
 @router.get("/recent", response_model=List[DailyStatsResponse])
 def get_recent_stats(
     days: int = Query(7, ge=1, le=90, description="Number of days to look back"),
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get statistics for last N days
@@ -207,7 +207,7 @@ def get_recent_stats(
 @router.get("/best-sales-days", response_model=List[DailyStatsResponse])
 def get_best_sales_days(
     limit: int = Query(10, ge=1, le=50),
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get days with highest sales
@@ -232,7 +232,7 @@ def get_best_sales_days(
 # ========================
 
 @router.get("/dashboard", response_model=DashboardOverviewResponse)
-def get_dashboard_overview(db: Session = Depends(get_db_session)):
+def get_dashboard_overview(db: Session = Depends(get_db)):
     """
     Get complete dashboard overview
     
@@ -295,7 +295,7 @@ def get_dashboard_overview(db: Session = Depends(get_db_session)):
 @router.get("/trends")
 def get_trends(
     days: int = Query(30, ge=7, le=90),
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get trends and insights
@@ -429,7 +429,7 @@ def export_stats(
     start_date: date = Query(...),
     end_date: date = Query(...),
     format: str = Query("json", regex="^(json|csv)$"),
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Export statistics data

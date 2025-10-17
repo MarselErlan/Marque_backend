@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from pydantic import BaseModel
 from datetime import datetime, date
-from ..db import get_db_session
+from ..db import get_db
 from ..models.products.product_filter import ProductDiscount
 from ..models.products.product import Product
 
@@ -68,7 +68,7 @@ class UpdateDiscountRequest(BaseModel):
 @router.get("/active", response_model=List[DiscountResponse])
 def get_active_discounts(
     limit: int = Query(50, ge=1, le=200),
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get all currently active discounts
@@ -115,7 +115,7 @@ def get_active_discounts(
 @router.get("/best-deals", response_model=List[DiscountResponse])
 def get_best_deals(
     limit: int = Query(10, ge=1, le=50),
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get biggest active discounts
@@ -160,7 +160,7 @@ def get_best_deals(
 @router.get("/product/{product_id}", response_model=Optional[DiscountResponse])
 def get_product_discount(
     product_id: int,
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get active discount for a specific product
@@ -212,7 +212,7 @@ def get_product_discount(
 @router.post("/", response_model=DiscountResponse)
 def create_discount(
     request: CreateDiscountRequest,
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Create a new discount (Admin only)
@@ -285,7 +285,7 @@ def create_discount(
 def update_discount(
     discount_id: int,
     request: UpdateDiscountRequest,
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Update an existing discount (Admin only)
@@ -344,7 +344,7 @@ def update_discount(
 @router.delete("/{discount_id}")
 def delete_discount(
     discount_id: int,
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Delete a discount (Admin only)
@@ -372,7 +372,7 @@ def delete_discount(
 # ========================
 
 @router.get("/stats")
-def get_discount_stats(db: Session = Depends(get_db_session)):
+def get_discount_stats(db: Session = Depends(get_db)):
     """
     Get discount statistics
     
@@ -414,7 +414,7 @@ def get_discount_stats(db: Session = Depends(get_db_session)):
 # ========================
 
 @router.get("/flash-sales")
-def get_flash_sales(db: Session = Depends(get_db_session)):
+def get_flash_sales(db: Session = Depends(get_db)):
     """
     Get flash sales (discounts ending soon)
     

@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from pydantic import BaseModel
 from datetime import datetime
-from ..db import get_db_session
+from ..db import get_db
 from ..models.products.product_filter import ProductSearch
 
 router = APIRouter(prefix="/api/v1/search", tags=["Product Search"])
@@ -58,7 +58,7 @@ class RecordSearchRequest(BaseModel):
 @router.post("/track")
 def track_search(
     request: RecordSearchRequest,
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Track a search query
@@ -98,7 +98,7 @@ def track_search(
 @router.get("/popular", response_model=List[SearchTermResponse])
 def get_popular_searches(
     limit: int = Query(10, ge=1, le=100),
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get most popular search terms
@@ -120,7 +120,7 @@ def get_popular_searches(
 @router.get("/recent", response_model=List[SearchTermResponse])
 def get_recent_searches(
     limit: int = Query(10, ge=1, le=100),
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get most recent search terms
@@ -142,7 +142,7 @@ def get_recent_searches(
 def get_trending_searches(
     days: int = Query(7, ge=1, le=90),
     limit: int = Query(10, ge=1, le=100),
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get trending searches from last N days
@@ -169,7 +169,7 @@ def get_trending_searches(
 @router.get("/zero-results", response_model=List[SearchTermResponse])
 def get_zero_result_searches(
     limit: int = Query(10, ge=1, le=100),
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get searches that returned no results
@@ -199,7 +199,7 @@ def get_zero_result_searches(
 # ========================
 
 @router.get("/stats", response_model=SearchStatsResponse)
-def get_search_stats(db: Session = Depends(get_db_session)):
+def get_search_stats(db: Session = Depends(get_db)):
     """
     Get comprehensive search statistics
     
@@ -255,7 +255,7 @@ def get_search_stats(db: Session = Depends(get_db_session)):
 def get_search_suggestions(
     q: str = Query(..., min_length=2, description="Search query"),
     limit: int = Query(5, ge=1, le=20),
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get search suggestions based on partial query
@@ -294,7 +294,7 @@ def get_search_suggestions(
 # ========================
 
 @router.get("/insights")
-def get_search_insights(db: Session = Depends(get_db_session)):
+def get_search_insights(db: Session = Depends(get_db)):
     """
     Get actionable search insights
     
@@ -374,7 +374,7 @@ def generate_recommendations(db: Session) -> List[str]:
 @router.delete("/admin/clear-old-searches")
 def clear_old_searches(
     days: int = Query(90, ge=30, le=365),
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Clear old search records (admin only)

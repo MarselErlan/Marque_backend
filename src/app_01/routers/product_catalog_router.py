@@ -13,7 +13,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from pydantic import BaseModel
-from ..db import get_db_session
+from ..db import get_db
 from ..models.products.product_attribute import ProductAttribute
 from ..models.products.product_filter import (
     ProductFilter,
@@ -105,7 +105,7 @@ class StyleResponse(BaseModel):
 @router.get("/attributes/sizes", response_model=List[AttributeResponse])
 def get_sizes(
     featured_only: bool = False,
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get all available sizes
@@ -126,7 +126,7 @@ def get_sizes(
 @router.get("/attributes/colors", response_model=List[AttributeResponse])
 def get_colors(
     featured_only: bool = False,
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get all available colors
@@ -147,7 +147,7 @@ def get_colors(
 @router.get("/attributes/brands", response_model=List[AttributeResponse])
 def get_attribute_brands(
     featured_only: bool = False,
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get all brand attributes
@@ -169,7 +169,7 @@ def get_attribute_brands(
 def get_most_used_attributes(
     attribute_type: str,
     limit: int = Query(10, ge=1, le=50),
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get most popular attributes by usage
@@ -196,7 +196,7 @@ def get_most_used_attributes(
 @router.get("/filters/{filter_type}", response_model=List[FilterResponse])
 def get_filters_by_type(
     filter_type: str,
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get all filters of a specific type
@@ -223,7 +223,7 @@ def get_filters_by_type(
 def get_popular_filters(
     filter_type: str,
     limit: int = Query(10, ge=1, le=50),
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get most popular filters by customer usage
@@ -244,7 +244,7 @@ def get_popular_filters(
 
 
 @router.get("/filters", response_model=dict)
-def get_all_filter_types(db: Session = Depends(get_db_session)):
+def get_all_filter_types(db: Session = Depends(get_db)):
     """
     Get all available filter types
     
@@ -264,7 +264,7 @@ def get_all_filter_types(db: Session = Depends(get_db_session)):
 @router.get("/seasons", response_model=List[SeasonResponse])
 def get_seasons(
     featured_only: bool = False,
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get all product seasons
@@ -290,7 +290,7 @@ def get_seasons(
 @router.get("/seasons/popular", response_model=List[SeasonResponse])
 def get_popular_seasons(
     limit: int = Query(5, ge=1, le=20),
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get seasons with most products
@@ -311,7 +311,7 @@ def get_popular_seasons(
 @router.get("/seasons/{slug}", response_model=SeasonResponse)
 def get_season_by_slug(
     slug: str,
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get season by slug
@@ -339,7 +339,7 @@ def get_season_by_slug(
 @router.get("/materials", response_model=List[MaterialResponse])
 def get_materials(
     featured_only: bool = False,
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get all product materials
@@ -365,7 +365,7 @@ def get_materials(
 @router.get("/materials/popular", response_model=List[MaterialResponse])
 def get_popular_materials(
     limit: int = Query(10, ge=1, le=50),
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get materials with most products
@@ -386,7 +386,7 @@ def get_popular_materials(
 @router.get("/materials/{slug}", response_model=MaterialResponse)
 def get_material_by_slug(
     slug: str,
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get material by slug
@@ -414,7 +414,7 @@ def get_material_by_slug(
 @router.get("/styles", response_model=List[StyleResponse])
 def get_styles(
     featured_only: bool = False,
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get all product styles
@@ -440,7 +440,7 @@ def get_styles(
 @router.get("/styles/popular", response_model=List[StyleResponse])
 def get_popular_styles(
     limit: int = Query(10, ge=1, le=50),
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get styles with most products
@@ -461,7 +461,7 @@ def get_popular_styles(
 @router.get("/styles/{slug}", response_model=StyleResponse)
 def get_style_by_slug(
     slug: str,
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db)
 ):
     """
     Get style by slug
@@ -487,7 +487,7 @@ def get_style_by_slug(
 # ========================
 
 @router.get("/overview")
-def get_catalog_overview(db: Session = Depends(get_db_session)):
+def get_catalog_overview(db: Session = Depends(get_db)):
     """
     Get complete catalog overview
     
