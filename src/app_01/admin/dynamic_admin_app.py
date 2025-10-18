@@ -52,13 +52,15 @@ class MarketMiddleware(BaseHTTPMiddleware):
             if request.url.path in ["/admin/login", "/admin/market-selector", "/admin/switch-market"]:
                 return await call_next(request)
             
-            # Check if user is authenticated
-            if request.session.get("token"):
-                # Check if market is selected
-                if not request.session.get("selected_market"):
-                    # Set default market if not set
-                    request.session["selected_market"] = "kg"
-                    logger.info(f"✅ Set default market 'KG' for admin '{request.session.get('admin_username')}'")
+            # Check if session is available (SessionMiddleware must be installed)
+            if "session" in request.scope:
+                # Check if user is authenticated
+                if request.session.get("token"):
+                    # Check if market is selected
+                    if not request.session.get("selected_market"):
+                        # Set default market if not set
+                        request.session["selected_market"] = "kg"
+                        logger.info(f"✅ Set default market 'KG' for admin '{request.session.get('admin_username')}'")
         
         response = await call_next(request)
         return response
