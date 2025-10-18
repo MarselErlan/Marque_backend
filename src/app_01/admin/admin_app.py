@@ -49,16 +49,15 @@ def create_sqladmin_app(app: FastAPI) -> Admin:
         middlewares=[]
     )
     
-    # Add market selection view
-    admin.add_view(MarketSelectionView)
+    # Note: MarketSelectionView is handled by custom route in main.py
     
     # Add all admin views
     
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     # 📊 DASHBOARD (MAIN VIEW - Business Intelligence)
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    # TODO: Fix DashboardView routing issue - temporarily disabled
-    # admin.add_view(DashboardView)
+    # Add dashboard view
+    admin.add_view(DashboardView)
     
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     # 🛒 ORDER MANAGEMENT (CRITICAL for e-commerce)
