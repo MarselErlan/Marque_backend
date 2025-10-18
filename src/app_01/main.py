@@ -124,6 +124,241 @@ except Exception as static_error:
     import traceback
     traceback.print_exc()
 
+# Custom admin login routes (registered BEFORE SQLAdmin)
+@app.get("/admin/market-login", include_in_schema=False)
+async def market_login_form(request: Request):
+    """Custom login form with market selection"""
+    from starlette.responses import HTMLResponse
+    return HTMLResponse(content="""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Marque - Multi-Market Admin Login</title>
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                margin: 0;
+                padding: 0;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .login-container {
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+                padding: 40px;
+                width: 100%;
+                max-width: 400px;
+                margin: 20px;
+            }
+            .logo {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+            .logo h1 {
+                color: #333;
+                margin: 0;
+                font-size: 28px;
+                font-weight: 600;
+            }
+            .logo p {
+                color: #666;
+                margin: 5px 0 0 0;
+                font-size: 14px;
+            }
+            .form-group {
+                margin-bottom: 20px;
+            }
+            .form-group label {
+                display: block;
+                margin-bottom: 8px;
+                color: #333;
+                font-weight: 500;
+                font-size: 14px;
+            }
+            .form-group input, .form-group select {
+                width: 100%;
+                padding: 12px 16px;
+                border: 2px solid #e1e5e9;
+                border-radius: 8px;
+                font-size: 16px;
+                transition: border-color 0.3s ease;
+                box-sizing: border-box;
+            }
+            .form-group input:focus, .form-group select:focus {
+                outline: none;
+                border-color: #667eea;
+            }
+            .form-group input.error, .form-group select.error {
+                border-color: #dc3545;
+            }
+            .error-message {
+                color: #dc3545;
+                font-size: 12px;
+                margin-top: 5px;
+                display: none;
+            }
+            .market-info {
+                background: #f8f9fa;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 20px;
+                font-size: 14px;
+                color: #666;
+            }
+            .market-info strong {
+                color: #333;
+            }
+            .login-btn {
+                width: 100%;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                padding: 14px;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: transform 0.2s ease;
+            }
+            .login-btn:hover {
+                transform: translateY(-2px);
+            }
+            .login-btn:active {
+                transform: translateY(0);
+            }
+            .market-flags {
+                display: flex;
+                gap: 10px;
+                margin-top: 10px;
+            }
+            .flag {
+                width: 30px;
+                height: 20px;
+                border-radius: 3px;
+                display: inline-block;
+            }
+            .flag-kg {
+                background: linear-gradient(to right, #ff0000 33%, #ffff00 33%, #ffff00 66%, #ff0000 66%);
+            }
+            .flag-us {
+                background: linear-gradient(to bottom, #ff0000 7.7%, #ffffff 7.7%, #ffffff 15.4%, #ff0000 15.4%, #ff0000 23.1%, #ffffff 23.1%, #ffffff 30.8%, #ff0000 30.8%, #ff0000 38.5%, #ffffff 38.5%, #ffffff 46.2%, #ff0000 46.2%, #ff0000 53.9%, #ffffff 53.9%, #ffffff 61.6%, #ff0000 61.6%, #ff0000 69.3%, #ffffff 69.3%, #ffffff 77%, #ff0000 77%, #ff0000 84.7%, #ffffff 84.7%, #ffffff 92.4%, #ff0000 92.4%, #ff0000 100%);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="login-container">
+            <div class="logo">
+                <h1>Marque Admin</h1>
+                <p>Multi-Market Management System</p>
+            </div>
+            
+            <form method="post" action="/admin/login">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter username" required>
+                    <div class="error-message" id="username-error">Invalid credentials.</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Password" required>
+                    <div class="error-message" id="password-error">Invalid credentials.</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="market">Select Market Database</label>
+                    <select id="market" name="market" required>
+                        <option value="">Choose market...</option>
+                        <option value="kg">🇰🇬 Kyrgyzstan (KG)</option>
+                        <option value="us">🇺🇸 United States (US)</option>
+                    </select>
+                    <div class="error-message" id="market-error">Please select a market.</div>
+                </div>
+                
+                <div class="market-info">
+                    <strong>Market Selection:</strong><br>
+                    • <strong>KG:</strong> Kyrgyzstan market (сом, Russian language)<br>
+                    • <strong>US:</strong> United States market ($, English language)<br>
+                    <div class="market-flags">
+                        <div class="flag flag-kg"></div>
+                        <div class="flag flag-us"></div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="login-btn">Login to Selected Market</button>
+            </form>
+        </div>
+        
+        <script>
+            // Update market info when selection changes
+            document.getElementById('market').addEventListener('change', function() {
+                const marketInfo = document.querySelector('.market-info');
+                const selectedMarket = this.value;
+                
+                if (selectedMarket === 'kg') {
+                    marketInfo.innerHTML = `
+                        <strong>Selected: Kyrgyzstan Market</strong><br>
+                        • Currency: сом (KGS)<br>
+                        • Language: Russian<br>
+                        • Phone: +996 XXX XXX XXX<br>
+                        • Tax Rate: 12% VAT<br>
+                        <div class="market-flags">
+                            <div class="flag flag-kg"></div>
+                        </div>
+                    `;
+                } else if (selectedMarket === 'us') {
+                    marketInfo.innerHTML = `
+                        <strong>Selected: United States Market</strong><br>
+                        • Currency: $ (USD)<br>
+                        • Language: English<br>
+                        • Phone: +1 (XXX) XXX-XXXX<br>
+                        • Tax Rate: 8% Sales Tax<br>
+                        <div class="market-flags">
+                            <div class="flag flag-us"></div>
+                        </div>
+                    `;
+                } else {
+                    marketInfo.innerHTML = `
+                        <strong>Market Selection:</strong><br>
+                        • <strong>KG:</strong> Kyrgyzstan market (сом, Russian language)<br>
+                        • <strong>US:</strong> United States market ($, English language)<br>
+                        <div class="market-flags">
+                            <div class="flag flag-kg"></div>
+                            <div class="flag flag-us"></div>
+                        </div>
+                    `;
+                }
+            });
+            
+            // Show error messages if login fails
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('error') === 'invalid_credentials') {
+                document.getElementById('username-error').style.display = 'block';
+                document.getElementById('password-error').style.display = 'block';
+                document.getElementById('username').classList.add('error');
+                document.getElementById('password').classList.add('error');
+            }
+            if (urlParams.get('error') === 'missing_market') {
+                document.getElementById('market-error').style.display = 'block';
+                document.getElementById('market').classList.add('error');
+            }
+        </script>
+    </body>
+    </html>
+    """)
+
+# Redirect default admin login to our custom market login
+@app.get("/admin/login", include_in_schema=False)
+async def redirect_to_market_login(request: Request):
+    """Redirect to custom market login"""
+    return RedirectResponse(url="/admin/market-login", status_code=302)
+
 # Initialize SQLAdmin AFTER static files are mounted
 try:
     from .admin.admin_app import create_sqladmin_app

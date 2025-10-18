@@ -1,5 +1,6 @@
 from sqladmin import Admin
 from fastapi import FastAPI
+from starlette.requests import Request
 from ..db.market_db import db_manager, Market
 from .sqladmin_views import (
     WebsiteContentAuthenticationBackend,

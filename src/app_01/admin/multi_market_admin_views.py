@@ -52,8 +52,12 @@ class MultiMarketAuthenticationBackend(AuthenticationBackend):
         logger.info(f"   Password length: {len(password) if password else 0} chars")
         logger.info(f"   Selected Market: '{selected_market}'")
         
-        if not username or not password or not selected_market:
-            logger.error("❌ Missing username, password, or market selection")
+        if not username or not password:
+            logger.error("❌ Missing username or password")
+            return False
+            
+        if not selected_market:
+            logger.error("❌ Missing market selection")
             return False
         
         # Validate market selection
