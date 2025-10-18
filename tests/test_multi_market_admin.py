@@ -761,6 +761,195 @@ class TestErrorHandling:
             assert len(mock_request.session) == 0
 
 
+class TestEnhancedMarketAwareFeatures:
+    """Test the new enhanced features in MarketAwareModelView"""
+    
+    @pytest.fixture
+    def enhanced_product_admin(self):
+        """Create ProductAdmin with enhanced features"""
+        return ProductAdmin()
+    
+    @pytest.fixture
+    def mock_request_with_admin_session(self):
+        """Create mock request with admin session"""
+        request = Mock(spec=Request)
+        request.session = {
+            "admin_id": 1,
+            "admin_market": "kg",
+            "token": "test-token"
+        }
+        request.url = Mock()
+        request.url.path = "/admin/product/edit/123"
+        request.client = Mock()
+        request.client.host = "127.0.0.1"
+        request.headers = {"user-agent": "test-browser"}
+        return request
+    
+    def test_product_admin_has_role_requirements(self, enhanced_product_admin):
+        """Test that ProductAdmin has proper role requirements"""
+        assert enhanced_product_admin.required_roles == ["website_content", "super_admin"]
+        assert "manage_products" in enhanced_product_admin.required_permissions.values()
+        assert "delete_products" in enhanced_product_admin.required_permissions.values()
+    
+    @pytest.mark.asyncio
+    async def test_permission_check_with_super_admin(self, enhanced_product_admin, mock_request_with_admin_session):
+        """Test permission check with super admin"""
+        mock_admin = Mock()
+        mock_admin.id = 1
+        mock_admin.is_active = True
+        mock_admin.is_super_admin = True
+        
+        with patch.object(db_manager, 'get_db_session') as mock_db_session:
+            mock_db = Mock()
+            mock_db_session.return_value = mock_db
+            mock_db.query.return_value.filter.return_value.first.return_value = mock_admin
+            mock_db.close = Mock()
+            
+            # Super admin should have all permissions
+            assert enhanced_product_admin.check_permissions(mock_request_with_admin_session, "create") == True
+            assert enhanced_product_admin.check_permissions(mock_request_with_admin_session, "delete") == True
+    
+    @pytest.mark.asyncio
+    async def test_permission_check_with_wrong_role(self, enhanced_product_admin, mock_request_with_admin_session):
+        """Test permission check with admin having wrong role"""
+        mock_admin = Mock()
+        mock_admin.id = 1
+        mock_admin.is_active = True
+        mock_admin.is_super_admin = False
+        mock_admin.admin_role = "order_management"  # Wrong role for product admin
+        
+        with patch.object(db_manager, 'get_db_session') as mock_db_session:
+            mock_db = Mock()
+            mock_db_session.return_value = mock_db
+            mock_db.query.return_value.filter.return_value.first.return_value = mock_admin
+            mock_db.close = Mock()
+            
+            # Should be denied due to wrong role
+            assert enhanced_product_admin.check_permissions(mock_request_with_admin_session, "create") == False
+    
+    def test_audit_logging_functionality(self, enhanced_product_admin, mock_request_with_admin_session):
+        """Test that admin actions are logged with market context"""
+        with patch.object(db_manager, 'get_db_session') as mock_db_session:
+            mock_db = Mock()
+            mock_db_session.return_value = mock_db
+            mock_db.add = Mock()
+            mock_db.commit = Mock()
+            mock_db.close = Mock()
+            
+            # Call log_admin_action
+            enhanced_product_admin.log_admin_action(
+                mock_request_with_admin_session,
+                "create",
+                entity_id=123,
+                description="Created new product"
+            )
+            
+            # Verify log entry was created
+            mock_db.add.assert_called_once()
+            mock_db.commit.assert_called_once()
+            
+            # Check the log entry details
+            log_entry = mock_db.add.call_args[0][0]
+            assert log_entry.admin_id == 1
+            assert log_entry.action == "create"
+            assert log_entry.entity_id == 123
+            assert "[KG]" in log_entry.description
+            assert log_entry.ip_address == "127.0.0.1"
+
+
+class TestDashboardEnhancements:
+    """Test enhanced dashboard features"""
+    
+    @pytest.fixture
+    def dashboard_view(self):
+        """Create DashboardView instance"""
+        from src.app_01.admin.dashboard_admin_views import DashboardView
+        return DashboardView()
+    
+    @pytest.fixture
+    def mock_request_kg(self):
+        """Mock request for KG market"""
+        request = Mock(spec=Request)
+        request.session = {"admin_market": "kg"}
+        return request
+    
+    @pytest.fixture
+    def mock_request_us(self):
+        """Mock request for US market"""
+        request = Mock(spec=Request)
+        request.session = {"admin_market": "us"}
+        return request
+    
+    @pytest.mark.asyncio
+    async def test_dashboard_market_context_kg(self, dashboard_view, mock_request_kg):
+        """Test dashboard shows correct market context for KG"""
+        with patch.object(db_manager, 'get_db_session') as mock_db_session:
+            mock_db = Mock()
+            # Mock all database queries to return 0
+            mock_db.query.return_value.filter.return_value.scalar.return_value = 0
+            mock_db.query.return_value.order_by.return_value.limit.return_value.all.return_value = []
+            mock_db.close = Mock()
+            mock_db_session.return_value = mock_db
+            
+            result = await dashboard_view.index(mock_request_kg)
+            
+            assert isinstance(result, HTMLResponse)
+            content = result.body.decode()
+            
+            # Should show KG market context
+            assert "🇰🇬" in content
+            assert "Kyrgyzstan" in content
+            assert "сом" in content
+    
+    @pytest.mark.asyncio
+    async def test_dashboard_market_context_us(self, dashboard_view, mock_request_us):
+        """Test dashboard shows correct market context for US"""
+        with patch.object(db_manager, 'get_db_session') as mock_db_session:
+            mock_db = Mock()
+            # Mock all database queries to return 0
+            mock_db.query.return_value.filter.return_value.scalar.return_value = 0
+            mock_db.query.return_value.order_by.return_value.limit.return_value.all.return_value = []
+            mock_db.close = Mock()
+            mock_db_session.return_value = mock_db
+            
+            result = await dashboard_view.index(mock_request_us)
+            
+            assert isinstance(result, HTMLResponse)
+            content = result.body.decode()
+            
+            # Should show US market context
+            assert "🇺🇸" in content
+            assert "United States" in content
+            assert "$" in content
+    
+    @pytest.mark.asyncio
+    async def test_dashboard_market_comparison(self, dashboard_view, mock_request_kg):
+        """Test dashboard includes market comparison analytics"""
+        with patch.object(db_manager, 'get_db_session') as mock_db_session:
+            # Mock KG database (current market)
+            mock_kg_db = Mock()
+            mock_kg_db.query.return_value.filter.return_value.scalar.return_value = 5
+            mock_kg_db.query.return_value.order_by.return_value.limit.return_value.all.return_value = []
+            mock_kg_db.close = Mock()
+            
+            # Mock US database (comparison market)
+            mock_us_db = Mock()
+            mock_us_db.query.return_value.filter.return_value.scalar.return_value = 3
+            mock_us_db.close = Mock()
+            
+            # Return KG first, then US for comparison
+            mock_db_session.side_effect = [mock_kg_db, mock_us_db]
+            
+            result = await dashboard_view.index(mock_request_kg)
+            
+            assert isinstance(result, HTMLResponse)
+            content = result.body.decode()
+            
+            # Should include comparison section
+            assert "Сравнение Рынков" in content
+            assert "vs" in content
+
+
 if __name__ == "__main__":
     # Run tests with pytest
     pytest.main([__file__, "-v", "--tb=short"])
