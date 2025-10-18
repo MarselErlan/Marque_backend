@@ -205,17 +205,21 @@ class TestAuditLogging:
     @pytest.mark.asyncio
     async def test_create_logs_action(self, market_aware_view, mock_request_with_session):
         """Test that create operation logs the action"""
-        with patch.object(market_aware_view, 'check_permissions', return_value=True), \
-             patch.object(market_aware_view, 'log_admin_action') as mock_log, \
-             patch('src.app_01.admin.multi_market_admin_views.ModelView.create', new_callable=AsyncMock) as mock_super_create:
-            
+        # Mock the check_permissions method to return True
+        market_aware_view.check_permissions = Mock(return_value=True)
+        
+        # Mock the log_admin_action method
+        market_aware_view.log_admin_action = Mock()
+        
+        # Mock the parent create method
+        with patch.object(market_aware_view.__class__.__bases__[0], 'create', new_callable=AsyncMock) as mock_super_create:
             mock_super_create.return_value = Mock()
             
             await market_aware_view.create(mock_request_with_session)
             
             # Verify action was logged
-            mock_log.assert_called_once()
-            args = mock_log.call_args[0]
+            market_aware_view.log_admin_action.assert_called_once()
+            args = market_aware_view.log_admin_action.call_args[0]
             assert args[1] == "create"  # action
             assert "Created new Product" in args[3]  # description
     
@@ -224,17 +228,21 @@ class TestAuditLogging:
         """Test that edit operation logs the action with entity ID"""
         mock_request_with_session.url.path = "/admin/product/edit/456"
         
-        with patch.object(market_aware_view, 'check_permissions', return_value=True), \
-             patch.object(market_aware_view, 'log_admin_action') as mock_log, \
-             patch('src.app_01.admin.multi_market_admin_views.ModelView.edit', new_callable=AsyncMock) as mock_super_edit:
+        # Mock the check_permissions method to return True
+        market_aware_view.check_permissions = Mock(return_value=True)
+        
+        # Mock the log_admin_action method
+        market_aware_view.log_admin_action = Mock()
+        
+        with patch.object(market_aware_view.__class__.__bases__[0], 'edit', new_callable=AsyncMock) as mock_super_edit:
             
             mock_super_edit.return_value = Mock()
             
             await market_aware_view.edit(mock_request_with_session)
             
             # Verify action was logged with entity ID
-            mock_log.assert_called_once()
-            args = mock_log.call_args
+            market_aware_view.log_admin_action.assert_called_once()
+            args = market_aware_view.log_admin_action.call_args
             assert args[0][1] == "update"  # action
             assert args[0][2] == 456  # entity_id
             assert "Updated Product" in args[0][3]  # description
@@ -277,7 +285,13 @@ class TestDashboardAnalytics:
             mock_us_db.close = Mock()
             
             # Return KG db first, then US db for comparison (as iterators)
-            mock_db_session.side_effect = [iter([mock_kg_db]), iter([mock_us_db])]
+            def mock_get_db_session(market):
+                if market == Market.KG:
+                    return iter([mock_kg_db])
+                else:
+                    return iter([mock_us_db])
+            
+            mock_db_session.side_effect = mock_get_db_session
             
             result = await dashboard_view.index(mock_request_kg_market)
             

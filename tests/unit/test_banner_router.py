@@ -36,7 +36,7 @@ class TestBannerFiltering:
     
     def test_filter_by_type(self, client):
         """Test filtering banners by type"""
-        response = client.get("/api/v1/banners?banner_type=sale")
+        response = client.get("/api/v1/banners?banner_type=promo")
         assert response.status_code in [200, 422]
     
     def test_filter_by_active(self, client):
@@ -44,7 +44,7 @@ class TestBannerFiltering:
         response = client.get("/api/v1/banners?is_active=true")
         assert response.status_code in [200, 422]
     
-    @pytest.mark.parametrize("banner_type", ["sale", "model"])
+    @pytest.mark.parametrize("banner_type", ["promo", "hero"])
     def test_filter_by_various_types(self, client, banner_type):
         """Test filtering by various banner types"""
         response = client.get(f"/api/v1/banners?banner_type={banner_type}")

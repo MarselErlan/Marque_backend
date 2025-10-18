@@ -120,7 +120,7 @@ def sample_banner_data():
         "description": "Test banner description",
         "image_url": "https://example.com/banner.jpg",
         "link": "https://example.com",
-        "banner_type": "sale",
+        "banner_type": "promo",
         "is_active": True,
         "display_order": 1
     }

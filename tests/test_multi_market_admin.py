@@ -801,7 +801,7 @@ class TestEnhancedMarketAwareFeatures:
         
         with patch.object(db_manager, 'get_db_session') as mock_db_session:
             mock_db = Mock()
-            mock_db_session.return_value = mock_db
+            mock_db_session.side_effect = lambda market: iter([mock_db])
             mock_db.query.return_value.filter.return_value.first.return_value = mock_admin
             mock_db.close = Mock()
             
@@ -820,7 +820,7 @@ class TestEnhancedMarketAwareFeatures:
         
         with patch.object(db_manager, 'get_db_session') as mock_db_session:
             mock_db = Mock()
-            mock_db_session.return_value = mock_db
+            mock_db_session.side_effect = lambda market: iter([mock_db])
             mock_db.query.return_value.filter.return_value.first.return_value = mock_admin
             mock_db.close = Mock()
             
@@ -831,7 +831,7 @@ class TestEnhancedMarketAwareFeatures:
         """Test that admin actions are logged with market context"""
         with patch.object(db_manager, 'get_db_session') as mock_db_session:
             mock_db = Mock()
-            mock_db_session.return_value = mock_db
+            mock_db_session.side_effect = lambda market: iter([mock_db])
             mock_db.add = Mock()
             mock_db.commit = Mock()
             mock_db.close = Mock()
@@ -889,7 +889,7 @@ class TestDashboardEnhancements:
             mock_db.query.return_value.filter.return_value.scalar.return_value = 0
             mock_db.query.return_value.order_by.return_value.limit.return_value.all.return_value = []
             mock_db.close = Mock()
-            mock_db_session.return_value = mock_db
+            mock_db_session.side_effect = lambda market: iter([mock_db])
             
             result = await dashboard_view.index(mock_request_kg)
             
@@ -910,7 +910,7 @@ class TestDashboardEnhancements:
             mock_db.query.return_value.filter.return_value.scalar.return_value = 0
             mock_db.query.return_value.order_by.return_value.limit.return_value.all.return_value = []
             mock_db.close = Mock()
-            mock_db_session.return_value = mock_db
+            mock_db_session.side_effect = lambda market: iter([mock_db])
             
             result = await dashboard_view.index(mock_request_us)
             

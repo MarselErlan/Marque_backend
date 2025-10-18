@@ -23,9 +23,9 @@ class TestBannerAPI:
         
         if response.status_code == 200:
             data = response.json()
-            # API returns dict with sale_banners, model_banners, and total
+            # API returns dict with hero_banners, promo_banners, category_banners, and total
             assert isinstance(data, dict)
-            assert "sale_banners" in data or "model_banners" in data or isinstance(data, list)
+            assert "hero_banners" in data or "promo_banners" in data or "category_banners" in data or isinstance(data, list)
     
     def test_get_banner_by_id(self, api_client, sample_banner):
         """Test getting banner by ID"""

@@ -62,9 +62,10 @@ class SeasonResponse(BaseModel):
     name: str
     slug: str
     description: Optional[str]
-    product_count: int
-    is_featured: bool
-    sort_order: int
+    product_count: int = 0
+    is_featured: bool = False
+    is_active: bool = True
+    sort_order: int = 0
     
     class Config:
         from_attributes = True
@@ -76,9 +77,10 @@ class MaterialResponse(BaseModel):
     name: str
     slug: str
     description: Optional[str]
-    product_count: int
-    is_featured: bool
-    sort_order: int
+    product_count: int = 0
+    is_featured: bool = False
+    is_active: bool = True
+    sort_order: int = 0
     
     class Config:
         from_attributes = True
@@ -90,9 +92,10 @@ class StyleResponse(BaseModel):
     name: str
     slug: str
     description: Optional[str]
-    product_count: int
-    is_featured: bool
-    sort_order: int
+    product_count: int = 0
+    is_featured: bool = False
+    is_active: bool = True
+    sort_order: int = 0
     
     class Config:
         from_attributes = True
