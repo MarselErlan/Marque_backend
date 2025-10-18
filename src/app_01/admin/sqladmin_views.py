@@ -122,10 +122,12 @@ class WebsiteContentAuthenticationBackend(AuthenticationBackend):
                     "admin_id": admin.id,
                     "admin_username": admin.username,
                     "is_super_admin": admin.is_super_admin,
-                    "admin_market": market.value  # Store which database the admin is in
+                    "admin_market": market.value,  # Store which database the admin is in
+                    "selected_market": market.value  # Set default selected market based on login database
                 })
                 
                 logger.info(f"   ✅ Session created with token: {token[:16]}...")
+                logger.info(f"   ✅ Default market set to: {market.value.upper()}")
                 logger.info(f"{'='*70}\n")
                 
                 return True
