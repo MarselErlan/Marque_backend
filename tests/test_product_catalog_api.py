@@ -24,7 +24,7 @@ from src.app_01.models import (
     ProductStyle, ProductDiscount, ProductSearch
 )
 
-# Test database
+# Test database - SQLite for local testing (production uses PostgreSQL)
 SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///./test_product_catalog.db"
 engine = create_engine(SQLALCHEMY_TEST_DATABASE_URL, connect_args={"check_same_thread": False})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
