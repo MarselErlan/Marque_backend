@@ -48,12 +48,13 @@ class TestAdminAuthentication:
     def test_admin_login_with_valid_credentials(self, admin_client, sample_admin_user):
         """
         GIVEN valid admin credentials
-        WHEN POST to /admin/login
+        WHEN POST to /admin/market-login
         THEN return success and set authentication
         """
         response = admin_client.post("/admin/login", data={
             "username": "admin",
-            "password": "admin123"
+            "password": "admin123",
+            "market": "kg"
         }, follow_redirects=False)
         
         # Should redirect to admin dashboard or return 200
@@ -66,12 +67,13 @@ class TestAdminAuthentication:
     def test_admin_login_with_invalid_credentials(self, admin_client, sample_admin_user):
         """
         GIVEN invalid credentials
-        WHEN POST to /admin/login
+        WHEN POST to /admin/market-login
         THEN return error
         """
         response = admin_client.post("/admin/login", data={
             "username": "admin",
-            "password": "wrongpassword"
+            "password": "wrongpassword",
+            "market": "kg"
         })
         
         # Should not succeed
@@ -81,12 +83,13 @@ class TestAdminAuthentication:
     def test_admin_login_with_nonexistent_user(self, admin_client):
         """
         GIVEN nonexistent username
-        WHEN POST to /admin/login
+        WHEN POST to /admin/market-login
         THEN return error
         """
         response = admin_client.post("/admin/login", data={
             "username": "nonexistent",
-            "password": "anypassword"
+            "password": "anypassword",
+            "market": "kg"
         })
         
         assert response.status_code in [400, 401, 403], \
@@ -105,7 +108,8 @@ class TestAdminAuthentication:
         # Test that login succeeds (authentication works)
         response = admin_client.post("/admin/login", data={
             "username": "admin",
-            "password": "admin123"
+            "password": "admin123",
+            "market": "kg"
         }, follow_redirects=False)
         
         # Should get 302 redirect after successful login
@@ -147,13 +151,16 @@ class TestAdminAuthentication:
         THEN return error
         """
         from src.app_01.models.admins.admin import Admin
-        from passlib.hash import bcrypt
+        import bcrypt
         
         # Create inactive admin
+        password_bytes = "password123".encode('utf-8')
+        hashed_password = bcrypt.hashpw(password_bytes, bcrypt.gensalt()).decode('utf-8')
+        
         inactive_admin = Admin(
             username="inactive",
             email="inactive@marque.com",
-            hashed_password=bcrypt.hash("password123"),
+            hashed_password=hashed_password,
             full_name="Inactive Admin",
             is_active=False
         )
@@ -162,7 +169,8 @@ class TestAdminAuthentication:
         
         response = admin_client.post("/admin/login", data={
             "username": "inactive",
-            "password": "password123"
+            "password": "password123",
+            "market": "kg"
         })
         
         assert response.status_code in [400, 401, 403], \

@@ -4,6 +4,7 @@ Fixtures for testing SQLAdmin functionality
 """
 
 import pytest
+import bcrypt
 from httpx import AsyncClient
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
@@ -11,9 +12,6 @@ from starlette.testclient import TestClient
 from src.app_01.main import app
 from src.app_01.models.admins.admin import Admin
 from src.app_01.core.config import settings
-from passlib.context import CryptContext
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 @pytest.fixture(scope="function")
@@ -27,37 +25,61 @@ def admin_client() -> TestClient:
 
 
 @pytest.fixture(scope="function")
-def authenticated_admin_client(admin_client: TestClient, db_session: Session) -> TestClient:
+def sample_admin_user(db_session: Session) -> Admin:
     """
-    Provides an admin client with a pre-configured session (bypass login).
+    Create a sample admin user for testing.
     """
-    # 1. Create the admin user for this test function
-    hashed_password = pwd_context.hash("python123")
+    # Use the same bcrypt hashing method as the authentication system
+    password_bytes = "admin123".encode('utf-8')
+    hashed_password = bcrypt.hashpw(password_bytes, bcrypt.gensalt()).decode('utf-8')
     
     # Check if admin already exists (to avoid UNIQUE constraint error)
-    existing_admin = db_session.query(Admin).filter_by(username="test_admin").first()
+    existing_admin = db_session.query(Admin).filter_by(username="admin").first()
     if existing_admin:
         db_session.delete(existing_admin)
         db_session.commit()
     
     admin = Admin(
-        username="test_admin",
+        username="admin",
         hashed_password=hashed_password,
         is_super_admin=True,
-        is_active=True
+        is_active=True,
+        email="admin@marque.com",
+        full_name="Test Admin"
     )
     db_session.add(admin)
     db_session.commit()
     db_session.refresh(admin)
-
-    # 2. Manually set up the session to simulate a logged-in admin (bypass actual login)
-    with admin_client as client:
-        with client.session_transaction() as session:
-            session["token"] = "test-token"
-            session["admin_id"] = admin.id
-            session["market"] = "kg"
     
+    return admin
+
+
+@pytest.fixture(scope="function")
+def authenticated_admin_client(admin_client: TestClient, sample_admin_user: Admin) -> TestClient:
+    """
+    Provides an admin client with a pre-configured session (bypass login).
+    Note: FastAPI TestClient doesn't support session_transaction, so we'll use cookies instead.
+    """
+    # Simulate login by setting session cookies directly
+    # This is a workaround since TestClient doesn't have session_transaction
+    
+    # First, perform actual login to get proper session
+    login_response = admin_client.post("/admin/login", data={
+        "username": "admin",
+        "password": "admin123",
+        "market": "kg"
+    }, follow_redirects=False)
+    
+    # The session should now be set via cookies
     return admin_client
+
+
+@pytest.fixture(scope="function")
+def admin_test_db(db_session: Session) -> Session:
+    """
+    Alias for db_session for admin tests.
+    """
+    return db_session
 
 
 @pytest.fixture(scope="function")
@@ -66,7 +88,8 @@ async def authenticated_content_admin_client(admin_client: TestClient, db_sessio
     Provides a content admin client that is already authenticated.
     """
     # 1. Create the content admin user
-    hashed_password = pwd_context.hash("contentpassword")
+    password_bytes = "contentpassword".encode('utf-8')
+    hashed_password = bcrypt.hashpw(password_bytes, bcrypt.gensalt()).decode('utf-8')
     admin = Admin(
         username="content_admin",
         hashed_password=hashed_password,
