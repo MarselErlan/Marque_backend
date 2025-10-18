@@ -275,7 +275,7 @@ async def market_login_form(request: Request):
                     <label for="market">Select Market Database</label>
                     <select id="market" name="market" required>
                         <option value="">Choose market...</option>
-                        <option value="kg">🇰🇬 Kyrgyzstan (KG)</option>
+                        <option value="kg" selected>🇰🇬 Kyrgyzstan (KG)</option>
                         <option value="us">🇺🇸 United States (US)</option>
                     </select>
                     <div class="error-message" id="market-error">Please select a market.</div>
@@ -348,6 +348,18 @@ async def market_login_form(request: Request):
                 document.getElementById('market-error').style.display = 'block';
                 document.getElementById('market').classList.add('error');
             }
+            
+            // Ensure form submission includes market value
+            document.querySelector('form').addEventListener('submit', function(e) {
+                const marketSelect = document.getElementById('market');
+                if (!marketSelect.value) {
+                    e.preventDefault();
+                    document.getElementById('market-error').style.display = 'block';
+                    marketSelect.classList.add('error');
+                    return false;
+                }
+                console.log('Submitting with market:', marketSelect.value);
+            });
         </script>
     </body>
     </html>
