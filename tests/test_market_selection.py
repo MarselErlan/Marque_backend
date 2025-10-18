@@ -20,8 +20,8 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from src.app_01.main import app
-from src.app_01.models import Base, Product, Category, Brand, Admin, Subcategory
-from src.app_01.db.market_db import db_manager, Market
+from src.app_01.models import Product, Category, Brand, Admin, Subcategory
+from src.app_01.db.market_db import db_manager, Market, Base
 import bcrypt
 
 # Test client
