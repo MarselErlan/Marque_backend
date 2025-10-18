@@ -156,33 +156,36 @@ class WebsiteContentAuthenticationBackend(AuthenticationBackend):
         return True
     
     async def authenticate(self, request: Request) -> bool:
-        """Check if user is authenticated - checks the correct database"""
+        """Check if user is authenticated - uses admin_market for auth, selected_market for operations"""
         logger.debug("🔍 Checking authentication status...")
         
         token = request.session.get("token")
         admin_id = request.session.get("admin_id")
-        admin_market = request.session.get("admin_market", "kg")  # Default to KG for backward compatibility
+        admin_market = request.session.get("admin_market", "kg")  # Database where admin exists
+        selected_market = request.session.get("selected_market", admin_market)  # Currently selected market
         
-        logger.debug(f"   Session data: token={'✓' if token else '✗'}, admin_id={admin_id}, market={admin_market}")
+        logger.debug(f"   Session data: token={'✓' if token else '✗'}, admin_id={admin_id}, admin_market={admin_market}, selected_market={selected_market}")
         
         if not token or not admin_id:
             logger.debug("   ❌ No token or admin_id in session")
             return False
         
-        # Get the market from session (or try both if not set)
+        # Use admin_market for authentication (where the admin account exists)
+        # selected_market is used separately for data operations
         try:
-            market = Market.KG if admin_market == "kg" else Market.US
-            logger.debug(f"   📊 Using {market.value.upper()} database")
+            auth_market = Market.KG if admin_market == "kg" else Market.US
+            logger.debug(f"   🔐 Authenticating against {auth_market.value.upper()} database (admin's home database)")
+            logger.debug(f"   🌍 Will perform operations on {selected_market.upper()} database")
         except:
-            market = Market.KG
+            auth_market = Market.KG
             logger.warning(f"   ⚠️  Error determining market, defaulting to KG")
         
-        # Check admin exists and is active in the correct database
-        db = next(db_manager.get_db_session(market))
+        # Check admin exists and is active in their home database
+        db = next(db_manager.get_db_session(auth_market))
         try:
             admin = db.query(Admin).filter(Admin.id == admin_id).first()
             if not admin:
-                logger.warning(f"   ❌ Admin ID {admin_id} not found in {market.value} database")
+                logger.warning(f"   ❌ Admin ID {admin_id} not found in {auth_market.value} database")
                 return False
             if not admin.is_active:
                 logger.warning(f"   ❌ Admin {admin.username} is inactive")

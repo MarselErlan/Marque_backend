@@ -209,29 +209,40 @@ def add_market_awareness_to_views(admin: Admin):
     """
     Patches all admin views to be market-aware.
     
-    This function modifies the session makers of all registered views
-    to use the selected market's database.
+    This function overrides the get_session method to use the selected market's database.
     """
+    from sqlalchemy.orm import Session
+    
     for view in admin._views:
         if hasattr(view, 'model'):  # Only ModelView instances
-            # Store original get_session_maker if it exists
-            original_get_session_maker = getattr(view, 'get_session_maker', None)
+            # Store original session method
+            original_get_session = getattr(view, '_get_session', None)
             
-            def create_market_aware_session_maker(view_instance):
-                def get_session_maker_wrapper(request: Request = None):
-                    if request and hasattr(request, "session"):
-                        market = get_current_market(request)
-                        logger.debug(f"🌍 Using {market.value.upper()} database for {view_instance.__class__.__name__}")
-                        return db_manager.get_session_factory(market)
+            # Create market-aware session getter
+            def create_session_getter(view_instance):
+                async def get_session_wrapper(request: Request):
+                    """Get session for the selected market"""
+                    try:
+                        if hasattr(request, 'session') and 'selected_market' in request.session:
+                            market = get_current_market(request)
+                            logger.debug(f"🌍 {view_instance.__class__.__name__}: Creating session for {market.value.upper()} database")
+                            session_factory = db_manager.get_session_factory(market)
+                            session = session_factory()
+                            return session
+                        else:
+                            logger.debug(f"⚠️  No selected_market in session, using KG")
+                    except Exception as e:
+                        logger.warning(f"   Error getting market from session: {e}")
                     
-                    # Fallback to KG market
-                    logger.warning(f"⚠️  No request/session found, using KG database as fallback")
-                    return db_manager.get_session_factory(Market.KG)
+                    # Fallback to KG
+                    logger.debug(f"   {view_instance.__class__.__name__}: Using KG database (fallback)")
+                    session_factory = db_manager.get_session_factory(Market.KG)
+                    return session_factory()
                 
-                return get_session_maker_wrapper
+                return get_session_wrapper
             
-            # Replace the method
-            view.get_session_maker = create_market_aware_session_maker(view)
+            # Override the _get_session method
+            view._get_session = create_session_getter(view)
     
     logger.info(f"✅ Added market awareness to {len(admin._views)} admin views")
 
