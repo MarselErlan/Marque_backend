@@ -124,23 +124,12 @@ except Exception as static_error:
     import traceback
     traceback.print_exc()
 
-# Initialize Dynamic Multi-Market SQLAdmin AFTER static files are mounted
+# Initialize SQLAdmin AFTER static files are mounted
 try:
-    from .admin.dynamic_admin_app import create_dynamic_admin, MarketMiddleware, add_market_awareness_to_views
+    from .admin.admin_app import create_sqladmin_app
     
-    # Add market middleware
-    app.add_middleware(MarketMiddleware)
-    logger.info("✅ Market middleware added")
-    
-    # Create dynamic admin with market selection
-    admin = create_dynamic_admin(app)
-    logger.info("✅ Dynamic multi-market SQLAdmin initialized at /admin")
-    logger.info("   Admins can switch between KG and US databases")
-    
-    # Make all views market-aware
-    add_market_awareness_to_views(admin)
-    logger.info("✅ All admin views are now market-aware")
-    
+    admin = create_sqladmin_app(app)
+    logger.info("✅ SQLAdmin initialized at /admin")
 except Exception as e:
     logger.error(f"❌ SQLAdmin initialization failed: {e}")
     import traceback

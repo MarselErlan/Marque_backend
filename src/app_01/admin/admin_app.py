@@ -6,6 +6,11 @@ from .sqladmin_views import (
     ProductAdmin, SKUAdmin, ProductAssetAdmin, ProductAttributeAdmin,
     ReviewAdmin, WebsiteContentDashboard
 )
+from .multi_market_admin_views import (
+    MultiMarketAuthenticationBackend,
+    MarketSelectionView,
+    MarketAwareModelView
+)
 from .admin_log_admin_views import AdminLogAdmin
 from .catalog_admin_views import CategoryAdmin, SubcategoryAdmin, BrandAdmin
 from .filter_admin_views import (
@@ -27,22 +32,24 @@ from .dashboard_admin_views import DashboardView
 
 
 def create_sqladmin_app(app: FastAPI) -> Admin:
-    """Create and configure SQLAdmin for website content management"""
+    """Create and configure SQLAdmin for multi-market website content management"""
     
     # Use KG market engine as default for admin (can be switched later)
     engine = db_manager.get_engine(Market.KG)
     
-    # Initialize SQLAdmin with authentication
-    # Note: templates_dir is required for custom templates, but we use default
+    # Initialize SQLAdmin with multi-market authentication
     admin = Admin(
         app=app,
         engine=engine,
-        authentication_backend=WebsiteContentAuthenticationBackend(secret_key="your-secret-key-here"),
-        title="Marque - Admin Panel",
+        authentication_backend=MultiMarketAuthenticationBackend(secret_key="your-secret-key-here"),
+        title="Marque - Multi-Market Admin",
         base_url="/admin",
         # Explicitly set middlewares list to empty to avoid conflicts
         middlewares=[]
     )
+    
+    # Add market selection view
+    admin.add_view(MarketSelectionView)
     
     # Add all admin views
     
@@ -113,12 +120,12 @@ def create_sqladmin_app(app: FastAPI) -> Admin:
 
 
 def create_website_content_admin_app() -> FastAPI:
-    """Create FastAPI app specifically for website content admin"""
+    """Create FastAPI app specifically for multi-market website content admin"""
     
     app = FastAPI(
-        title="Marque Website Content Admin",
-        description="Admin interface for managing website content, products, and attributes",
-        version="1.0.0"
+        title="Marque Multi-Market Website Content Admin",
+        description="Admin interface for managing website content, products, and attributes across multiple markets",
+        version="2.0.0"
     )
     
     # Create SQLAdmin instance
