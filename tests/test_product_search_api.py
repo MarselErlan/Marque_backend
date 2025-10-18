@@ -18,7 +18,12 @@ from datetime import datetime, timedelta
 
 from src.app_01.main import app
 from src.app_01.db import Base, get_db
-from src.app_01.models.products.product_filter import ProductSearch
+# Import all models to ensure they're registered with Base
+from src.app_01.models import (
+    Product, ProductAsset, Category, Subcategory, Brand, SKU, Review,
+    ProductAttribute, ProductFilter, ProductSeason, ProductMaterial,
+    ProductStyle, ProductDiscount, ProductSearch
+)
 
 # Test database
 SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///./test_product_search.db"

@@ -97,7 +97,7 @@ def get_active_discounts(
         response.append(DiscountResponse(
             id=discount.id,
             product_id=discount.product_id,
-            product_name=product.name if product else None,
+            product_name=product.title if product else None,
             discount_type=discount.discount_type,
             discount_value=discount.discount_value,
             original_price=discount.original_price,
@@ -142,7 +142,7 @@ def get_best_deals(
         response.append(DiscountResponse(
             id=discount.id,
             product_id=discount.product_id,
-            product_name=product.name if product else None,
+            product_name=product.title if product else None,
             discount_type=discount.discount_type,
             discount_value=discount.discount_value,
             original_price=discount.original_price,
@@ -192,7 +192,7 @@ def get_product_discount(
     return DiscountResponse(
         id=discount.id,
         product_id=discount.product_id,
-        product_name=product.name if product else None,
+        product_name=product.title if product else None,
         discount_type=discount.discount_type,
         discount_value=discount.discount_value,
         original_price=discount.original_price,
@@ -268,7 +268,7 @@ def create_discount(
     return DiscountResponse(
         id=discount.id,
         product_id=discount.product_id,
-        product_name=product.name,
+        product_name=product.title,
         discount_type=discount.discount_type,
         discount_value=discount.discount_value,
         original_price=discount.original_price,
@@ -328,7 +328,7 @@ def update_discount(
     return DiscountResponse(
         id=discount.id,
         product_id=discount.product_id,
-        product_name=product.name if product else None,
+        product_name=product.title if product else None,
         discount_type=discount.discount_type,
         discount_value=discount.discount_value,
         original_price=discount.original_price,
@@ -451,7 +451,7 @@ def get_flash_sales(db: Session = Depends(get_db)):
             "discount": DiscountResponse(
                 id=discount.id,
                 product_id=discount.product_id,
-                product_name=product.name if product else None,
+                product_name=product.title if product else None,
                 discount_type=discount.discount_type,
                 discount_value=discount.discount_value,
                 original_price=discount.original_price,

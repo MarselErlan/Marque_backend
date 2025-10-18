@@ -17,12 +17,11 @@ from sqlalchemy.orm import sessionmaker
 
 from src.app_01.main import app
 from src.app_01.db import Base, get_db
-from src.app_01.models.products.product_attribute import ProductAttribute
-from src.app_01.models.products.product_filter import (
-    ProductFilter,
-    ProductSeason,
-    ProductMaterial,
-    ProductStyle
+# Import all models to ensure they're registered with Base
+from src.app_01.models import (
+    Product, ProductAsset, Category, Subcategory, Brand, SKU, Review,
+    ProductAttribute, ProductFilter, ProductSeason, ProductMaterial,
+    ProductStyle, ProductDiscount, ProductSearch
 )
 
 # Test database

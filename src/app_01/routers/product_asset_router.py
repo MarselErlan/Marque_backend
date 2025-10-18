@@ -142,7 +142,7 @@ async def upload_product_asset(
             product_id=product_id,
             url=url,
             type=asset_type,
-            alt_text=alt_text or f"{product.name} - {asset_type}",
+            alt_text=alt_text or f"{product.title} - {asset_type}",
             order=order,
             is_primary=is_primary,
             is_active=True,
@@ -238,7 +238,7 @@ def get_product_gallery(
     
     return ProductGalleryResponse(
         product_id=product_id,
-        product_name=product.name,
+        product_name=product.title,
         primary_image=ProductAssetResponse.from_orm(primary_image) if primary_image else None,
         all_images=[ProductAssetResponse.from_orm(img) for img in all_images],
         videos=[ProductAssetResponse.from_orm(vid) for vid in videos],
