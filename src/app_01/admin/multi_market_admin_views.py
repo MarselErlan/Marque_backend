@@ -599,11 +599,180 @@ class WebsiteContentAuthenticationBackend(AuthenticationBackend):
 class MarketAwareModelView(ModelView):
     """Base ModelView that automatically uses the correct market database"""
     
+    # Permission requirements for different operations
+    required_permissions = {
+        "list": None,  # Default: no special permission needed
+        "create": None,
+        "edit": None,
+        "delete": "delete_records",
+        "export": "export_data"
+    }
+    
+    # Role requirements (if any)
+    required_roles = []  # e.g., ["super_admin", "website_content"]
+    
     def get_db_session(self, request: Request):
         """Get database session for the admin's selected market"""
         admin_market = request.session.get("admin_market", "kg")
         market = Market.KG if admin_market == "kg" else Market.US
         return next(db_manager.get_db_session(market))
+    
+    def check_permissions(self, request: Request, operation: str = "list") -> bool:
+        """Check if current admin has permission for the operation"""
+        admin_id = request.session.get("admin_id")
+        if not admin_id:
+            return False
+            
+        # Get admin from database
+        admin_market = request.session.get("admin_market", "kg")
+        market = Market.KG if admin_market == "kg" else Market.US
+        db = next(db_manager.get_db_session(market))
+        
+        try:
+            from ..models.admins.admin import Admin
+            admin = db.query(Admin).filter(Admin.id == admin_id).first()
+            if not admin or not admin.is_active:
+                return False
+            
+            # Super admin has all permissions
+            if admin.is_super_admin:
+                return True
+            
+            # Check role requirements
+            if self.required_roles and admin.admin_role not in self.required_roles:
+                return False
+            
+            # Check specific permission requirements
+            required_perm = self.required_permissions.get(operation)
+            if required_perm and not admin.has_permission(required_perm):
+                return False
+                
+            return True
+            
+        except Exception as e:
+            logger.error(f"Permission check error: {e}")
+            return False
+        finally:
+            db.close()
+    
+    async def list(self, request: Request):
+        """Override list to check permissions"""
+        if not self.check_permissions(request, "list"):
+            from starlette.responses import HTMLResponse
+            return HTMLResponse(
+                content="<h1>Access Denied</h1><p>You don't have permission to view this resource.</p>",
+                status_code=403
+            )
+        return await super().list(request)
+    
+    def log_admin_action(self, request: Request, action: str, entity_id: int = None, description: str = None):
+        """Log admin action with market context"""
+        admin_id = request.session.get("admin_id")
+        admin_market = request.session.get("admin_market", "kg")
+        
+        if not admin_id:
+            return
+            
+        market = Market.KG if admin_market == "kg" else Market.US
+        db = next(db_manager.get_db_session(market))
+        
+        try:
+            from ..models.admins.admin_log import AdminLog
+            
+            # Get client info
+            client_ip = request.client.host if request.client else "unknown"
+            user_agent = request.headers.get("user-agent", "unknown")
+            
+            # Create log entry
+            log_entry = AdminLog(
+                admin_id=admin_id,
+                action=action,
+                entity_type=self.model.__name__.lower() if hasattr(self, 'model') else "unknown",
+                entity_id=entity_id,
+                description=f"[{admin_market.upper()}] {description}" if description else f"[{admin_market.upper()}] {action}",
+                ip_address=client_ip,
+                user_agent=user_agent
+            )
+            
+            db.add(log_entry)
+            db.commit()
+            
+            logger.info(f"📝 Admin Action Logged: {admin_id} performed {action} on {self.model.__name__ if hasattr(self, 'model') else 'unknown'} in {admin_market.upper()} market")
+            
+        except Exception as e:
+            logger.error(f"Failed to log admin action: {e}")
+            db.rollback()
+        finally:
+            db.close()
+    
+    async def create(self, request: Request):
+        """Override create to check permissions and log actions"""
+        if not self.check_permissions(request, "create"):
+            from starlette.responses import HTMLResponse
+            return HTMLResponse(
+                content="<h1>Access Denied</h1><p>You don't have permission to create records.</p>",
+                status_code=403
+            )
+        
+        # Call parent create method
+        result = await super().create(request)
+        
+        # Log the action (try to extract entity ID from result if possible)
+        self.log_admin_action(request, "create", description=f"Created new {self.model.__name__ if hasattr(self, 'model') else 'record'}")
+        
+        return result
+    
+    async def edit(self, request: Request):
+        """Override edit to check permissions and log actions"""
+        if not self.check_permissions(request, "edit"):
+            from starlette.responses import HTMLResponse
+            return HTMLResponse(
+                content="<h1>Access Denied</h1><p>You don't have permission to edit records.</p>",
+                status_code=403
+            )
+        
+        # Get entity ID from URL path
+        entity_id = None
+        try:
+            path_parts = request.url.path.split('/')
+            if len(path_parts) > 2 and path_parts[-2].isdigit():
+                entity_id = int(path_parts[-2])
+        except:
+            pass
+        
+        # Call parent edit method
+        result = await super().edit(request)
+        
+        # Log the action
+        self.log_admin_action(request, "update", entity_id, f"Updated {self.model.__name__ if hasattr(self, 'model') else 'record'}")
+        
+        return result
+    
+    async def delete(self, request: Request):
+        """Override delete to check permissions and log actions"""
+        if not self.check_permissions(request, "delete"):
+            from starlette.responses import JSONResponse
+            return JSONResponse(
+                content={"error": "You don't have permission to delete records."},
+                status_code=403
+            )
+        
+        # Get entity ID from URL path
+        entity_id = None
+        try:
+            path_parts = request.url.path.split('/')
+            if len(path_parts) > 2 and path_parts[-2].isdigit():
+                entity_id = int(path_parts[-2])
+        except:
+            pass
+        
+        # Call parent delete method
+        result = await super().delete(request)
+        
+        # Log the action
+        self.log_admin_action(request, "delete", entity_id, f"Deleted {self.model.__name__ if hasattr(self, 'model') else 'record'}")
+        
+        return result
 
 
 # Enhanced ProductAdmin with market awareness
@@ -614,6 +783,16 @@ class ProductAdmin(MarketAwareModelView, model=Product):
     name_plural = f"Товары"
     icon = "fa-solid fa-box"
     category = "🛍️ Каталог"
+    
+    # Role-based access control
+    required_roles = ["website_content", "super_admin"]
+    required_permissions = {
+        "list": None,
+        "create": "manage_products",
+        "edit": "manage_products", 
+        "delete": "delete_products",
+        "export": "export_data"
+    }
 
     column_list = [
         "id", "main_image", "title", "brand", "category",

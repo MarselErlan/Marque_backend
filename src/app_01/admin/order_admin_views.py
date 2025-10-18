@@ -10,9 +10,10 @@ from datetime import datetime
 from ..models.orders.order import Order, OrderStatus
 from ..models.orders.order_item import OrderItem
 from ..models.orders.order_status_history import OrderStatusHistory
+from .multi_market_admin_views import MarketAwareModelView
 
 
-class OrderAdmin(ModelView, model=Order):
+class OrderAdmin(MarketAwareModelView, model=Order):
     """
     Enhanced Order Management Interface with TDD improvements
     
@@ -29,6 +30,16 @@ class OrderAdmin(ModelView, model=Order):
     name_plural = "Заказы"
     icon = "fa-solid fa-shopping-cart"
     category = "🛒 Продажи"  # Group in sidebar
+    
+    # Role-based access control
+    required_roles = ["order_management", "super_admin"]
+    required_permissions = {
+        "list": None,
+        "create": "manage_orders",
+        "edit": "manage_orders",
+        "delete": "delete_orders",
+        "export": "export_orders"
+    }
     
     # Column configuration - show most important info
     column_list = [
@@ -188,7 +199,7 @@ def _format_order_status(status):
     return f'<span class="badge badge-{color}">{label}</span>'
 
 
-class OrderItemAdmin(ModelView, model=OrderItem):
+class OrderItemAdmin(MarketAwareModelView, model=OrderItem):
     """
     Order Items Management - Enhanced view with better formatting
     
@@ -278,7 +289,7 @@ class OrderItemAdmin(ModelView, model=OrderItem):
     page_size_options = [25, 50, 100]
 
 
-class OrderStatusHistoryAdmin(ModelView, model=OrderStatusHistory):
+class OrderStatusHistoryAdmin(MarketAwareModelView, model=OrderStatusHistory):
     """
     Order Status History - Audit Trail for Order Changes
     

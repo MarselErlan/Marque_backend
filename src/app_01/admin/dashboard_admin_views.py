@@ -34,14 +34,17 @@ class DashboardView(BaseView):
     
     name = "Dashboard"
     icon = "fa-solid fa-chart-line"
-    identity = "dashboard"  # Unique identifier for routing
     
     async def index(self, request: Request) -> HTMLResponse:
         """
         Render dashboard with real-time business metrics
         """
-        # Get database session (KG market by default)
-        db = next(db_manager.get_db_session(Market.KG))
+        # Get market from session (market-aware dashboard)
+        admin_market = request.session.get("admin_market", "kg")
+        market = Market.KG if admin_market == "kg" else Market.US
+        
+        # Get database session for the correct market
+        db = next(db_manager.get_db_session(market))
         
         try:
             # Calculate date ranges
@@ -190,8 +193,97 @@ class DashboardView(BaseView):
             ).limit(10).all()
             
             # ==================================================================
+            # 🌍 MARKET COMPARISON ANALYTICS
+            # ==================================================================
+            
+            # Get comparison data from the other market
+            other_market = Market.US if market == Market.KG else Market.KG
+            other_db = next(db_manager.get_db_session(other_market))
+            
+            try:
+                # Compare orders today
+                other_orders_today = other_db.query(func.count(Order.id)).filter(
+                    func.date(Order.order_date) == today
+                ).scalar() or 0
+                
+                # Compare total revenue this month
+                other_revenue_month = other_db.query(
+                    func.coalesce(func.sum(Order.total_amount), 0)
+                ).filter(
+                    Order.order_date >= month_ago,
+                    Order.status.in_([OrderStatus.CONFIRMED, OrderStatus.SHIPPED, OrderStatus.DELIVERED])
+                ).scalar() or 0
+                
+                # Compare total users
+                other_total_users = other_db.query(func.count(User.id)).scalar() or 0
+                
+                # Compare total products
+                other_total_products = other_db.query(func.count(Product.id)).filter(
+                    Product.is_active == True
+                ).scalar() or 0
+                
+            except Exception as e:
+                logger.warning(f"Could not fetch comparison data from other market: {e}")
+                other_orders_today = 0
+                other_revenue_month = 0
+                other_total_users = 0
+                other_total_products = 0
+            finally:
+                other_db.close()
+            
+            # Calculate growth percentages
+            def calculate_growth(current, previous):
+                if previous == 0:
+                    return "+∞%" if current > 0 else "0%"
+                growth = ((current - previous) / previous) * 100
+                return f"+{growth:.1f}%" if growth > 0 else f"{growth:.1f}%"
+            
+            orders_growth = calculate_growth(orders_today, other_orders_today)
+            revenue_growth = calculate_growth(float(revenue_month), float(other_revenue_month))
+            users_growth = calculate_growth(total_users, other_total_users)
+            products_growth = calculate_growth(total_products, other_total_products)
+            
+            # ==================================================================
             # RENDER HTML
             # ==================================================================
+            
+            # Market-specific configuration
+            market_config = {
+                "kg": {
+                    "name": "Kyrgyzstan",
+                    "flag": "🇰🇬",
+                    "currency": "сом",
+                    "language": "Russian",
+                    "title": "Бизнес Панель"
+                },
+                "us": {
+                    "name": "United States", 
+                    "flag": "🇺🇸",
+                    "currency": "$",
+                    "language": "English",
+                    "title": "Business Dashboard"
+                }
+            }
+            
+            current_market = market_config[admin_market]
+            
+            # Market-specific theme colors
+            theme_colors = {
+                "kg": {
+                    "primary": "#c41e3a",  # Red from Kyrgyzstan flag
+                    "secondary": "#ffcc00",  # Yellow from Kyrgyzstan flag
+                    "gradient": "linear-gradient(135deg, #c41e3a 0%, #ffcc00 100%)",
+                    "accent": "#8B0000"
+                },
+                "us": {
+                    "primary": "#002868",  # Blue from US flag
+                    "secondary": "#bf0a30",  # Red from US flag
+                    "gradient": "linear-gradient(135deg, #002868 0%, #bf0a30 100%)",
+                    "accent": "#ffffff"
+                }
+            }
+            
+            current_theme = theme_colors[admin_market]
             
             html = f"""
 <!DOCTYPE html>
@@ -199,7 +291,7 @@ class DashboardView(BaseView):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Marque Admin</title>
+    <title>Dashboard - Marque Admin ({current_market['name']})</title>
     <link rel="stylesheet" href="/admin/statics/css/tabler.min.css">
     <link rel="stylesheet" href="/admin/statics/css/fontawesome.min.css">
     <style>
@@ -213,7 +305,7 @@ class DashboardView(BaseView):
         .metric-value {{
             font-size: 2rem;
             font-weight: bold;
-            color: #206bc4;
+            color: {current_theme['primary']};
         }}
         .metric-label {{
             font-size: 0.875rem;
@@ -234,11 +326,55 @@ class DashboardView(BaseView):
         .table-compact {{ font-size: 0.875rem; }}
         .alert-low-stock {{ background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin-bottom: 8px; }}
         .alert-out-stock {{ background: #f8d7da; border-left: 4px solid #dc3545; padding: 12px; margin-bottom: 8px; }}
+        .market-indicator {{
+            background: {current_theme['gradient']};
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }}
+        .market-switch-btn {{
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }}
+        .market-switch-btn:hover {{
+            background: rgba(255,255,255,0.3);
+            color: white;
+            text-decoration: none;
+        }}
     </style>
 </head>
 <body>
     <div class="container-fluid p-4">
-        <h1 class="mb-4">📊 Бизнес Панель</h1>
+        <!-- Market Indicator -->
+        <div class="market-indicator">
+            <span style="font-size: 1.5rem;">{current_market['flag']}</span>
+            <div>
+                <strong>Current Market: {current_market['name']}</strong><br>
+                <small>Currency: {current_market['currency']} | Language: {current_market['language']}</small>
+            </div>
+            <div style="margin-left: auto; display: flex; gap: 10px; align-items: center;">
+                <select id="marketSwitcher" class="form-select" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 5px 10px; border-radius: 5px;">
+                    <option value="kg" {'selected' if admin_market == 'kg' else ''}>🇰🇬 Kyrgyzstan</option>
+                    <option value="us" {'selected' if admin_market == 'us' else ''}>🇺🇸 United States</option>
+                </select>
+                <a href="/admin/market-login" class="market-switch-btn">
+                    <i class="fa fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+        
+        <h1 class="mb-4">📊 {current_market['title']}</h1>
         
         <!-- Sales Overview -->
         <div class="row mb-4">
@@ -274,21 +410,21 @@ class DashboardView(BaseView):
         <!-- Revenue Overview -->
         <div class="row mb-4">
             <div class="col-md-4">
-                <div class="metric-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <div class="metric-card" style="background: {current_theme['gradient']}; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                     <div class="metric-label" style="color: rgba(255,255,255,0.8);">Выручка Сегодня</div>
-                    <div class="metric-value" style="color: white;">{float(revenue_today):,.0f} ₸</div>
+                    <div class="metric-value" style="color: white;">{float(revenue_today):,.0f} {current_market['currency']}</div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                <div class="metric-card" style="background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%); color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                     <div class="metric-label" style="color: rgba(255,255,255,0.8);">Выручка За Неделю</div>
-                    <div class="metric-value" style="color: white;">{float(revenue_week):,.0f} ₸</div>
+                    <div class="metric-value" style="color: white;">{float(revenue_week):,.0f} {current_market['currency']}</div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="metric-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+                <div class="metric-card" style="background: linear-gradient(135deg, {current_theme['secondary']} 0%, {current_theme['primary']} 100%); color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                     <div class="metric-label" style="color: rgba(255,255,255,0.8);">Выручка За Месяц</div>
-                    <div class="metric-value" style="color: white;">{float(revenue_month):,.0f} ₸</div>
+                    <div class="metric-value" style="color: white;">{float(revenue_month):,.0f} {current_market['currency']}</div>
                 </div>
             </div>
         </div>
@@ -410,6 +546,44 @@ class DashboardView(BaseView):
             </div>
         </div>
         
+        <!-- Market Comparison -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <h2 class="mb-3">🌍 Сравнение Рынков</h2>
+                <div class="alert alert-info">
+                    <strong>Текущий рынок:</strong> {current_market['name']} vs <strong>Другой рынок:</strong> {'United States' if admin_market == 'kg' else 'Kyrgyzstan'}
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card" style="border-left: 4px solid #17a2b8;">
+                    <div class="metric-label">Заказы Сегодня</div>
+                    <div class="metric-value">{orders_today} <small style="color: {'green' if orders_growth.startswith('+') else 'red'};">({orders_growth})</small></div>
+                    <small class="text-muted">vs {other_orders_today} в другом рынке</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card" style="border-left: 4px solid #28a745;">
+                    <div class="metric-label">Выручка Месяц</div>
+                    <div class="metric-value">{float(revenue_month):,.0f} <small style="color: {'green' if revenue_growth.startswith('+') else 'red'};">({revenue_growth})</small></div>
+                    <small class="text-muted">vs {float(other_revenue_month):,.0f} в другом рынке</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card" style="border-left: 4px solid #ffc107;">
+                    <div class="metric-label">Всего Пользователей</div>
+                    <div class="metric-value">{total_users} <small style="color: {'green' if users_growth.startswith('+') else 'red'};">({users_growth})</small></div>
+                    <small class="text-muted">vs {other_total_users} в другом рынке</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card" style="border-left: 4px solid #6f42c1;">
+                    <div class="metric-label">Всего Товаров</div>
+                    <div class="metric-value">{total_products} <small style="color: {'green' if products_growth.startswith('+') else 'red'};">({products_growth})</small></div>
+                    <small class="text-muted">vs {other_total_products} в другом рынке</small>
+                </div>
+            </div>
+        </div>
+        
         <!-- Recent Orders -->
         <div class="row mb-4">
             <div class="col-md-12">
@@ -443,6 +617,37 @@ class DashboardView(BaseView):
     
     <script src="/admin/statics/js/jquery.min.js"></script>
     <script src="/admin/statics/js/tabler.min.js"></script>
+    <script>
+        // Market switching functionality
+        document.getElementById('marketSwitcher').addEventListener('change', function() {{
+            const newMarket = this.value;
+            const formData = new FormData();
+            formData.append('market', newMarket);
+            
+            // Show loading state
+            this.disabled = true;
+            
+            fetch('/admin/switch-market', {{
+                method: 'POST',
+                body: formData
+            }})
+            .then(response => response.json())
+            .then(data => {{
+                if (data.success) {{
+                    // Reload the page to reflect the new market
+                    window.location.reload();
+                }} else {{
+                    alert('Error switching market: ' + (data.error || 'Unknown error'));
+                    this.disabled = false;
+                }}
+            }})
+            .catch(error => {{
+                console.error('Error:', error);
+                alert('Error switching market');
+                this.disabled = false;
+            }});
+        }});
+    </script>
 </body>
 </html>
             """

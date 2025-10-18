@@ -3,8 +3,9 @@ from starlette.requests import Request
 from ..models import (
     User, PhoneVerification, UserAddress, UserPaymentMethod, UserNotification
 )
+from .multi_market_admin_views import MarketAwareModelView
 
-class UserAdmin(ModelView, model=User):
+class UserAdmin(MarketAwareModelView, model=User):
     """User management interface"""
     
     name = "Пользователи"
@@ -49,7 +50,7 @@ class UserAdmin(ModelView, model=User):
     }
 
 
-class PhoneVerificationAdmin(ModelView, model=PhoneVerification):
+class PhoneVerificationAdmin(MarketAwareModelView, model=PhoneVerification):
     """Phone verification management"""
     
     name = "Верификация телефонов"
@@ -85,7 +86,7 @@ class PhoneVerificationAdmin(ModelView, model=PhoneVerification):
     }
 
 
-class UserAddressAdmin(ModelView, model=UserAddress):
+class UserAddressAdmin(MarketAwareModelView, model=UserAddress):
     """User addresses management"""
     
     name = "Адреса пользователей"
@@ -145,7 +146,7 @@ class UserAddressAdmin(ModelView, model=UserAddress):
     }
 
 
-class UserPaymentMethodAdmin(ModelView, model=UserPaymentMethod):
+class UserPaymentMethodAdmin(MarketAwareModelView, model=UserPaymentMethod):
     """User payment methods management"""
     
     name = "Способы оплаты"
@@ -198,7 +199,7 @@ class UserPaymentMethodAdmin(ModelView, model=UserPaymentMethod):
     }
 
 
-class UserNotificationAdmin(ModelView, model=UserNotification):
+class UserNotificationAdmin(MarketAwareModelView, model=UserNotification):
     """User notifications management"""
     
     name = "Уведомления"

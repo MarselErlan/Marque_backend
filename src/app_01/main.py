@@ -371,6 +371,37 @@ async def redirect_to_market_login(request: Request):
     """Redirect to custom market login"""
     return RedirectResponse(url="/admin/market-login", status_code=302)
 
+# Market switching endpoint
+@app.post("/admin/switch-market", include_in_schema=False)
+async def switch_market(request: Request):
+    """Switch market for current admin session"""
+    from starlette.responses import JSONResponse
+    
+    # Check if user is authenticated
+    if not request.session.get("token") or not request.session.get("admin_id"):
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    
+    form = await request.form()
+    new_market = form.get("market")
+    
+    if new_market not in ["kg", "us"]:
+        return JSONResponse({"error": "Invalid market"}, status_code=400)
+    
+    # Update session with new market
+    request.session["admin_market"] = new_market
+    
+    # Market configuration for response
+    market_config = {
+        "kg": {"name": "Kyrgyzstan", "flag": "🇰🇬", "currency": "сом"},
+        "us": {"name": "United States", "flag": "🇺🇸", "currency": "$"}
+    }
+    
+    return JSONResponse({
+        "success": True,
+        "market": new_market,
+        "config": market_config[new_market]
+    })
+
 # Initialize SQLAdmin AFTER static files are mounted
 try:
     from .admin.admin_app import create_sqladmin_app

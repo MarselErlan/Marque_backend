@@ -4,13 +4,15 @@ from starlette.requests import Request
 from ..db.market_db import db_manager, Market
 from .sqladmin_views import (
     WebsiteContentAuthenticationBackend,
-    ProductAdmin, SKUAdmin, ProductAssetAdmin, ProductAttributeAdmin,
-    ReviewAdmin, WebsiteContentDashboard
+    WebsiteContentDashboard
 )
 from .multi_market_admin_views import (
     MultiMarketAuthenticationBackend,
     MarketSelectionView,
-    MarketAwareModelView
+    MarketAwareModelView,
+    # Import market-aware admin views
+    ProductAdmin, SKUAdmin, ProductAssetAdmin, ProductAttributeAdmin,
+    ReviewAdmin
 )
 from .admin_log_admin_views import AdminLogAdmin
 from .catalog_admin_views import CategoryAdmin, SubcategoryAdmin, BrandAdmin

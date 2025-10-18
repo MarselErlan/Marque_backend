@@ -10,11 +10,12 @@ import logging
 from ..models import Category, Subcategory, Brand
 from ..utils.image_upload import image_uploader
 from fastapi import UploadFile
+from .multi_market_admin_views import MarketAwareModelView
 
 logger = logging.getLogger(__name__)
 
 
-class CategoryAdmin(ModelView, model=Category):
+class CategoryAdmin(MarketAwareModelView, model=Category):
     """Enhanced Category Management Interface"""
     
     name = "Категории"
@@ -157,7 +158,7 @@ class CategoryAdmin(ModelView, model=Category):
         return result
 
 
-class SubcategoryAdmin(ModelView, model=Subcategory):
+class SubcategoryAdmin(MarketAwareModelView, model=Subcategory):
     """Enhanced Subcategory Management Interface"""
     
     name = "Подкатегории"
@@ -298,7 +299,7 @@ class SubcategoryAdmin(ModelView, model=Subcategory):
         return result
 
 
-class BrandAdmin(ModelView, model=Brand):
+class BrandAdmin(MarketAwareModelView, model=Brand):
     """Enhanced Brand Management Interface"""
     
     name = "Бренды"
