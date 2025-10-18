@@ -23,16 +23,17 @@ class CategoryAdmin(ModelView, model=Category):
     category = "🛍️ Каталог"
     
     column_list = [
-        "id", "image_url", "name", "slug", "icon", "is_active", "sort_order"
+        "id", "image_url", "name", "slug", "icon", "is_active", "is_featured", "sort_order"
     ]
     column_details_exclude_list = ["products"]
     
     form_columns = [
-        "name", "slug", "description", "icon", "sort_order", "is_active"
+        "name", "slug", "description", "icon", "sort_order", "is_active", "is_featured"
     ]
     
     column_searchable_list = ["name", "slug", "description"]
-    column_sortable_list = ["id", "name", "sort_order", "is_active", "created_at"]
+    column_sortable_list = ["id", "name", "sort_order", "is_active", "is_featured", "created_at"]
+    column_filters = ["is_active", "is_featured"]
 
     async def scaffold_form(self):
         """Override to add the image upload field programmatically"""
@@ -164,15 +165,16 @@ class SubcategoryAdmin(ModelView, model=Subcategory):
     icon = "fa-solid fa-folder"
     category = "🛍️ Каталог"
     
-    column_list = ["id", "image_url", "name", "slug", "is_active", "sort_order"]
+    column_list = ["id", "image_url", "name", "slug", "is_active", "is_featured", "sort_order"]
     column_details_exclude_list = ["products"]
     
     form_columns = [
-        "category", "name", "slug", "description", "sort_order", "is_active"
+        "category", "name", "slug", "description", "sort_order", "is_active", "is_featured"
     ]
     
     column_searchable_list = ["name", "slug", "description"]
-    column_sortable_list = ["id", "name", "sort_order", "is_active", "created_at"]
+    column_sortable_list = ["id", "name", "sort_order", "is_active", "is_featured", "created_at"]
+    column_filters = ["is_active", "is_featured", "category"]
 
     async def scaffold_form(self):
         """Override to add the image upload field programmatically"""
@@ -304,15 +306,16 @@ class BrandAdmin(ModelView, model=Brand):
     icon = "fa-solid fa-copyright"
     category = "🛍️ Каталог"
 
-    column_list = ["id", "logo_url", "name", "slug", "is_active", "sort_order"]
+    column_list = ["id", "logo_url", "name", "slug", "is_active", "is_featured", "sort_order"]
     column_details_exclude_list = ["products"]
     
     form_columns = [
-        "name", "slug", "description", "website_url", "country", "sort_order", "is_active"
+        "name", "slug", "description", "website_url", "country", "sort_order", "is_active", "is_featured"
     ]
     
     column_searchable_list = ["name", "slug", "description", "country"]
-    column_sortable_list = ["id", "name", "sort_order", "is_active", "created_at"]
+    column_sortable_list = ["id", "name", "sort_order", "is_active", "is_featured", "created_at"]
+    column_filters = ["is_active", "is_featured", "country"]
 
     async def scaffold_form(self):
         """Override to add the logo upload field programmatically"""

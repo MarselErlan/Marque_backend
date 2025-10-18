@@ -11,12 +11,14 @@ class ProductFilterAdmin(ModelView, model=ProductFilter):
     name = "Фильтры товаров"
     name_plural = "Фильтры товаров"
     icon = "fa-solid fa-filter"
+    category = "🎯 Фильтры"
     
     column_list = [
-        "id", "filter_type", "filter_value", "display_name", "sort_order", "is_active"
+        "id", "filter_type", "filter_value", "display_name", "usage_count", "sort_order", "is_active"
     ]
     column_details_list = [
-        "id", "filter_type", "filter_value", "display_name", "sort_order", "is_active", "created_at"
+        "id", "filter_type", "filter_value", "display_name", "usage_count", 
+        "sort_order", "is_active", "created_at", "updated_at"
     ]
     
     form_columns = [
@@ -24,7 +26,7 @@ class ProductFilterAdmin(ModelView, model=ProductFilter):
     ]
     
     column_searchable_list = ["filter_type", "filter_value", "display_name"]
-    column_sortable_list = ["id", "filter_type", "sort_order", "is_active", "created_at"]
+    column_sortable_list = ["id", "filter_type", "usage_count", "sort_order", "is_active", "created_at"]
     column_filters = ["filter_type", "is_active"]
     
     column_labels = {
@@ -32,9 +34,11 @@ class ProductFilterAdmin(ModelView, model=ProductFilter):
         "filter_type": "Тип фильтра",
         "filter_value": "Значение",
         "display_name": "Отображаемое имя",
+        "usage_count": "Использований",
         "sort_order": "Порядок",
         "is_active": "Активен",
-        "created_at": "Создан"
+        "created_at": "Создан",
+        "updated_at": "Обновлен"
     }
     
     form_label = "Фильтр товара"
@@ -53,30 +57,35 @@ class ProductSeasonAdmin(ModelView, model=ProductSeason):
     name = "Сезоны"
     name_plural = "Сезоны"
     icon = "fa-solid fa-calendar"
+    category = "🎯 Фильтры"
     
     column_list = [
-        "id", "name", "slug", "description", "sort_order", "is_active"
+        "id", "name", "slug", "product_count", "is_active", "is_featured", "sort_order"
     ]
     column_details_list = [
-        "id", "name", "slug", "description", "sort_order", "is_active", "created_at"
+        "id", "name", "slug", "description", "product_count", "is_active", 
+        "is_featured", "sort_order", "created_at", "updated_at"
     ]
     
     form_columns = [
-        "name", "slug", "description", "sort_order", "is_active"
+        "name", "slug", "description", "is_active", "is_featured", "sort_order"
     ]
     
     column_searchable_list = ["name", "slug", "description"]
-    column_sortable_list = ["id", "name", "sort_order", "is_active", "created_at"]
-    column_filters = ["is_active"]
+    column_sortable_list = ["id", "name", "product_count", "is_active", "is_featured", "sort_order", "created_at"]
+    column_filters = ["is_active", "is_featured"]
     
     column_labels = {
         "id": "ID",
         "name": "Название",
         "slug": "URL-адрес",
         "description": "Описание",
-        "sort_order": "Порядок",
+        "product_count": "Товаров",
         "is_active": "Активен",
-        "created_at": "Создан"
+        "is_featured": "В избранном",
+        "sort_order": "Порядок",
+        "created_at": "Создан",
+        "updated_at": "Обновлен"
     }
     
     form_label = "Сезон"
@@ -95,30 +104,35 @@ class ProductMaterialAdmin(ModelView, model=ProductMaterial):
     name = "Материалы"
     name_plural = "Материалы"
     icon = "fa-solid fa-cut"
+    category = "🎯 Фильтры"
     
     column_list = [
-        "id", "name", "slug", "description", "sort_order", "is_active"
+        "id", "name", "slug", "product_count", "is_active", "is_featured", "sort_order"
     ]
     column_details_list = [
-        "id", "name", "slug", "description", "sort_order", "is_active", "created_at"
+        "id", "name", "slug", "description", "product_count", "is_active", 
+        "is_featured", "sort_order", "created_at", "updated_at"
     ]
     
     form_columns = [
-        "name", "slug", "description", "sort_order", "is_active"
+        "name", "slug", "description", "is_active", "is_featured", "sort_order"
     ]
     
     column_searchable_list = ["name", "slug", "description"]
-    column_sortable_list = ["id", "name", "sort_order", "is_active", "created_at"]
-    column_filters = ["is_active"]
+    column_sortable_list = ["id", "name", "product_count", "is_active", "is_featured", "sort_order", "created_at"]
+    column_filters = ["is_active", "is_featured"]
     
     column_labels = {
         "id": "ID",
         "name": "Название",
         "slug": "URL-адрес",
         "description": "Описание",
-        "sort_order": "Порядок",
+        "product_count": "Товаров",
         "is_active": "Активен",
-        "created_at": "Создан"
+        "is_featured": "В избранном",
+        "sort_order": "Порядок",
+        "created_at": "Создан",
+        "updated_at": "Обновлен"
     }
     
     form_label = "Материал"
@@ -137,30 +151,35 @@ class ProductStyleAdmin(ModelView, model=ProductStyle):
     name = "Стили"
     name_plural = "Стили"
     icon = "fa-solid fa-palette"
+    category = "🎯 Фильтры"
     
     column_list = [
-        "id", "name", "slug", "description", "sort_order", "is_active"
+        "id", "name", "slug", "product_count", "is_active", "is_featured", "sort_order"
     ]
     column_details_list = [
-        "id", "name", "slug", "description", "sort_order", "is_active", "created_at"
+        "id", "name", "slug", "description", "product_count", "is_active", 
+        "is_featured", "sort_order", "created_at", "updated_at"
     ]
     
     form_columns = [
-        "name", "slug", "description", "sort_order", "is_active"
+        "name", "slug", "description", "is_active", "is_featured", "sort_order"
     ]
     
     column_searchable_list = ["name", "slug", "description"]
-    column_sortable_list = ["id", "name", "sort_order", "is_active", "created_at"]
-    column_filters = ["is_active"]
+    column_sortable_list = ["id", "name", "product_count", "is_active", "is_featured", "sort_order", "created_at"]
+    column_filters = ["is_active", "is_featured"]
     
     column_labels = {
         "id": "ID",
         "name": "Название",
         "slug": "URL-адрес",
         "description": "Описание",
-        "sort_order": "Порядок",
+        "product_count": "Товаров",
         "is_active": "Активен",
-        "created_at": "Создан"
+        "is_featured": "В избранном",
+        "sort_order": "Порядок",
+        "created_at": "Создан",
+        "updated_at": "Обновлен"
     }
     
     form_label = "Стиль"
@@ -227,12 +246,13 @@ class ProductSearchAdmin(ModelView, model=ProductSearch):
     name = "Поиск товаров"
     name_plural = "Поиск товаров"
     icon = "fa-solid fa-search"
+    category = "📊 Аналитика"
     
     column_list = [
-        "id", "search_term", "search_count", "last_searched"
+        "id", "search_term", "search_count", "result_count", "last_searched"
     ]
     column_details_list = [
-        "id", "search_term", "search_count", "last_searched", "created_at"
+        "id", "search_term", "search_count", "result_count", "last_searched", "created_at"
     ]
     
     # Read-only view for analytics
@@ -241,13 +261,15 @@ class ProductSearchAdmin(ModelView, model=ProductSearch):
     can_delete = True
     
     column_searchable_list = ["search_term"]
-    column_sortable_list = ["id", "search_term", "search_count", "last_searched", "created_at"]
+    column_sortable_list = ["id", "search_term", "search_count", "result_count", "last_searched", "created_at"]
     column_filters = ["search_term"]
+    column_default_sort = ("search_count", True)  # Sort by most popular
     
     column_labels = {
         "id": "ID",
         "search_term": "Поисковый запрос",
         "search_count": "Количество поисков",
+        "result_count": "Результатов",
         "last_searched": "Последний поиск",
         "created_at": "Создан"
     }
