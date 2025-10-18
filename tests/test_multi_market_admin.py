@@ -451,16 +451,13 @@ class TestMarketAwareModelView:
     
     def test_get_db_session_kg_market(self, mock_request_kg):
         """Test getting database session for KG market"""
-        # Create a simple test instance
-        market_view = MarketAwareModelView()
-        
         # Mock db_manager
         with patch('src.app_01.admin.multi_market_admin_views.db_manager') as mock_db_manager:
             mock_db = Mock(spec=Session)
             mock_db_manager.get_db_session.return_value = iter([mock_db])
             
-            # Test get_db_session
-            result = market_view.get_db_session(mock_request_kg)
+            # Just test the method directly without full initialization
+            result = MarketAwareModelView.get_db_session(None, mock_request_kg)
             
             # Assertions
             assert result == mock_db
@@ -468,16 +465,14 @@ class TestMarketAwareModelView:
     
     def test_get_db_session_us_market(self, mock_request_us):
         """Test getting database session for US market"""
-        # Create a simple test instance
-        market_view = MarketAwareModelView()
-        
         # Mock db_manager
         with patch('src.app_01.admin.multi_market_admin_views.db_manager') as mock_db_manager:
             mock_db = Mock(spec=Session)
             mock_db_manager.get_db_session.return_value = iter([mock_db])
             
-            # Test get_db_session
-            result = market_view.get_db_session(mock_request_us)
+            # Test get_db_session using the method directly
+            from src.app_01.admin.multi_market_admin_views import MarketAwareModelView
+            result = MarketAwareModelView.get_db_session(None, mock_request_us)
             
             # Assertions
             assert result == mock_db
@@ -485,16 +480,14 @@ class TestMarketAwareModelView:
     
     def test_get_db_session_default_market(self, mock_request_empty):
         """Test getting database session with default market when not set"""
-        # Create a simple test instance
-        market_view = MarketAwareModelView()
-        
         # Mock db_manager
         with patch('src.app_01.admin.multi_market_admin_views.db_manager') as mock_db_manager:
             mock_db = Mock(spec=Session)
             mock_db_manager.get_db_session.return_value = iter([mock_db])
             
-            # Test get_db_session
-            result = market_view.get_db_session(mock_request_empty)
+            # Test get_db_session using the method directly
+            from src.app_01.admin.multi_market_admin_views import MarketAwareModelView
+            result = MarketAwareModelView.get_db_session(None, mock_request_empty)
             
             # Assertions
             assert result == mock_db
@@ -584,7 +577,10 @@ class TestIntegrationScenarios:
         mock_db.close = Mock()
         
         with patch('src.app_01.admin.multi_market_admin_views.db_manager') as mock_db_manager:
-            mock_db_manager.get_db_session.return_value = iter([mock_db])
+            # Use side_effect with a function to avoid StopIteration in async context
+            def get_db_gen(market):
+                yield mock_db
+            mock_db_manager.get_db_session.side_effect = get_db_gen
             
             # Test login
             login_result = await auth_backend.login(mock_request)
@@ -597,9 +593,11 @@ class TestIntegrationScenarios:
             assert auth_result is True
             
             # Step 3: Test market-aware model view
-            market_view = MarketAwareModelView()
-            db_session = market_view.get_db_session(mock_request)
-            assert db_session == mock_db
+            # Test the get_db_session method directly without initialization
+            with patch('src.app_01.admin.multi_market_admin_views.db_manager') as mock_db_manager2:
+                mock_db_manager2.get_db_session.return_value = iter([mock_db])
+                db_session = MarketAwareModelView.get_db_session(None, mock_request)
+                assert db_session == mock_db
     
     @pytest.mark.asyncio
     async def test_complete_us_workflow(self, auth_backend, mock_request, mock_admin_us):
@@ -619,7 +617,10 @@ class TestIntegrationScenarios:
         mock_db.close = Mock()
         
         with patch('src.app_01.admin.multi_market_admin_views.db_manager') as mock_db_manager:
-            mock_db_manager.get_db_session.return_value = iter([mock_db])
+            # Use side_effect with a function to avoid StopIteration in async context
+            def get_db_gen(market):
+                yield mock_db
+            mock_db_manager.get_db_session.side_effect = get_db_gen
             
             # Test login
             login_result = await auth_backend.login(mock_request)
@@ -632,9 +633,11 @@ class TestIntegrationScenarios:
             assert auth_result is True
             
             # Step 3: Test market-aware model view
-            market_view = MarketAwareModelView()
-            db_session = market_view.get_db_session(mock_request)
-            assert db_session == mock_db
+            # Test the get_db_session method directly without initialization
+            with patch('src.app_01.admin.multi_market_admin_views.db_manager') as mock_db_manager2:
+                mock_db_manager2.get_db_session.return_value = iter([mock_db])
+                db_session = MarketAwareModelView.get_db_session(None, mock_request)
+                assert db_session == mock_db
     
     @pytest.mark.asyncio
     async def test_market_switching_workflow(self, auth_backend, mock_request, mock_admin_kg, mock_admin_us):

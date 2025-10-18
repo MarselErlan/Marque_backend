@@ -72,86 +72,100 @@ class TestMultiMarketAdminIntegration:
         us_session = test_databases["us"]["session"]()
         
         try:
-            # KG Admin
-            kg_admin = Admin(
-                username="kg_admin",
-                email="kg@test.com",
-                hashed_password=bcrypt.hashpw("kgpass123".encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
-                is_active=True,
-                is_super_admin=True
-            )
-            kg_session.add(kg_admin)
+            # KG Admin - check if exists first
+            kg_admin = kg_session.query(Admin).filter_by(username="kg_admin").first()
+            if not kg_admin:
+                kg_admin = Admin(
+                    username="kg_admin",
+                    email="kg@test.com",
+                    hashed_password=bcrypt.hashpw("kgpass123".encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
+                    is_active=True,
+                    is_super_admin=True
+                )
+                kg_session.add(kg_admin)
             
-            # US Admin
-            us_admin = Admin(
-                username="us_admin",
-                email="us@test.com",
-                hashed_password=bcrypt.hashpw("uspass123".encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
-                is_active=True,
-                is_super_admin=True
-            )
-            us_session.add(us_admin)
+            # US Admin - check if exists first
+            us_admin = us_session.query(Admin).filter_by(username="us_admin").first()
+            if not us_admin:
+                us_admin = Admin(
+                    username="us_admin",
+                    email="us@test.com",
+                    hashed_password=bcrypt.hashpw("uspass123".encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
+                    is_active=True,
+                    is_super_admin=True
+                )
+                us_session.add(us_admin)
             
             # Create test categories and brands for both markets
             for session, market in [(kg_session, "KG"), (us_session, "US")]:
-                # Category
-                category = Category(
-                    name=f"{market} Category",
-                    slug=f"{market.lower()}-category",
-                    is_active=True,
-                    is_featured=False
-                )
-                session.add(category)
-                session.flush()  # Get the ID
+                # Category - check if exists first
+                category = session.query(Category).filter_by(slug=f"{market.lower()}-category").first()
+                if not category:
+                    category = Category(
+                        name=f"{market} Category",
+                        slug=f"{market.lower()}-category",
+                        is_active=True,
+                        is_featured=False
+                    )
+                    session.add(category)
+                    session.flush()  # Get the ID
                 
-                # Subcategory
-                subcategory = Subcategory(
-                    name=f"{market} Subcategory",
-                    slug=f"{market.lower()}-subcategory",
-                    category_id=category.id,
-                    is_active=True,
-                    is_featured=False
-                )
-                session.add(subcategory)
-                session.flush()
+                # Subcategory - check if exists first
+                subcategory = session.query(Subcategory).filter_by(slug=f"{market.lower()}-subcategory").first()
+                if not subcategory:
+                    subcategory = Subcategory(
+                        name=f"{market} Subcategory",
+                        slug=f"{market.lower()}-subcategory",
+                        category_id=category.id,
+                        is_active=True,
+                        is_featured=False
+                    )
+                    session.add(subcategory)
+                    session.flush()
                 
-                # Brand
-                brand = Brand(
-                    name=f"{market} Brand",
-                    slug=f"{market.lower()}-brand",
-                    is_active=True,
-                    is_featured=False
-                )
-                session.add(brand)
-                session.flush()
+                # Brand - check if exists first
+                brand = session.query(Brand).filter_by(slug=f"{market.lower()}-brand").first()
+                if not brand:
+                    brand = Brand(
+                        name=f"{market} Brand",
+                        slug=f"{market.lower()}-brand",
+                        is_active=True,
+                        is_featured=False
+                    )
+                    session.add(brand)
+                    session.flush()
                 
-                # Product
-                product = Product(
-                    title=f"{market} Test Product",
-                    slug=f"{market.lower()}-test-product",
-                    description=f"Test product for {market} market",
-                    category_id=category.id,
-                    subcategory_id=subcategory.id,
-                    brand_id=brand.id,
-                    is_active=True,
-                    is_featured=False,
-                    is_new=True,
-                    is_trending=False
-                )
-                session.add(product)
-                session.flush()
+                # Product - check if exists first
+                product = session.query(Product).filter_by(slug=f"{market.lower()}-test-product").first()
+                if not product:
+                    product = Product(
+                        title=f"{market} Test Product",
+                        slug=f"{market.lower()}-test-product",
+                        description=f"Test product for {market} market",
+                        category_id=category.id,
+                        subcategory_id=subcategory.id,
+                        brand_id=brand.id,
+                        is_active=True,
+                        is_featured=False,
+                        is_new=True,
+                        is_trending=False
+                    )
+                    session.add(product)
+                    session.flush()
                 
-                # SKU
-                sku = SKU(
-                    product_id=product.id,
-                    sku_code=f"{market}-SKU-001",
-                    size="M",
-                    color="Blue",
-                    price=100.0 if market == "US" else 7000.0,  # $100 or 7000 сом
-                    stock=50,
-                    is_active=True
-                )
-                session.add(sku)
+                # SKU - check if exists first
+                sku = session.query(SKU).filter_by(sku_code=f"{market}-SKU-001").first()
+                if not sku:
+                    sku = SKU(
+                        product_id=product.id,
+                        sku_code=f"{market}-SKU-001",
+                        size="M",
+                        color="Blue",
+                        price=100.0 if market == "US" else 7000.0,  # $100 or 7000 сом
+                        stock=50,
+                        is_active=True
+                    )
+                    session.add(sku)
             
             kg_session.commit()
             us_session.commit()
@@ -259,8 +273,8 @@ class TestMultiMarketAdminIntegration:
         kg_request = Mock()
         kg_request.session = {"admin_market": "kg"}
         
-        market_view = MarketAwareModelView()
-        kg_db = market_view.get_db_session(kg_request)
+        # Test get_db_session method directly
+        kg_db = MarketAwareModelView.get_db_session(None, kg_request)
         
         # Query products from KG database
         kg_products = kg_db.query(Product).all()
@@ -271,7 +285,7 @@ class TestMultiMarketAdminIntegration:
         us_request = Mock()
         us_request.session = {"admin_market": "us"}
         
-        us_db = market_view.get_db_session(us_request)
+        us_db = MarketAwareModelView.get_db_session(None, us_request)
         
         # Query products from US database
         us_products = us_db.query(Product).all()
@@ -286,18 +300,18 @@ class TestMultiMarketAdminIntegration:
         from src.app_01.admin.multi_market_admin_views import MarketAwareModelView
         from unittest.mock import Mock
         
-        market_view = MarketAwareModelView()
+        # Test get_db_session method directly
         
         # Get KG market SKU
         kg_request = Mock()
         kg_request.session = {"admin_market": "kg"}
-        kg_db = market_view.get_db_session(kg_request)
+        kg_db = MarketAwareModelView.get_db_session(None, kg_request)
         kg_sku = kg_db.query(SKU).first()
         
         # Get US market SKU
         us_request = Mock()
         us_request.session = {"admin_market": "us"}
-        us_db = market_view.get_db_session(us_request)
+        us_db = MarketAwareModelView.get_db_session(None, us_request)
         us_sku = us_db.query(SKU).first()
         
         # Verify different pricing
@@ -317,12 +331,12 @@ class TestMultiMarketAdminIntegration:
         from src.app_01.admin.multi_market_admin_views import MarketAwareModelView
         from unittest.mock import Mock
         
-        market_view = MarketAwareModelView()
+        # Test get_db_session method directly
         
         # Get all data from KG market
         kg_request = Mock()
         kg_request.session = {"admin_market": "kg"}
-        kg_db = market_view.get_db_session(kg_request)
+        kg_db = MarketAwareModelView.get_db_session(None, kg_request)
         
         kg_admins = kg_db.query(Admin).all()
         kg_products = kg_db.query(Product).all()
@@ -332,7 +346,7 @@ class TestMultiMarketAdminIntegration:
         # Get all data from US market
         us_request = Mock()
         us_request.session = {"admin_market": "us"}
-        us_db = market_view.get_db_session(us_request)
+        us_db = MarketAwareModelView.get_db_session(None, us_request)
         
         us_admins = us_db.query(Admin).all()
         us_products = us_db.query(Product).all()
@@ -403,7 +417,7 @@ class TestMultiMarketAdminIntegration:
         from unittest.mock import Mock, AsyncMock
         
         auth_backend = MultiMarketAuthenticationBackend(secret_key="test-key")
-        market_view = MarketAwareModelView()
+        # Test get_db_session method directly
         
         # Step 1: Login to KG market
         request = Mock()
@@ -420,7 +434,7 @@ class TestMultiMarketAdminIntegration:
         assert request.session["admin_market"] == "kg"
         
         # Verify KG data access
-        kg_db = market_view.get_db_session(request)
+        kg_db = MarketAwareModelView.get_db_session(None, request)
         kg_product = kg_db.query(Product).first()
         assert kg_product.title == "KG Test Product"
         
@@ -441,7 +455,7 @@ class TestMultiMarketAdminIntegration:
         assert request.session["admin_market"] == "us"
         
         # Verify US data access
-        us_db = market_view.get_db_session(request)
+        us_db = MarketAwareModelView.get_db_session(None, request)
         us_product = us_db.query(Product).first()
         assert us_product.title == "US Test Product"
         

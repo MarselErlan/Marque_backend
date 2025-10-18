@@ -75,7 +75,11 @@ class MultiMarketAuthenticationBackend(AuthenticationBackend):
         logger.info(f"🔍 Checking {market.value.upper()} database...")
         logger.info(f"{'─'*70}")
         
-        db = next(db_manager.get_db_session(market))
+        try:
+            db = next(db_manager.get_db_session(market))
+        except Exception as e:
+            logger.error(f"   ❌ Database connection ERROR: {type(e).__name__}: {e}")
+            return False
         
         try:
             # Find admin by username
