@@ -20,10 +20,20 @@ from src.app_01.models.products.category import Category, Subcategory
 @pytest.fixture
 def sample_order(admin_test_db: Session):
     """Create a sample order for testing"""
+    import uuid
+    
+    # Clean up existing data to avoid conflicts
+    admin_test_db.query(Order).delete()
+    admin_test_db.query(User).delete()
+    admin_test_db.commit()
+    
+    # Create unique identifiers
+    unique_id = str(uuid.uuid4())[:8]
+    
     # Create user
     user = User(
-        phone_number="+996700123456",
-        full_name="Test User",
+        phone_number=f"+996700{unique_id[:6]}",
+        full_name=f"Test User {unique_id}",
         is_active=True,
         is_verified=True
     )
@@ -31,15 +41,15 @@ def sample_order(admin_test_db: Session):
     admin_test_db.commit()
     admin_test_db.refresh(user)
     
-    # Create order
+    # Create order with unique order number
     order = Order(
-        order_number="#1001",
+        order_number=f"#1001-{unique_id}",
         user_id=user.id,
         status=OrderStatus.PENDING,
-        customer_name="Test Customer",
-        customer_phone="+996700123456",
-        customer_email="test@example.com",
-        delivery_address="Test Address 123",
+        customer_name=f"Test Customer {unique_id}",
+        customer_phone=f"+996700{unique_id[:6]}",
+        customer_email=f"test{unique_id}@example.com",
+        delivery_address=f"Test Address 123 {unique_id}",
         delivery_city="Bishkek",
         subtotal=5000.0,
         shipping_cost=200.0,
@@ -56,10 +66,15 @@ def sample_order(admin_test_db: Session):
 @pytest.fixture
 def sample_order_with_items(admin_test_db: Session, sample_product_for_admin):
     """Create an order with items"""
-    # Create user
+    import uuid
+    
+    # Create unique identifiers
+    unique_id = str(uuid.uuid4())[:8]
+    
+    # Create user (use different phone number to avoid conflicts)
     user = User(
-        phone_number="+996700123457",
-        full_name="Test User 2",
+        phone_number=f"+996701{unique_id[:6]}",
+        full_name=f"Test User 2 {unique_id}",
         is_active=True,
         is_verified=True
     )
@@ -70,7 +85,7 @@ def sample_order_with_items(admin_test_db: Session, sample_product_for_admin):
     # Create SKU
     sku = SKU(
         product_id=sample_product_for_admin.id,
-        sku_code="TEST-SKU-001",
+        sku_code=f"TEST-SKU-{unique_id}",
         size="M",
         color="Black",
         price=2500.0,
@@ -81,14 +96,14 @@ def sample_order_with_items(admin_test_db: Session, sample_product_for_admin):
     admin_test_db.commit()
     admin_test_db.refresh(sku)
     
-    # Create order
+    # Create order with unique order number
     order = Order(
-        order_number="#1002",
+        order_number=f"#1002-{unique_id}",
         user_id=user.id,
         status=OrderStatus.PENDING,
-        customer_name="Test Customer 2",
-        customer_phone="+996700123457",
-        delivery_address="Test Address 456",
+        customer_name=f"Test Customer 2 {unique_id}",
+        customer_phone=f"+996701{unique_id[:6]}",
+        delivery_address=f"Test Address 456 {unique_id}",
         delivery_city="Osh",
         subtotal=5000.0,
         shipping_cost=300.0,

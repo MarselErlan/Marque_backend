@@ -17,8 +17,18 @@ def test_subcategory_image_upload_saves_to_model(db_session: Session):
     Test that when we save an image using the image_uploader utility,
     it works correctly and we can store the URL in the Subcategory model.
     """
+    import uuid
+    
+    # Clean up existing data to avoid conflicts
+    db_session.query(Subcategory).delete()
+    db_session.query(Category).delete()
+    db_session.commit()
+    
+    # Create unique identifiers
+    unique_id = str(uuid.uuid4())[:8]
+    
     # 1. Create parent category
-    parent_category = Category(name="Test Category", slug="test-category")
+    parent_category = Category(name=f"Test Category {unique_id}", slug=f"test-category-{unique_id}")
     db_session.add(parent_category)
     db_session.commit()
     
@@ -46,8 +56,8 @@ def test_subcategory_image_upload_saves_to_model(db_session: Session):
     
     # 6. Create a subcategory with the uploaded image
     subcategory = Subcategory(
-        name="Test Subcategory",
-        slug="test-subcategory",
+        name=f"Test Subcategory {unique_id}",
+        slug=f"test-subcategory-{unique_id}",
         category=parent_category,
         image_url=image_url
     )
@@ -66,16 +76,26 @@ def test_subcategory_update_preserves_image_if_not_changed(db_session: Session):
     Test that when we update a subcategory without changing the image,
     the original image URL is preserved.
     """
+    import uuid
+    
+    # Clean up existing data to avoid conflicts
+    db_session.query(Subcategory).delete()
+    db_session.query(Category).delete()
+    db_session.commit()
+    
+    # Create unique identifiers
+    unique_id = str(uuid.uuid4())[:8]
+    
     # 1. Create parent category
-    parent_category = Category(name="Test Category 2", slug="test-category-2")
+    parent_category = Category(name=f"Test Category 2 {unique_id}", slug=f"test-category-2-{unique_id}")
     db_session.add(parent_category)
     db_session.commit()
     
     # 2. Create a subcategory with an existing image
-    original_image_url = "/uploads/subcategory/existing_image.jpg"
+    original_image_url = f"/uploads/subcategory/existing_image_{unique_id}.jpg"
     subcategory = Subcategory(
-        name="Test Subcategory",
-        slug="test-subcategory-2",
+        name=f"Test Subcategory {unique_id}",
+        slug=f"test-subcategory-2-{unique_id}",
         category=parent_category,
         image_url=original_image_url
     )

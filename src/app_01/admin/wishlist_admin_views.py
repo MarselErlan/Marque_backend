@@ -7,9 +7,10 @@ from sqladmin import ModelView
 from starlette.requests import Request
 
 from ..models.users.wishlist import Wishlist, WishlistItem
+from .multi_market_admin_views import MarketAwareModelView
 
 
-class WishlistAdmin(ModelView, model=Wishlist):
+class WishlistAdmin(MarketAwareModelView, model=Wishlist):
     """Wishlist management interface"""
     
     # Display settings
@@ -70,7 +71,7 @@ class WishlistAdmin(ModelView, model=Wishlist):
     page_size_options = [25, 50, 100]
 
 
-class WishlistItemAdmin(ModelView, model=WishlistItem):
+class WishlistItemAdmin(MarketAwareModelView, model=WishlistItem):
     """Wishlist items management interface"""
     
     name = "Товары в списках желаний"

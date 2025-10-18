@@ -14,11 +14,12 @@ import logging
 from ..models.banners.banner import Banner, BannerType
 from ..utils.image_upload import image_uploader
 from fastapi import UploadFile
+from .multi_market_admin_views import MarketAwareModelView
 
 logger = logging.getLogger(__name__)
 
 
-class BannerAdmin(ModelView, model=Banner):
+class BannerAdmin(MarketAwareModelView, model=Banner):
     """
     Enhanced Banner Management Interface, now with standardized image uploads.
     """

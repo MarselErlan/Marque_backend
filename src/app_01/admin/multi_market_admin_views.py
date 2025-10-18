@@ -11,7 +11,7 @@ from starlette.requests import Request
 from starlette.responses import RedirectResponse, HTMLResponse
 from typing import Optional
 from wtforms import FileField, MultipleFileField, SelectField
-from wtforms.validators import Optional as OptionalValidator
+from wtforms.validators import Optional as OptionalValidator, DataRequired, Length
 import secrets
 import bcrypt
 from sqlalchemy.orm import Session
@@ -795,32 +795,24 @@ class ProductAdmin(MarketAwareModelView, model=Product):
     }
 
     column_list = [
-        "id", "main_image", "title", "brand", "category",
-        "is_active", "is_featured", "is_new", "is_trending",
-        "view_count", "sold_count"
+        "id", "main_image", "main_image_preview", "title", "brand", "category",
+        "season", "material", "style", "is_active", "is_featured"
     ]
 
     column_details_list = [
         "id", "title", "slug", "description",
         "brand", "category", "subcategory",
         "season", "material", "style",
-        "is_active", "is_featured", "is_new", "is_trending",
-        "view_count", "sold_count", "rating_avg", "rating_count",
-        "low_stock_threshold",
-        "meta_title", "meta_description", "meta_keywords",
-        "tags",
+        "is_active", "is_featured",
         "created_at", "updated_at",
-        "main_image", "additional_images", "skus", "reviews"
+        "main_image", "additional_images", "skus", "reviews", "attributes"
     ]
 
     form_columns = [
         "title", "slug", "description",
         "brand", "category", "subcategory",
         "season", "material", "style",
-        "is_active", "is_featured", "is_new", "is_trending",
-        "low_stock_threshold",
-        "meta_title", "meta_description", "meta_keywords",
-        "tags", "attributes"
+        "is_active", "is_featured", "attributes"
     ]
 
     async def scaffold_form(self):
@@ -869,7 +861,45 @@ class ProductAdmin(MarketAwareModelView, model=Product):
     }
     
     column_formatters = {
-        "main_image": lambda m, a: f'<img src="{m.main_image}" width="40">' if m.main_image else ""
+        "main_image": lambda m, a: f'<img src="{m.main_image}" width="40">' if m.main_image else "",
+        "main_image_preview": lambda m, a: f'<img src="{m.main_image}" width="60" style="border-radius: 4px;">' if m.main_image else "Нет фото",
+        "assets": lambda m, a: f"{len(m.product_assets)} фото" if hasattr(m, 'product_assets') and m.product_assets else "0 фото",
+        "season": lambda m, a: m.season.name if m.season else "Не указан",
+        "material": lambda m, a: m.material.name if m.material else "Не указан",
+        "style": lambda m, a: m.style.name if m.style else "Не указан",
+        "is_featured": lambda m, a: "⭐ Да" if m.is_featured else "Нет"
+    }
+    
+    form_args = {
+        "title": {"validators": [DataRequired(), Length(min=2, max=200)], "label": "Название товара"},
+        "slug": {"validators": [DataRequired(), Length(min=2, max=200)], "label": "URL-адрес"},
+        "description": {"validators": [Length(max=2000)], "label": "Описание"},
+        "brand": {"label": "Бренд"},
+        "category": {"label": "Категория"},
+        "subcategory": {"label": "Подкатегория"},
+        "season": {"label": "Сезон"},
+        "material": {"label": "Материал"},
+        "style": {"label": "Стиль"},
+        "is_active": {"label": "Активен"},
+        "is_featured": {"label": "В избранном"},
+        "attributes": {"label": "Атрибуты"}
+    }
+    
+    column_descriptions = {
+        "title": "Название товара, отображаемое покупателям",
+        "slug": "URL-адрес товара (только латинские буквы, цифры и дефисы)",
+        "description": "Подробное описание товара",
+        "brand": "Бренд или производитель товара",
+        "category": "Основная категория товара",
+        "subcategory": "Подкатегория для более точной классификации",
+        "season": "Сезонность товара (весна, лето, осень, зима)",
+        "material": "Материал изготовления товара",
+        "style": "Стиль или дизайн товара",
+        "is_active": "Отображается ли товар на сайте",
+        "is_featured": "Показывать в разделе 'Рекомендуемые'",
+        "main_image": "Главное изображение товара",
+        "main_image_preview": "Предварительный просмотр главного изображения",
+        "attributes": "Дополнительные характеристики товара в формате JSON"
     }
 
     async def _save_single_image(self, file_data, image_type="main"):

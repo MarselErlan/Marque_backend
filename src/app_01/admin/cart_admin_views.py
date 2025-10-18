@@ -7,9 +7,10 @@ from sqladmin import ModelView
 from starlette.requests import Request
 
 from ..models.orders.cart import Cart, CartItem
+from .multi_market_admin_views import MarketAwareModelView
 
 
-class CartAdmin(ModelView, model=Cart):
+class CartAdmin(MarketAwareModelView, model=Cart):
     """Shopping cart management interface"""
     
     # Display settings
@@ -72,7 +73,7 @@ class CartAdmin(ModelView, model=Cart):
     page_size_options = [25, 50, 100]
 
 
-class CartItemAdmin(ModelView, model=CartItem):
+class CartItemAdmin(MarketAwareModelView, model=CartItem):
     """Cart items management interface"""
     
     name = "Товары в корзинах"

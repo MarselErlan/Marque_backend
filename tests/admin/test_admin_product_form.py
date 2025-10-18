@@ -9,7 +9,7 @@ from src.app_01.models.products.product import Product
 from src.app_01.models.products.category import Category, Subcategory
 from src.app_01.models.products.brand import Brand
 from src.app_01.models.products.product_filter import ProductSeason, ProductMaterial, ProductStyle
-from src.app_01.admin.sqladmin_views import ProductAdmin
+from src.app_01.admin.multi_market_admin_views import ProductAdmin
 from src.app_01.db.market_db import db_manager, Market
 
 

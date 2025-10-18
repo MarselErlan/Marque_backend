@@ -8,9 +8,10 @@ from starlette.requests import Request
 from passlib.hash import bcrypt
 
 from ..models.admins.admin import Admin
+from .multi_market_admin_views import MarketAwareModelView
 
 
-class AdminUserAdmin(ModelView, model=Admin):
+class AdminUserAdmin(MarketAwareModelView, model=Admin):
     """Admin user management interface"""
     
     # Display settings

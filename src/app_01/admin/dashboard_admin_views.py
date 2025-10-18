@@ -34,6 +34,7 @@ class DashboardView(BaseView):
     
     name = "Dashboard"
     icon = "fa-solid fa-chart-line"
+    identity = "dashboard"
     
     async def index(self, request: Request) -> HTMLResponse:
         """

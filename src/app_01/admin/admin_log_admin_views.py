@@ -6,9 +6,10 @@ Allows viewing and filtering admin activity logs
 from sqladmin import ModelView
 from sqlalchemy.orm import Session
 from ..models.admins.admin_log import AdminLog
+from .multi_market_admin_views import MarketAwareModelView
 
 
-class AdminLogAdmin(ModelView, model=AdminLog):
+class AdminLogAdmin(MarketAwareModelView, model=AdminLog):
     """Admin interface for viewing admin activity logs"""
     
     name = "Лог активности"

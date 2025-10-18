@@ -78,8 +78,8 @@ class TestOrderStatusWorkflow:
         # Create history entry
         history = OrderStatusHistory(
             order_id=sample_order.id,
-            previous_status=old_status,
-            status=OrderStatus.CONFIRMED,
+            old_status=old_status,
+            new_status=OrderStatus.CONFIRMED,
             changed_by_admin_id=sample_admin_user.id,
             notes="Status changed via admin panel"
         )
@@ -295,9 +295,19 @@ class TestOrderColumnEnhancements:
 @pytest.fixture
 def sample_user_for_orders(admin_test_db):
     """Create a sample user for orders"""
+    import uuid
+    
+    # Clean up existing data to avoid conflicts
+    admin_test_db.query(Order).delete()
+    admin_test_db.query(User).delete()
+    admin_test_db.commit()
+    
+    # Create unique identifiers
+    unique_id = str(uuid.uuid4())[:8]
+    
     user = User(
-        phone_number="+996555123456",
-        full_name="Test Customer",
+        phone_number=f"+996555{unique_id[:6]}",
+        full_name=f"Test Customer {unique_id}",
         is_active=True,
         is_verified=True,
         market="kg"
@@ -311,14 +321,19 @@ def sample_user_for_orders(admin_test_db):
 @pytest.fixture
 def sample_order(admin_test_db, sample_user_for_orders):
     """Create a sample order for testing"""
+    import uuid
+    
+    # Create unique identifiers
+    unique_id = str(uuid.uuid4())[:8]
+    
     order = Order(
-        order_number="TEST-001",
+        order_number=f"TEST-001-{unique_id}",
         user_id=sample_user_for_orders.id,
         status=OrderStatus.PENDING,
-        customer_name="Test Customer",
-        customer_phone="+996555123456",
-        customer_email="test@example.com",
-        delivery_address="Test Address 123",
+        customer_name=sample_user_for_orders.full_name,
+        customer_phone=sample_user_for_orders.phone_number,
+        customer_email=f"test{unique_id}@example.com",
+        delivery_address=f"Test Address 123 {unique_id}",
         delivery_city="Bishkek",
         subtotal=Decimal("5000.00"),
         shipping_cost=Decimal("200.00"),
@@ -345,8 +360,8 @@ def sample_orders_today(admin_test_db, sample_user_for_orders):
             order_number=f"TODAY-{i+1}",
             user_id=sample_user_for_orders.id,
             status=OrderStatus.PENDING,
-            customer_name="Test Customer",
-            customer_phone="+996555123456",
+            customer_name=sample_user_for_orders.full_name,
+            customer_phone=sample_user_for_orders.phone_number,
             delivery_address="Test Address",
             delivery_city="Bishkek",
             subtotal=Decimal("1000.00"),
@@ -363,8 +378,8 @@ def sample_orders_today(admin_test_db, sample_user_for_orders):
         order_number="YESTERDAY-1",
         user_id=sample_user_for_orders.id,
         status=OrderStatus.DELIVERED,
-        customer_name="Test Customer",
-        customer_phone="+996555123456",
+        customer_name=sample_user_for_orders.full_name,
+        customer_phone=sample_user_for_orders.phone_number,
         delivery_address="Test Address",
         delivery_city="Bishkek",
         subtotal=Decimal("2000.00"),
@@ -394,8 +409,8 @@ def sample_orders_mixed_status(admin_test_db, sample_user_for_orders):
             order_number=f"MIXED-{i+1}",
             user_id=sample_user_for_orders.id,
             status=status,
-            customer_name="Test Customer",
-            customer_phone="+996555123456",
+            customer_name=sample_user_for_orders.full_name,
+            customer_phone=sample_user_for_orders.phone_number,
             delivery_address="Test Address",
             delivery_city="Bishkek",
             subtotal=Decimal("1000.00"),
@@ -423,8 +438,8 @@ def sample_orders_for_bulk(admin_test_db, sample_user_for_orders):
             order_number=f"BULK-{i+1}",
             user_id=sample_user_for_orders.id,
             status=OrderStatus.PENDING,
-            customer_name="Test Customer",
-            customer_phone="+996555123456",
+            customer_name=sample_user_for_orders.full_name,
+            customer_phone=sample_user_for_orders.phone_number,
             delivery_address="Test Address",
             delivery_city="Bishkek",
             subtotal=Decimal("1000.00"),
@@ -452,8 +467,8 @@ def sample_order_with_history(admin_test_db, sample_user_for_orders):
             order_number=f"PREV-{i+1}",
             user_id=sample_user_for_orders.id,
             status=OrderStatus.DELIVERED,
-            customer_name="Test Customer",
-            customer_phone="+996555123456",
+            customer_name=sample_user_for_orders.full_name,
+            customer_phone=sample_user_for_orders.phone_number,
             delivery_address="Test Address",
             delivery_city="Bishkek",
             subtotal=Decimal("1500.00"),
@@ -499,8 +514,8 @@ def sample_orders_for_export(admin_test_db, sample_user_for_orders):
             order_number=f"EXPORT-{i+1}",
             user_id=sample_user_for_orders.id,
             status=OrderStatus.DELIVERED,
-            customer_name=f"Customer {i+1}",
-            customer_phone=f"+99655512345{i}",
+            customer_name=f"{sample_user_for_orders.full_name} {i+1}",
+            customer_phone=sample_user_for_orders.phone_number,
             delivery_address=f"Address {i+1}",
             delivery_city="Bishkek",
             subtotal=Decimal(f"{(i+1)*1000}.00"),
@@ -564,8 +579,8 @@ def sample_orders_various_dates(admin_test_db, sample_user_for_orders):
             order_number=f"VAR-{i+1}",
             user_id=sample_user_for_orders.id,
             status=OrderStatus.DELIVERED,
-            customer_name="Test Customer",
-            customer_phone="+996555123456",
+            customer_name=sample_user_for_orders.full_name,
+            customer_phone=sample_user_for_orders.phone_number,
             delivery_address="Test Address",
             delivery_city="Bishkek",
             subtotal=Decimal("1000.00"),

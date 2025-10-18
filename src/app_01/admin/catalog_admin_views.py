@@ -29,7 +29,7 @@ class CategoryAdmin(MarketAwareModelView, model=Category):
     column_details_exclude_list = ["products"]
     
     form_columns = [
-        "name", "slug", "description", "icon", "sort_order", "is_active", "is_featured"
+        "name", "slug", "description", "icon", "image_url", "sort_order", "is_active", "is_featured"
     ]
     
     column_searchable_list = ["name", "slug", "description"]
@@ -166,16 +166,16 @@ class SubcategoryAdmin(MarketAwareModelView, model=Subcategory):
     icon = "fa-solid fa-folder"
     category = "🛍️ Каталог"
     
-    column_list = ["id", "image_url", "name", "slug", "is_active", "is_featured", "sort_order"]
+    column_list = ["id", "image_url", "name", "slug", "category", "is_active", "is_featured", "sort_order"]
     column_details_exclude_list = ["products"]
     
     form_columns = [
-        "category", "name", "slug", "description", "sort_order", "is_active", "is_featured"
+        "category", "name", "slug", "description", "image_url", "sort_order", "is_active", "is_featured"
     ]
     
     column_searchable_list = ["name", "slug", "description"]
     column_sortable_list = ["id", "name", "sort_order", "is_active", "is_featured", "created_at"]
-    column_filters = ["is_active", "is_featured", "category"]
+    column_filters = ["is_active", "is_featured", "category", "category_id"]
 
     async def scaffold_form(self):
         """Override to add the image upload field programmatically"""

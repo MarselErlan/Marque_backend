@@ -4,8 +4,9 @@ from ..models import (
     ProductFilter, ProductSeason, ProductMaterial, ProductStyle, 
     ProductDiscount, ProductSearch
 )
+from .multi_market_admin_views import MarketAwareModelView
 
-class ProductFilterAdmin(ModelView, model=ProductFilter):
+class ProductFilterAdmin(MarketAwareModelView, model=ProductFilter):
     """Product filter options management"""
     
     name = "Фильтры товаров"
@@ -51,7 +52,7 @@ class ProductFilterAdmin(ModelView, model=ProductFilter):
     }
 
 
-class ProductSeasonAdmin(ModelView, model=ProductSeason):
+class ProductSeasonAdmin(MarketAwareModelView, model=ProductSeason):
     """Product seasons management"""
     
     name = "Сезоны"
@@ -98,7 +99,7 @@ class ProductSeasonAdmin(ModelView, model=ProductSeason):
     }
 
 
-class ProductMaterialAdmin(ModelView, model=ProductMaterial):
+class ProductMaterialAdmin(MarketAwareModelView, model=ProductMaterial):
     """Product materials management"""
     
     name = "Материалы"
@@ -145,7 +146,7 @@ class ProductMaterialAdmin(ModelView, model=ProductMaterial):
     }
 
 
-class ProductStyleAdmin(ModelView, model=ProductStyle):
+class ProductStyleAdmin(MarketAwareModelView, model=ProductStyle):
     """Product styles management"""
     
     name = "Стили"
@@ -192,7 +193,7 @@ class ProductStyleAdmin(ModelView, model=ProductStyle):
     }
 
 
-class ProductDiscountAdmin(ModelView, model=ProductDiscount):
+class ProductDiscountAdmin(MarketAwareModelView, model=ProductDiscount):
     """Product discounts management"""
     
     name = "Скидки"
@@ -240,7 +241,7 @@ class ProductDiscountAdmin(ModelView, model=ProductDiscount):
     }
 
 
-class ProductSearchAdmin(ModelView, model=ProductSearch):
+class ProductSearchAdmin(MarketAwareModelView, model=ProductSearch):
     """Product search analytics"""
     
     name = "Поиск товаров"
