@@ -11,8 +11,9 @@ from .multi_market_admin_views import (
     MarketSelectionView,
     MarketAwareModelView,
     # Import market-aware admin views
-    ProductAdmin, SKUAdmin, ProductAssetAdmin, ProductAttributeAdmin,
+    ProductAdmin, ProductAssetAdmin, ProductAttributeAdmin,
     ReviewAdmin
+    # SKUAdmin removed - SKU is now a direct Product field
 )
 from .admin_log_admin_views import AdminLogAdmin
 from .catalog_admin_views import CategoryAdmin, SubcategoryAdmin, BrandAdmin
@@ -102,7 +103,7 @@ def create_sqladmin_app(app: FastAPI) -> Admin:
     # 🛍️ PRODUCT MANAGEMENT
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     admin.add_view(ProductAdmin)
-    admin.add_view(SKUAdmin)
+    # SKUAdmin removed - SKU code is now a direct field on Product
     admin.add_view(ProductAssetAdmin)
     admin.add_view(ProductAttributeAdmin)
     admin.add_view(ReviewAdmin)
