@@ -880,8 +880,6 @@ class ProductAdmin(MarketAwareModelView, model=Product):
         "season",
         "material",
         "style",
-        "price",
-        "stock_quantity",
         "is_active",
         "is_featured",
         "attributes",
