@@ -857,8 +857,6 @@ class ProductAdmin(MarketAwareModelView, model=Product):
         "brand",
         "category",
         "subcategory",
-        "price",
-        "stock_quantity",
         "main_image_preview",
         "season",
         "material",
@@ -873,13 +871,10 @@ class ProductAdmin(MarketAwareModelView, model=Product):
     form_columns = [
         "title",
         "slug",
-        "sku_code",  # Unique product SKU
         "description",
         "brand",
         "category",
         "subcategory",
-        "price",  # Product price
-        "stock_quantity",  # Available stock
         "season",
         "material",
         "style",
@@ -887,6 +882,7 @@ class ProductAdmin(MarketAwareModelView, model=Product):
         "is_featured",
         "attributes"
         # Note: main_image and additional_images are added via scaffold_form
+        # Note: SKU, price, stock managed through SKU variants table
     ]
 
     async def scaffold_form(self):

@@ -21,11 +21,6 @@ class Product(Base):
     slug = Column(String(255), unique=True, nullable=False, index=True)
     description = Column(Text)
     
-    # Core product fields
-    sku_code = Column(String(50), unique=True, nullable=False, index=True)  # Unique product SKU
-    price = Column(Float, nullable=False, default=0.0)  # Product price
-    stock_quantity = Column(Integer, nullable=False, default=0)  # Available stock
-    
     # Image columns (Pillow-processed)
     main_image = Column(String(500), nullable=True)  # Main product image URL
     additional_images = Column(JSON, nullable=True)  # Array of additional image URLs (list of strings)
