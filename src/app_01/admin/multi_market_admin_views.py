@@ -897,14 +897,16 @@ class ProductAdmin(MarketAwareModelView, model=Product):
         form_class.main_image = FileField(
             "Главное изображение",
             validators=[OptionalValidator()],
-            description="Загрузите главное фото товара (JPEG/PNG)"
+            description="Загрузите главное фото товара (JPEG/PNG)",
+            render_kw={"accept": "image/jpeg,image/png,image/jpg"}
         )
         
-        # Add multiple additional images upload field
+        # Add multiple additional images upload field with proper HTML5 multiple attribute
         form_class.additional_images = MultipleFileField(
             "Дополнительные изображения",
             validators=[OptionalValidator()],
-            description="Загрузите до 5 дополнительных фото (JPEG/PNG)"
+            description="Загрузите до 5 дополнительных фото (JPEG/PNG). Удерживайте Ctrl/Cmd для выбора нескольких файлов.",
+            render_kw={"accept": "image/jpeg,image/png,image/jpg", "multiple": True}
         )
         
         return form_class
@@ -1043,17 +1045,22 @@ class ProductAdmin(MarketAwareModelView, model=Product):
         else:
             logger.info("ℹ️ [PRODUCT INSERT] No main image file provided")
         
-        # Save additional images if provided
+        # Save additional images if provided (handle both single and multiple files)
         additional_images_urls = []
-        if additional_files and isinstance(additional_files, list):
-            logger.info(f"📸 [PRODUCT INSERT] Processing {len(additional_files)} additional images...")
-            for i, file_data in enumerate(additional_files):
+        if additional_files:
+            # Ensure it's a list (could be single file or list of files)
+            files_to_process = additional_files if isinstance(additional_files, list) else [additional_files]
+            logger.info(f"📸 [PRODUCT INSERT] Processing {len(files_to_process)} additional images...")
+            
+            for i, file_data in enumerate(files_to_process):
                 if hasattr(file_data, "filename") and file_data.filename:
                     logger.info(f"📸 [PRODUCT INSERT] Processing additional image {i+1}...")
                     url = await self._save_single_image(file_data, f"additional_{i+1}")
                     if url:
                         additional_images_urls.append(url)
                         logger.info(f"📸 [PRODUCT INSERT] Additional image {i+1} URL: {url}")
+            
+            logger.info(f"📸 [PRODUCT INSERT] Total {len(additional_images_urls)} images uploaded")
         else:
             logger.info("ℹ️ [PRODUCT INSERT] No additional images provided")
         
@@ -1097,18 +1104,24 @@ class ProductAdmin(MarketAwareModelView, model=Product):
         
         # Save additional images if provided (and they're new files, not existing URLs)
         if additional_files and not isinstance(additional_files, str):
-            if isinstance(additional_files, list) and len(additional_files) > 0:
-                logger.info(f"📸 [PRODUCT UPDATE] Processing {len(additional_files)} NEW additional images...")
-                additional_images_urls = []
-                for i, file_data in enumerate(additional_files):
-                    if hasattr(file_data, "filename") and file_data.filename:
-                        logger.info(f"📸 [PRODUCT UPDATE] Processing additional image {i+1}...")
-                        url = await self._save_single_image(file_data, f"additional_{i+1}")
-                        if url:
-                            additional_images_urls.append(url)
-                            logger.info(f"📸 [PRODUCT UPDATE] Additional image {i+1} URL: {url}")
+            # Handle both single file and multiple files cases
+            files_to_process = additional_files if isinstance(additional_files, list) else [additional_files]
+            additional_images_urls = []
+            
+            logger.info(f"📸 [PRODUCT UPDATE] Processing {len(files_to_process)} NEW additional images...")
+            for i, file_data in enumerate(files_to_process):
+                if hasattr(file_data, "filename") and file_data.filename:
+                    logger.info(f"📸 [PRODUCT UPDATE] Processing additional image {i+1}...")
+                    url = await self._save_single_image(file_data, f"additional_{i+1}")
+                    if url:
+                        additional_images_urls.append(url)
+                        logger.info(f"📸 [PRODUCT UPDATE] Additional image {i+1} URL: {url}")
+            
             if additional_images_urls:
                 data["additional_images"] = additional_images_urls
+                logger.info(f"📸 [PRODUCT UPDATE] Total {len(additional_images_urls)} images uploaded")
+        else:
+            logger.info("ℹ️ [PRODUCT UPDATE] No new additional images provided (keeping existing)")
         
         logger.info(f"📦 [PRODUCT UPDATE] Final data keys: {list(data.keys())}")
         
