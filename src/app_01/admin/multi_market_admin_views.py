@@ -893,20 +893,18 @@ class ProductAdmin(MarketAwareModelView, model=Product):
         """Override to add image upload fields programmatically"""
         form_class = await super().scaffold_form()
         
-        # Add main image URL field (string field, not file upload)
-        # Users can paste image URLs directly
-        from wtforms import StringField
-        form_class.main_image = StringField(
-            "Главное изображение (URL)",
+        # Add main image upload field
+        form_class.main_image = FileField(
+            "Главное изображение",
             validators=[OptionalValidator()],
-            description="Вставьте URL главного изображения товара"
+            description="Загрузите главное фото товара (JPEG/PNG)"
         )
         
-        # Add additional images URL field (string field for JSON URLs)
-        form_class.additional_images = StringField(
-            "Дополнительные изображения (JSON)",
+        # Add multiple additional images upload field
+        form_class.additional_images = MultipleFileField(
+            "Дополнительные изображения",
             validators=[OptionalValidator()],
-            description='JSON массив URL изображений, например: ["url1", "url2"]'
+            description="Загрузите до 5 дополнительных фото (JPEG/PNG)"
         )
         
         return form_class
@@ -1030,29 +1028,34 @@ class ProductAdmin(MarketAwareModelView, model=Product):
         
         # Extract main image file
         main_image_file = data.pop("main_image", None)
-        logger.info(f"🖼️ [PRODUCT INSERT] Extracted main_image_file: {main_image_file}")
+        logger.info(f"🖼️ [PRODUCT INSERT] Extracted main_image_file: {main_image_file} (type: {type(main_image_file)})")
         
         # Extract additional images files (multiple)
         additional_files = data.pop("additional_images", None)
-        logger.info(f"📸 [PRODUCT INSERT] Extracted additional_images: {additional_files}")
+        logger.info(f"📸 [PRODUCT INSERT] Extracted additional_images: {additional_files} (type: {type(additional_files)})")
         
-        # Save main image
+        # Save main image if provided
         main_image_url = None
-        if main_image_file:
+        if main_image_file and hasattr(main_image_file, "filename") and main_image_file.filename:
             logger.info("🖼️ [PRODUCT INSERT] Processing main image...")
             main_image_url = await self._save_single_image(main_image_file, "main")
             logger.info(f"🖼️ [PRODUCT INSERT] Main image URL: {main_image_url}")
+        else:
+            logger.info("ℹ️ [PRODUCT INSERT] No main image file provided")
         
-        # Save additional images
+        # Save additional images if provided
         additional_images_urls = []
-        if additional_files:
+        if additional_files and isinstance(additional_files, list):
             logger.info(f"📸 [PRODUCT INSERT] Processing {len(additional_files)} additional images...")
             for i, file_data in enumerate(additional_files):
-                logger.info(f"📸 [PRODUCT INSERT] Processing additional image {i+1}...")
-                url = await self._save_single_image(file_data, f"additional_{i+1}")
-                if url:
-                    additional_images_urls.append(url)
-                    logger.info(f"📸 [PRODUCT INSERT] Additional image {i+1} URL: {url}")
+                if hasattr(file_data, "filename") and file_data.filename:
+                    logger.info(f"📸 [PRODUCT INSERT] Processing additional image {i+1}...")
+                    url = await self._save_single_image(file_data, f"additional_{i+1}")
+                    if url:
+                        additional_images_urls.append(url)
+                        logger.info(f"📸 [PRODUCT INSERT] Additional image {i+1} URL: {url}")
+        else:
+            logger.info("ℹ️ [PRODUCT INSERT] No additional images provided")
         
         # Add image URLs to data
         if main_image_url:
@@ -1075,30 +1078,35 @@ class ProductAdmin(MarketAwareModelView, model=Product):
         
         # Extract main image file
         main_image_file = data.pop("main_image", None)
-        logger.info(f"🖼️ [PRODUCT UPDATE] Extracted main_image_file: {main_image_file}")
+        logger.info(f"🖼️ [PRODUCT UPDATE] Extracted main_image_file: {main_image_file} (type: {type(main_image_file)})")
         
         # Extract additional images files (multiple)
         additional_files = data.pop("additional_images", None)
-        logger.info(f"📸 [PRODUCT UPDATE] Extracted additional_images: {additional_files}")
+        logger.info(f"📸 [PRODUCT UPDATE] Extracted additional_images: {additional_files} (type: {type(additional_files)})")
         
-        # Save main image if provided
-        if main_image_file:
-            logger.info("🖼️ [PRODUCT UPDATE] Processing main image...")
-            main_image_url = await self._save_single_image(main_image_file, "main")
-            if main_image_url:
-                data["main_image"] = main_image_url
-                logger.info(f"🖼️ [PRODUCT UPDATE] Main image URL: {main_image_url}")
+        # Save main image if provided (and it's a new file, not existing URL string)
+        if main_image_file and not isinstance(main_image_file, str):
+            if hasattr(main_image_file, "filename") and main_image_file.filename:
+                logger.info("🖼️ [PRODUCT UPDATE] Processing NEW main image upload...")
+                main_image_url = await self._save_single_image(main_image_file, "main")
+                if main_image_url:
+                    data["main_image"] = main_image_url
+                    logger.info(f"🖼️ [PRODUCT UPDATE] Main image URL: {main_image_url}")
+        else:
+            logger.info("ℹ️ [PRODUCT UPDATE] No new main image provided (keeping existing)")
         
-        # Save additional images if provided
-        if additional_files:
-            logger.info(f"📸 [PRODUCT UPDATE] Processing {len(additional_files)} additional images...")
-            additional_images_urls = []
-            for i, file_data in enumerate(additional_files):
-                logger.info(f"📸 [PRODUCT UPDATE] Processing additional image {i+1}...")
-                url = await self._save_single_image(file_data, f"additional_{i+1}")
-                if url:
-                    additional_images_urls.append(url)
-                    logger.info(f"📸 [PRODUCT UPDATE] Additional image {i+1} URL: {url}")
+        # Save additional images if provided (and they're new files, not existing URLs)
+        if additional_files and not isinstance(additional_files, str):
+            if isinstance(additional_files, list) and len(additional_files) > 0:
+                logger.info(f"📸 [PRODUCT UPDATE] Processing {len(additional_files)} NEW additional images...")
+                additional_images_urls = []
+                for i, file_data in enumerate(additional_files):
+                    if hasattr(file_data, "filename") and file_data.filename:
+                        logger.info(f"📸 [PRODUCT UPDATE] Processing additional image {i+1}...")
+                        url = await self._save_single_image(file_data, f"additional_{i+1}")
+                        if url:
+                            additional_images_urls.append(url)
+                            logger.info(f"📸 [PRODUCT UPDATE] Additional image {i+1} URL: {url}")
             if additional_images_urls:
                 data["additional_images"] = additional_images_urls
         
