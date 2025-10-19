@@ -10,7 +10,7 @@ Provides real-time insights into:
 - User analytics
 """
 
-from sqladmin import BaseView
+from sqladmin import BaseView, expose
 from starlette.requests import Request
 from starlette.responses import HTMLResponse
 from sqlalchemy import func, and_, or_
@@ -23,22 +23,21 @@ from ..models.products.product import Product
 from ..models.products.sku import SKU
 from ..models.users.user import User
 from ..db.market_db import db_manager, Market
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class DashboardView(BaseView):
-    """
-    Main Dashboard - Business Intelligence Center
-    
-    Shows key metrics and recent activity for quick business overview
-    """
-    
+    """Custom dashboard view for multi-market analytics"""
     name = "Dashboard"
     icon = "fa-solid fa-chart-line"
     identity = "dashboard"
-    
+
+    @expose("/", methods=["GET"])
     async def index(self, request: Request) -> HTMLResponse:
         """
-        Render dashboard with real-time business metrics
+        Dashboard view - customized for multi-market analytics
         """
         # Get market from session (market-aware dashboard)
         admin_market = request.session.get("admin_market", "kg")
@@ -656,9 +655,11 @@ class DashboardView(BaseView):
             return HTMLResponse(content=html)
             
         except Exception as e:
+            logger.error(f"Error loading dashboard: {e}", exc_info=True)
             return HTMLResponse(content=f"<h1>Error loading dashboard: {str(e)}</h1>", status_code=500)
         finally:
-            db.close()
+            if db:
+                db.close()
 
 
 def _format_status_badge(status):

@@ -41,10 +41,11 @@ def create_sqladmin_app(app: FastAPI) -> Admin:
     engine = db_manager.get_engine(Market.KG)
     
     # Initialize SQLAdmin with multi-market authentication
+    authentication_backend = MultiMarketAuthenticationBackend(secret_key="your-secret-key-here")
     admin = Admin(
         app=app,
         engine=engine,
-        authentication_backend=MultiMarketAuthenticationBackend(secret_key="your-secret-key-here"),
+        authentication_backend=authentication_backend,
         title="Marque - Multi-Market Admin",
         base_url="/admin",
         # Explicitly set middlewares list to empty to avoid conflicts
@@ -58,8 +59,7 @@ def create_sqladmin_app(app: FastAPI) -> Admin:
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     # 📊 DASHBOARD (MAIN VIEW - Business Intelligence)
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    # TODO: Fix dashboard view routing issue
-    # admin.add_view(DashboardView)
+    admin.add_view(DashboardView)
     
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     # 🛒 ORDER MANAGEMENT (CRITICAL for e-commerce)

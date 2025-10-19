@@ -22,6 +22,9 @@ from ..schemas.auth import (
     UserProfile, UpdateProfileRequest, VerifyTokenResponse, MarketInfo,
     UserSchema
 )
+from ..models.admins.admin import Admin
+import bcrypt
+
 
 # Twilio imports
 try:
@@ -58,6 +61,36 @@ if TWILIO_AVAILABLE and TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN and TWILIO_VERI
         logging.warning(f"Twilio client initialization failed: {e}")
 
 logger = logging.getLogger(__name__)
+
+def create_admin(db: Session, username: str, password: str, full_name: str, is_super_admin: bool = False, admin_role: str = "order_management") -> Admin:
+    """
+    Creates a new admin user.
+    """
+    # Check if admin already exists
+    existing_admin = db.query(Admin).filter(Admin.username == username).first()
+    if existing_admin:
+        raise ValueError("Admin with this username already exists")
+
+    # Hash the password
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+    # Create new admin
+    new_admin = Admin(
+        username=username,
+        hashed_password=hashed_password.decode('utf-8'),
+        full_name=full_name,
+        is_super_admin=is_super_admin,
+        admin_role=admin_role
+    )
+
+    db.add(new_admin)
+    db.commit()
+    db.refresh(new_admin)
+    
+    logger.info(f"✅ New admin created: {username}")
+    
+    return new_admin
+
 
 class AuthService:
     """Authentication service for phone number authentication"""

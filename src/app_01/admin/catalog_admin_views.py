@@ -29,7 +29,7 @@ class CategoryAdmin(MarketAwareModelView, model=Category):
     column_details_exclude_list = ["products"]
     
     form_columns = [
-        "name", "slug", "description", "icon", "image_url", "sort_order", "is_active", "is_featured"
+        "name", "slug", "description", "icon", "sort_order", "is_active", "is_featured"
     ]
     
     column_searchable_list = ["name", "slug", "description"]
@@ -170,7 +170,7 @@ class SubcategoryAdmin(MarketAwareModelView, model=Subcategory):
     column_details_exclude_list = ["products"]
     
     form_columns = [
-        "category", "name", "slug", "description", "image_url", "sort_order", "is_active", "is_featured"
+        "category", "name", "slug", "description", "sort_order", "is_active", "is_featured"
     ]
     
     column_searchable_list = ["name", "slug", "description"]

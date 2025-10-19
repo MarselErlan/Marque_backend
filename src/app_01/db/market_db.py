@@ -138,6 +138,10 @@ class MarketDatabaseManager:
         """Get SQLAlchemy base for market"""
         return self.bases[market]
     
+    def get_supported_markets(self) -> list:
+        """Get list of supported market configurations"""
+        return [MarketConfig.get_config(m) for m in Market]
+
     def get_db_session(self, market: Market) -> Generator:
         """Get database session for market"""
         SessionLocal = self.session_factories[market]

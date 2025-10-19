@@ -12,7 +12,7 @@ API endpoints for catalog management:
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from ..db import get_db
 from ..models.products.product_attribute import ProductAttribute
 from ..models.products.product_filter import (
@@ -67,6 +67,21 @@ class SeasonResponse(BaseModel):
     is_active: bool = True
     sort_order: int = 0
     
+    @field_validator('product_count', mode='before')
+    @classmethod
+    def validate_product_count(cls, v):
+        return v if v is not None else 0
+    
+    @field_validator('is_featured', mode='before')
+    @classmethod
+    def validate_is_featured(cls, v):
+        return v if v is not None else False
+    
+    @field_validator('is_active', mode='before')
+    @classmethod
+    def validate_is_active(cls, v):
+        return v if v is not None else True
+    
     class Config:
         from_attributes = True
 
@@ -82,6 +97,21 @@ class MaterialResponse(BaseModel):
     is_active: bool = True
     sort_order: int = 0
     
+    @field_validator('product_count', mode='before')
+    @classmethod
+    def validate_product_count(cls, v):
+        return v if v is not None else 0
+    
+    @field_validator('is_featured', mode='before')
+    @classmethod
+    def validate_is_featured(cls, v):
+        return v if v is not None else False
+    
+    @field_validator('is_active', mode='before')
+    @classmethod
+    def validate_is_active(cls, v):
+        return v if v is not None else True
+    
     class Config:
         from_attributes = True
 
@@ -96,6 +126,21 @@ class StyleResponse(BaseModel):
     is_featured: bool = False
     is_active: bool = True
     sort_order: int = 0
+    
+    @field_validator('product_count', mode='before')
+    @classmethod
+    def validate_product_count(cls, v):
+        return v if v is not None else 0
+    
+    @field_validator('is_featured', mode='before')
+    @classmethod
+    def validate_is_featured(cls, v):
+        return v if v is not None else False
+    
+    @field_validator('is_active', mode='before')
+    @classmethod
+    def validate_is_active(cls, v):
+        return v if v is not None else True
     
     class Config:
         from_attributes = True

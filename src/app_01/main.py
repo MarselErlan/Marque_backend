@@ -24,6 +24,9 @@ from .routers.product_search_router import router as product_search_router
 from .routers.product_discount_router import router as product_discount_router
 from .routers.admin_analytics_router import router as admin_analytics_router
 from .services.auth_service import auth_service
+from .admin.admin_app import create_sqladmin_app, Admin
+from .admin.dashboard_admin_views import DashboardView
+from .db.market_db import db_manager, Market, MarketConfig, get_db
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -404,9 +407,7 @@ async def switch_market(request: Request):
 
 # Initialize SQLAdmin AFTER static files are mounted
 try:
-    from .admin.admin_app import create_sqladmin_app
-    
-    admin = create_sqladmin_app(app)
+    admin_app: Admin = create_sqladmin_app(app)
     logger.info("✅ SQLAdmin initialized at /admin")
 except Exception as e:
     logger.error(f"❌ SQLAdmin initialization failed: {e}")
@@ -496,21 +497,21 @@ async def root():
 # Startup event
 @app.on_event("startup")
 async def startup_event():
-    """Application startup event"""
+    """
+    Application startup event.
+    Initializes database manager and other startup tasks.
+    """
     logger.info("Starting Marque Multi-Market Authentication API")
-    logger.info("Supported markets: KG (Kyrgyzstan), US (United States)")
     
-    # Verify database connections
-    try:
-        markets = auth_service.get_supported_markets()
-        logger.info(f"Loaded {len(markets)} supported markets")
-        for market in markets:
-            logger.info(f"  - {market.market}: {market.country} ({market.currency})")
-    except Exception as e:
-        logger.error(f"Failed to load market configurations: {e}")
-        raise
+    # Initialize the database manager (creates connections)
+    db_manager.get_supported_markets()
+    
+    logger.info("Supported markets: Kyrgyzstan, United States")
+    for market in Market:
+        market_config = MarketConfig.get_config(market)
+        logger.info(f"  - {market_config['country']} ({market_config['currency']})")
 
-# Shutdown event
+
 @app.on_event("shutdown")
 async def shutdown_event():
     """Application shutdown event"""

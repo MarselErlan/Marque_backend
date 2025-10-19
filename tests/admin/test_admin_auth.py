@@ -10,48 +10,48 @@ from fastapi import status
 class TestAdminAuthentication:
     """Test admin authentication functionality"""
     
-    def test_admin_route_exists(self, admin_client):
+    def test_admin_route_exists(self, app_client):
         """
         GIVEN main FastAPI app
         WHEN GET /admin/
         THEN return 200 or redirect to login (not 404)
         """
-        response = admin_client.get("/admin/")
+        response = app_client.get("/admin/")
         
         # Should exist (either 200 OK or 302 redirect to login)
         assert response.status_code in [200, 302, 307], \
             f"Admin route should exist, got {response.status_code}"
     
-    def test_admin_requires_authentication(self, admin_client):
+    def test_admin_requires_authentication(self, app_client):
         """
         GIVEN unauthenticated request
         WHEN GET /admin/
         THEN redirect to login
         """
-        response = admin_client.get("/admin/", follow_redirects=False)
+        response = app_client.get("/admin/", follow_redirects=False)
         
         # Should redirect to login or return 401/403
         assert response.status_code in [302, 307, 401, 403], \
             "Unauthenticated access should be denied"
     
-    def test_admin_login_page_accessible(self, admin_client):
+    def test_admin_login_page_accessible(self, app_client):
         """
         GIVEN admin app
         WHEN GET /admin/login
         THEN return login page
         """
-        response = admin_client.get("/admin/login")
+        response = app_client.get("/admin/login")
         
         assert response.status_code == 200, \
             "Admin login page should be accessible"
     
-    def test_admin_login_with_valid_credentials(self, admin_client, sample_admin_user):
+    def test_admin_login_with_valid_credentials(self, app_client, sample_admin_user):
         """
         GIVEN valid admin credentials
         WHEN POST to /admin/market-login
         THEN return success and set authentication
         """
-        response = admin_client.post("/admin/login", data={
+        response = app_client.post("/admin/login", data={
             "username": "admin",
             "password": "admin123",
             "market": "kg"
@@ -62,15 +62,15 @@ class TestAdminAuthentication:
             f"Login with valid credentials should succeed, got {response.status_code}"
         
         # Should set authentication cookie or session
-        assert "Set-Cookie" in response.headers or response.status_code == 200
+        assert "set-cookie" in response.headers
     
-    def test_admin_login_with_invalid_credentials(self, admin_client, sample_admin_user):
+    def test_admin_login_with_invalid_credentials(self, app_client, sample_admin_user):
         """
         GIVEN invalid credentials
         WHEN POST to /admin/market-login
         THEN return error
         """
-        response = admin_client.post("/admin/login", data={
+        response = app_client.post("/admin/login", data={
             "username": "admin",
             "password": "wrongpassword",
             "market": "kg"
@@ -80,13 +80,13 @@ class TestAdminAuthentication:
         assert response.status_code in [400, 401, 403], \
             "Login with invalid credentials should fail"
     
-    def test_admin_login_with_nonexistent_user(self, admin_client):
+    def test_admin_login_with_nonexistent_user(self, app_client):
         """
         GIVEN nonexistent username
         WHEN POST to /admin/market-login
         THEN return error
         """
-        response = admin_client.post("/admin/login", data={
+        response = app_client.post("/admin/login", data={
             "username": "nonexistent",
             "password": "anypassword",
             "market": "kg"
@@ -95,7 +95,7 @@ class TestAdminAuthentication:
         assert response.status_code in [400, 401, 403], \
             "Login with nonexistent user should fail"
     
-    def test_authenticated_admin_can_access_dashboard(self, admin_client, sample_admin_user):
+    def test_authenticated_admin_can_access_dashboard(self, authenticated_app_client):
         """
         GIVEN authenticated admin
         WHEN login succeeds
@@ -105,46 +105,45 @@ class TestAdminAuthentication:
         Full session testing requires integration tests with a real browser.
         This test verifies the authentication logic works correctly.
         """
+        client, _ = authenticated_app_client
         # Test that login succeeds (authentication works)
-        response = admin_client.post("/admin/login", data={
-            "username": "admin",
-            "password": "admin123",
-            "market": "kg"
-        }, follow_redirects=False)
+        response = client.get("/admin/", follow_redirects=False)
         
-        # Should get 302 redirect after successful login
-        assert response.status_code in [200, 302], \
-            f"Login should succeed with redirect or success, got {response.status_code}"
+        # Should get 200 now that we are authenticated
+        assert response.status_code == 200, \
+            f"Authenticated access should succeed, got {response.status_code}"
     
-    def test_admin_logout(self, authenticated_admin_client):
+    def test_admin_logout(self, authenticated_app_client):
         """
         GIVEN authenticated admin
         WHEN GET /admin/logout
         THEN logout and redirect to login
         """
-        response = authenticated_admin_client.get("/admin/logout", follow_redirects=False)
+        client, _ = authenticated_app_client
+        response = client.get("/admin/logout", follow_redirects=False)
         
         # Should redirect after logout
         assert response.status_code in [200, 302, 307], \
             f"Logout should succeed, got {response.status_code}"
     
-    def test_admin_access_after_logout(self, authenticated_admin_client):
+    def test_admin_access_after_logout(self, authenticated_app_client):
         """
         GIVEN admin session
         WHEN logout and try to access admin
         THEN redirect to login
         """
+        client, _ = authenticated_app_client
         # Logout
-        authenticated_admin_client.get("/admin/logout")
+        client.get("/admin/logout")
         
         # Try to access admin
-        response = authenticated_admin_client.get("/admin/", follow_redirects=False)
+        response = client.get("/admin/", follow_redirects=False)
         
         # Should redirect to login or return 401
         assert response.status_code in [302, 307, 401, 403], \
             "Access after logout should be denied"
     
-    def test_inactive_admin_cannot_login(self, admin_client, admin_test_db):
+    def test_inactive_admin_cannot_login(self, app_client, admin_test_db):
         """
         GIVEN inactive admin account
         WHEN attempt to login
@@ -167,7 +166,7 @@ class TestAdminAuthentication:
         admin_test_db.add(inactive_admin)
         admin_test_db.commit()
         
-        response = admin_client.post("/admin/login", data={
+        response = app_client.post("/admin/login", data={
             "username": "inactive",
             "password": "password123",
             "market": "kg"
@@ -180,21 +179,22 @@ class TestAdminAuthentication:
 class TestAdminSessionManagement:
     """Test admin session management"""
     
-    def test_admin_session_persistence(self, authenticated_admin_client):
+    def test_admin_session_persistence(self, authenticated_app_client):
         """
         GIVEN authenticated admin
         WHEN make multiple requests
         THEN session persists
         """
+        client, _ = authenticated_app_client
         # First request
-        response1 = authenticated_admin_client.get("/admin/")
+        response1 = client.get("/admin/")
         assert response1.status_code == 200
         
         # Second request (should still be authenticated)
-        response2 = authenticated_admin_client.get("/admin/")
+        response2 = client.get("/admin/")
         assert response2.status_code == 200
     
-    def test_admin_session_timeout(self, authenticated_admin_client):
+    def test_admin_session_timeout(self, authenticated_app_client):
         """
         GIVEN authenticated admin
         WHEN session expires
@@ -204,7 +204,7 @@ class TestAdminSessionManagement:
         """
         pytest.skip("Session timeout not implemented yet")
     
-    def test_concurrent_admin_sessions(self, admin_client, sample_admin_user):
+    def test_concurrent_admin_sessions(self, app_client, sample_admin_user):
         """
         GIVEN admin user
         WHEN login from multiple clients

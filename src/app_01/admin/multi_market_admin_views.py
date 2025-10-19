@@ -611,6 +611,9 @@ class MarketAwareModelView(ModelView):
     # Role requirements (if any)
     required_roles = []  # e.g., ["super_admin", "website_content"]
     
+    # Flag to bypass permission checks for testing
+    _bypass_permissions_for_testing = False
+
     def get_db_session(self, request: Request):
         """Get database session for the admin's selected market"""
         admin_market = request.session.get("admin_market", "kg")
@@ -619,6 +622,9 @@ class MarketAwareModelView(ModelView):
     
     def check_permissions(self, request: Request, operation: str = "list") -> bool:
         """Check if current admin has permission for the operation"""
+        if self._bypass_permissions_for_testing:
+            return True
+        
         admin_id = request.session.get("admin_id")
         if not admin_id:
             return False

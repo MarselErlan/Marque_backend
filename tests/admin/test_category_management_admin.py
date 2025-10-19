@@ -11,9 +11,19 @@ Testing TDD approach for:
 
 import pytest
 from sqlalchemy.orm import Session
-from src.app_01.models.products.category import Category, Subcategory
-from src.app_01.models.products.product import Product
-from src.app_01.models.products.brand import Brand
+from src.app_01.models import Category, Subcategory, Product, Brand
+import uuid
+
+
+@pytest.fixture(autouse=True)
+def cleanup_db(db_session: Session):
+    """Fixture to clean up product, category, and subcategory tables before each test."""
+    yield
+    db_session.query(Product).delete()
+    db_session.query(Subcategory).delete()
+    db_session.query(Category).delete()
+    db_session.query(Brand).delete()
+    db_session.commit()
 
 
 class TestCategoryModel:
@@ -99,40 +109,41 @@ class TestSubcategoryModel:
         assert subcategory.image_url == "https://example.com/images/tshirts.jpg"
     
     def test_subcategory_product_count(self, db_session: Session):
-        """Test that subcategory shows correct product count"""
-        # GIVEN: A subcategory with products
-        brand = Brand(name="Nike", slug="nike")
-        category = Category(name="Одежда", slug="clothing")
-        db_session.add_all([brand, category])
-        db_session.commit()
-        
+        """Test the product_count and active_product_count properties."""
+        unique_id = uuid.uuid4().hex[:6]
+        brand = Brand(name=f"Test Brand {unique_id}", slug=f"brand-{unique_id}")
+        category = Category(name=f"Test Category {unique_id}", slug=f"cat-{unique_id}")
         subcategory = Subcategory(
-            category_id=category.id,
-            name="Футболки",
-            slug="tshirts"
+            name=f"Test Subcategory {unique_id}",
+            slug=f"sub-{unique_id}",
+            category=category,
         )
-        db_session.add(subcategory)
+        db_session.add_all([brand, category, subcategory])
         db_session.commit()
-        
-        # Add 3 products
-        products = [
-            Product(
-                brand_id=brand.id,
-                category_id=category.id,
-                subcategory_id=subcategory.id,
-                title=f"T-Shirt {i}",
-                slug=f"tshirt-{i}"
-            )
-            for i in range(1, 4)
-        ]
-        db_session.add_all(products)
+
+        # Add products
+        p1 = Product(
+            title=f"Active Product {unique_id}",
+            slug=f"active-{unique_id}",
+            brand_id=brand.id,
+            category_id=category.id,
+            subcategory_id=subcategory.id,
+            is_active=True,
+        )
+        p2 = Product(
+            title=f"Inactive Product {unique_id}",
+            slug=f"inactive-{unique_id}",
+            brand_id=brand.id,
+            category_id=category.id,
+            subcategory_id=subcategory.id,
+            is_active=False,
+        )
+        db_session.add_all([p1, p2])
         db_session.commit()
-        
-        # WHEN: Accessing product_count
+
         db_session.refresh(subcategory)
-        
-        # THEN: Should show 3 products
-        assert subcategory.product_count == 3
+        assert subcategory.product_count == 2
+        assert subcategory.active_product_count == 1
     
     def test_subcategory_belongs_to_category(self, db_session: Session):
         """Test that subcategory has proper category relationship"""

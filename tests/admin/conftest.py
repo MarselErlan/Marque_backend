@@ -30,16 +30,6 @@ def mock_db_manager(db_session: Session):
 
 
 @pytest.fixture(scope="function")
-def admin_client(mock_db_manager) -> TestClient:
-    """
-    Create a test client for the admin interface.
-    This ensures that the admin routes are properly mounted and use test database.
-    """
-    with TestClient(app) as client:
-        yield client
-
-
-@pytest.fixture(scope="function")
 def sample_admin_user(db_session: Session) -> Admin:
     """
     Create a sample admin user for testing.
@@ -65,26 +55,6 @@ def sample_admin_user(db_session: Session) -> Admin:
     db_session.refresh(admin)
     
     return admin
-
-
-@pytest.fixture(scope="function")
-def authenticated_admin_client(admin_client: TestClient, sample_admin_user: Admin, mock_db_manager) -> TestClient:
-    """
-    Provides an admin client with a pre-configured session (bypass login).
-    Note: FastAPI TestClient doesn't support session_transaction, so we'll use cookies instead.
-    """
-    # Simulate login by setting session cookies directly
-    # This is a workaround since TestClient doesn't have session_transaction
-    
-    # First, perform actual login to get proper session
-    login_response = admin_client.post("/admin/login", data={
-        "username": "admin",
-        "password": "admin123",
-        "market": "kg"
-    }, follow_redirects=False)
-    
-    # The session should now be set via cookies
-    return admin_client
 
 
 @pytest.fixture(scope="function")
@@ -152,32 +122,4 @@ def sample_product_for_admin(admin_test_db: Session):
     admin_test_db.refresh(product)
     
     return product
-
-
-@pytest.fixture(scope="function")
-async def authenticated_content_admin_client(admin_client: TestClient, db_session: Session) -> TestClient:
-    """
-    Provides a content admin client that is already authenticated.
-    """
-    # 1. Create the content admin user
-    password_bytes = "contentpassword".encode('utf-8')
-    hashed_password = bcrypt.hashpw(password_bytes, bcrypt.gensalt()).decode('utf-8')
-    admin = Admin(
-        username="content_admin",
-        hashed_password=hashed_password,
-        is_super_admin=False,
-    )
-    db_session.add(admin)
-    db_session.commit()
-
-    # 2. Log in as the created user
-    login_data = {
-        "username": "content_admin",
-        "password": "contentpassword",
-    }
-    response = admin_client.post("/admin/login", data=login_data)
-    
-    assert response.status_code == 302, "Content admin login failed"
-    
-    return admin_client
 

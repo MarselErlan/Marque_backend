@@ -58,10 +58,10 @@ class TestBannerSchemas:
             title="Test Banner",
             description="Test description",
             image_url="https://example.com/banner.jpg",
-            banner_type="sale"
+            banner_type="promo"
         )
         assert banner.title == "Test Banner"
-        assert banner.banner_type == "sale"
+        assert banner.banner_type == "promo"
     
     def test_banner_create_missing_required(self):
         """Test banner creation with missing required fields"""

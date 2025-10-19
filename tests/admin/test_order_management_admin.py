@@ -21,25 +21,27 @@ from src.app_01.models.products.category import Category, Subcategory
 class TestOrderStatusWorkflow:
     """Test order status management and workflow"""
     
-    def test_order_admin_shows_status_badges(self, authenticated_admin_client, sample_order):
+    def test_order_admin_shows_status_badges(self, authenticated_app_client, sample_order):
         """
         GIVEN: Order with specific status
         WHEN: Admin views order list
         THEN: Status is displayed with appropriate badge/color
         """
-        response = authenticated_admin_client.get("/admin/order/list")
+        client, _ = authenticated_app_client
+        response = client.get("/admin/order/list")
         
         assert response.status_code == 200
         assert "PENDING" in response.text or "pending" in response.text.lower()
     
-    def test_order_admin_can_change_status_quickly(self, authenticated_admin_client, sample_order):
+    def test_order_admin_can_change_status_quickly(self, authenticated_app_client, sample_order):
         """
         GIVEN: Order with PENDING status
         WHEN: Admin changes status to CONFIRMED
         THEN: Order status is updated and timestamp is recorded
         """
+        client, _ = authenticated_app_client
         # This will be implemented with quick action buttons
-        response = authenticated_admin_client.post(
+        response = client.post(
             f"/admin/order/quick-status/{sample_order.id}",
             data={"status": "CONFIRMED"}
         )
@@ -97,37 +99,40 @@ class TestOrderStatusWorkflow:
 class TestOrderQuickFilters:
     """Test quick filter functionality for orders"""
     
-    def test_filter_todays_orders(self, authenticated_admin_client, sample_orders_today):
+    def test_filter_todays_orders(self, authenticated_app_client, sample_orders_today):
         """
         GIVEN: Orders created today and yesterday
         WHEN: Admin filters for today's orders
         THEN: Only today's orders are shown
         """
+        client, _ = authenticated_app_client
         # This endpoint will be implemented
-        response = authenticated_admin_client.get("/admin/order/list?filter=today")
+        response = client.get("/admin/order/list?filter=today")
         
         assert response.status_code in [200, 404]  # 404 until implemented
     
-    def test_filter_pending_orders(self, authenticated_admin_client, sample_orders_mixed_status):
+    def test_filter_pending_orders(self, authenticated_app_client, sample_orders_mixed_status):
         """
         GIVEN: Orders with different statuses
         WHEN: Admin filters for pending orders
         THEN: Only PENDING orders are shown
         """
-        response = authenticated_admin_client.get(
+        client, _ = authenticated_app_client
+        response = client.get(
             "/admin/order/list",
             params={"status": "PENDING"}
         )
         
         assert response.status_code == 200
     
-    def test_filter_needs_action_orders(self, authenticated_admin_client, sample_orders_mixed_status):
+    def test_filter_needs_action_orders(self, authenticated_app_client, sample_orders_mixed_status):
         """
         GIVEN: Orders with various statuses
         WHEN: Admin filters for orders needing action
         THEN: Only PENDING and CONFIRMED orders are shown
         """
-        response = authenticated_admin_client.get("/admin/order/list?filter=needs_action")
+        client, _ = authenticated_app_client
+        response = client.get("/admin/order/list?filter=needs_action")
         
         assert response.status_code in [200, 404]  # 404 until implemented
 
@@ -135,15 +140,16 @@ class TestOrderQuickFilters:
 class TestOrderBulkOperations:
     """Test bulk operations on orders"""
     
-    def test_bulk_status_update(self, authenticated_admin_client, sample_orders_for_bulk):
+    def test_bulk_status_update(self, authenticated_app_client, sample_orders_for_bulk):
         """
         GIVEN: Multiple selected orders
         WHEN: Admin updates status in bulk
         THEN: All selected orders are updated
         """
+        client, _ = authenticated_app_client
         order_ids = [order.id for order in sample_orders_for_bulk]
         
-        response = authenticated_admin_client.post(
+        response = client.post(
             "/admin/order/bulk-update-status",
             json={
                 "order_ids": order_ids,
@@ -154,15 +160,16 @@ class TestOrderBulkOperations:
         # Will be 404 until implemented
         assert response.status_code in [200, 302, 404]
     
-    def test_bulk_export_orders(self, authenticated_admin_client, sample_orders_for_bulk):
+    def test_bulk_export_orders(self, authenticated_app_client, sample_orders_for_bulk):
         """
         GIVEN: Multiple selected orders
         WHEN: Admin exports orders
         THEN: CSV/Excel file is generated
         """
+        client, _ = authenticated_app_client
         order_ids = [order.id for order in sample_orders_for_bulk]
         
-        response = authenticated_admin_client.post(
+        response = client.post(
             "/admin/order/bulk-export",
             json={"order_ids": order_ids}
         )
@@ -174,33 +181,36 @@ class TestOrderBulkOperations:
 class TestOrderDetailsEnhancement:
     """Test enhanced order details view"""
     
-    def test_order_details_shows_customer_history(self, authenticated_admin_client, sample_order_with_history):
+    def test_order_details_shows_customer_history(self, authenticated_app_client, sample_order_with_history):
         """
         GIVEN: Order from a customer with previous orders
         WHEN: Admin views order details
         THEN: Customer's previous orders are shown
         """
-        response = authenticated_admin_client.get(f"/admin/order/details/{sample_order_with_history.id}")
+        client, _ = authenticated_app_client
+        response = client.get(f"/admin/order/details/{sample_order_with_history.id}")
         
         assert response.status_code in [200, 404]
     
-    def test_order_details_shows_total_customer_value(self, authenticated_admin_client, sample_order_with_history):
+    def test_order_details_shows_total_customer_value(self, authenticated_app_client, sample_order_with_history):
         """
         GIVEN: Customer with multiple orders
         WHEN: Admin views order details
         THEN: Total customer lifetime value is displayed
         """
-        response = authenticated_admin_client.get(f"/admin/order/details/{sample_order_with_history.id}")
+        client, _ = authenticated_app_client
+        response = client.get(f"/admin/order/details/{sample_order_with_history.id}")
         
         assert response.status_code in [200, 404]
     
-    def test_admin_can_add_notes_to_order(self, authenticated_admin_client, sample_order):
+    def test_admin_can_add_notes_to_order(self, authenticated_app_client, sample_order):
         """
         GIVEN: Order
         WHEN: Admin adds notes
         THEN: Notes are saved and displayed
         """
-        response = authenticated_admin_client.post(
+        client, _ = authenticated_app_client
+        response = client.post(
             f"/admin/order/{sample_order.id}/add-note",
             json={"note": "Customer requested expedited shipping"}
         )
@@ -211,13 +221,14 @@ class TestOrderDetailsEnhancement:
 class TestOrderExportAndReports:
     """Test order export and reporting functionality"""
     
-    def test_export_orders_to_csv(self, authenticated_admin_client, sample_orders_for_export):
+    def test_export_orders_to_csv(self, authenticated_app_client, sample_orders_for_export):
         """
         GIVEN: Multiple orders in database
         WHEN: Admin exports orders to CSV
         THEN: CSV file is generated with all order data
         """
-        response = authenticated_admin_client.get("/admin/order/export?format=csv")
+        client, _ = authenticated_app_client
+        response = client.get("/admin/order/export?format=csv")
         
         # Will be 404 until implemented
         assert response.status_code in [200, 404]
@@ -225,36 +236,39 @@ class TestOrderExportAndReports:
         if response.status_code == 200:
             assert response.headers["Content-Type"] == "text/csv"
     
-    def test_daily_sales_report(self, authenticated_admin_client, sample_orders_today):
+    def test_daily_sales_report(self, authenticated_app_client, sample_orders_today):
         """
         GIVEN: Orders from today
         WHEN: Admin requests daily sales report
         THEN: Report shows today's sales summary
         """
-        response = authenticated_admin_client.get("/admin/reports/daily-sales")
+        client, _ = authenticated_app_client
+        response = client.get("/admin/reports/daily-sales")
         
         assert response.status_code in [200, 404]
     
-    def test_monthly_sales_report(self, authenticated_admin_client, sample_orders_this_month):
+    def test_monthly_sales_report(self, authenticated_app_client, sample_orders_this_month):
         """
         GIVEN: Orders from this month
         WHEN: Admin requests monthly sales report
         THEN: Report shows this month's sales summary
         """
-        response = authenticated_admin_client.get("/admin/reports/monthly-sales")
+        client, _ = authenticated_app_client
+        response = client.get("/admin/reports/monthly-sales")
         
         assert response.status_code in [200, 404]
     
-    def test_custom_date_range_export(self, authenticated_admin_client, sample_orders_various_dates):
+    def test_custom_date_range_export(self, authenticated_app_client, sample_orders_various_dates):
         """
         GIVEN: Orders from various dates
         WHEN: Admin exports orders with custom date range
         THEN: Only orders within date range are exported
         """
+        client, _ = authenticated_app_client
         start_date = (datetime.utcnow() - timedelta(days=7)).strftime("%Y-%m-%d")
         end_date = datetime.utcnow().strftime("%Y-%m-%d")
         
-        response = authenticated_admin_client.get(
+        response = client.get(
             f"/admin/order/export?start_date={start_date}&end_date={end_date}"
         )
         
@@ -264,25 +278,27 @@ class TestOrderExportAndReports:
 class TestOrderColumnEnhancements:
     """Test enhanced column display in order list"""
     
-    def test_order_list_shows_formatted_total(self, authenticated_admin_client, sample_order):
+    def test_order_list_shows_formatted_total(self, authenticated_app_client, sample_order):
         """
         GIVEN: Order with total amount
         WHEN: Admin views order list
         THEN: Total amount is formatted with currency
         """
-        response = authenticated_admin_client.get("/admin/order/list")
+        client, _ = authenticated_app_client
+        response = client.get("/admin/order/list")
         
         assert response.status_code == 200
         # Should show formatted amount like "5,000.00 KGS"
         assert "KGS" in response.text or "USD" in response.text
     
-    def test_order_list_shows_customer_info(self, authenticated_admin_client, sample_order):
+    def test_order_list_shows_customer_info(self, authenticated_app_client, sample_order):
         """
         GIVEN: Order with customer information
         WHEN: Admin views order list
         THEN: Customer name and phone are displayed
         """
-        response = authenticated_admin_client.get("/admin/order/list")
+        client, _ = authenticated_app_client
+        response = client.get("/admin/order/list")
         
         assert response.status_code == 200
         assert sample_order.customer_name in response.text
