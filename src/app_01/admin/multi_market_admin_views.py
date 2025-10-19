@@ -1133,25 +1133,40 @@ class ProductAdmin(MarketAwareModelView, model=Product):
 
 # Other model views can be similarly enhanced...
 class SKUAdmin(MarketAwareModelView, model=SKU):
-    """Admin interface for managing SKUs with market awareness."""
+    """Admin interface for managing product variants (sizes, colors) with market awareness."""
     
-    name = "SKU"
-    name_plural = "SKUs"
+    name = "Варианты товара"
+    name_plural = "Варианты товаров (Размеры/Цвета)"
     icon = "fa-solid fa-tags"
-    category = "🛍️ Каталог"
+    category = "🛍️ Товары"
     
-    column_list = ["id", "product", "sku_code", "size", "color", "price", "stock_quantity", "is_active"]
-    column_details_list = ["id", "product", "sku_code", "size", "color", "price", "original_price", "stock_quantity", "is_active", "created_at", "updated_at"]
-    form_columns = ["product", "sku_code", "size", "color", "price", "original_price", "stock_quantity", "is_active"]
+    column_list = ["id", "product", "sku_code", "size", "color", "price", "stock", "is_active"]
+    column_details_list = ["id", "product", "sku_code", "size", "color", "price", "original_price", "stock", "is_active"]
+    form_columns = ["product", "sku_code", "size", "color", "price", "original_price", "stock", "is_active"]
     
     column_searchable_list = ["sku_code", "size", "color", "product.title"]
-    column_sortable_list = ["id", "sku_code", "price", "stock_quantity", "is_active", "created_at"]
+    column_sortable_list = ["id", "sku_code", "price", "stock", "is_active"]
     column_filters = ["is_active", "product", "size", "color"]
     
     column_labels = {
-        "id": "ID", "product": "Товар", "sku_code": "SKU код", "size": "Размер", "color": "Цвет",
-        "price": "Цена", "original_price": "Оригинальная цена", "stock_quantity": "Количество на складе",
-        "is_active": "Активен", "created_at": "Создан", "updated_at": "Обновлен"
+        "id": "ID", 
+        "product": "Товар", 
+        "sku_code": "SKU код варианта", 
+        "size": "Размер (RUS 40, 42, 44, ...)", 
+        "color": "Цвет (Черный, Белый, ...)",
+        "price": "Цена за этот вариант", 
+        "original_price": "Оригинальная цена (для скидок)", 
+        "stock": "Количество на складе",
+        "is_active": "Активен"
+    }
+    
+    column_descriptions = {
+        "product": "Выберите основной товар",
+        "sku_code": "Уникальный код варианта, например: NIKE-001-42-BLACK",
+        "size": "Размер в русской системе: 40, 42, 44, 46 и т.д.",
+        "color": "Название цвета на русском",
+        "price": "Цена для этого конкретного размера/цвета",
+        "stock": "Сколько единиц доступно для продажи"
     }
 
 
