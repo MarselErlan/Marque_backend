@@ -20,13 +20,24 @@ from src.app_01.db.market_db import db_manager
 def mock_db_manager(db_session: Session):
     """
     Mock the db_manager to use the test database session instead of real database files.
+    This ensures all database operations in tests use the same in-memory test database.
     """
+    # Save original method
+    original_get_db_session = db_manager.get_db_session
+    
     def mock_get_db_session(market):
-        """Return the test database session for any market"""
+        """Return an iterator that yields the test database session for ANY market"""
+        # Always yield the same test database session regardless of market
         yield db_session
     
-    with patch.object(db_manager, 'get_db_session', side_effect=mock_get_db_session):
+    # Patch the method
+    db_manager.get_db_session = mock_get_db_session
+    
+    try:
         yield db_manager
+    finally:
+        # Restore original method
+        db_manager.get_db_session = original_get_db_session
 
 
 @pytest.fixture(scope="function")

@@ -123,7 +123,9 @@ class TestAdminProductForm:
             "title", "slug", "description",
             "brand", "category", "subcategory",
             "season", "material", "style",
-            "is_active", "is_featured", "attributes"
+            "price", "stock_quantity",  # Added price and stock fields
+            "is_active", "is_featured", "attributes",
+            "main_image", "additional_images"  # Added image fields
         ]
         
         assert hasattr(ProductAdmin, 'form_columns'), "ProductAdmin should have form_columns"

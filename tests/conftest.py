@@ -9,6 +9,7 @@ from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
+from sqlalchemy.engine import Engine
 
 # Try starlette first, fall back to fastapi
 try:
@@ -98,15 +99,25 @@ def authenticated_app_client() -> Generator[Tuple[TestClient, Session], None, No
     def get_test_db_session(market: Market):
         yield db_session
 
+    # Preserve previous state to restore later
+    prev_get_db_session = db_manager.get_db_session
+    prev_engines = db_manager.engines.copy()
+    prev_session_factories = db_manager.session_factories.copy()
+
+    # Only override session getter for the lifespan of this fixture
     db_manager.get_db_session = get_test_db_session
 
     def override_get_db():
         try:
             yield db_session
         finally:
-            # The session is managed by the fixture, so we don't close it here.
+            # The session is managed by the fixture
             pass
 
+    app.dependency_overrides[get_db] = override_get_db
+    
+    # Preserve existing overrides to restore later
+    prev_overrides = app.dependency_overrides.copy()
     app.dependency_overrides[get_db] = override_get_db
     
     # Create admin in this specific session
@@ -124,31 +135,33 @@ def authenticated_app_client() -> Generator[Tuple[TestClient, Session], None, No
             response = client.post(
                 "/admin/login",
                 data={"username": "test_admin", "password": "password", "market": "kg"},
-                allow_redirects=False  # We will follow the redirect manually in the test
+                allow_redirects=False  # We will follow the redirect manually in the test if needed
             )
             assert response.status_code == 302, f"Admin login failed. Expected 302 redirect, got {response.status_code}. Response: {response.text}"
             
             yield client, db_session
         finally:
+            # Restore previous state
+            db_manager.get_db_session = prev_get_db_session
+            db_manager.engines = prev_engines
+            db_manager.session_factories = prev_session_factories
+            app.dependency_overrides = prev_overrides
             db_session.close()
-            Base.metadata.drop_all(bind=engine)
-            BannerBase.metadata.drop_all(bind=engine)
-            app.dependency_overrides.clear()
 
 
-@pytest.fixture(scope="session")
-def test_db_engine():
-    """Create test database engine (in-memory SQLite)"""
+@pytest.fixture(scope="function")
+def test_db_engine() -> Engine:
+    """Create in-memory SQLite engine for testing."""
     engine = create_engine(
         "sqlite:///:memory:",
         connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
     )
-    Base.metadata.create_all(bind=engine)
-    BannerBase.metadata.create_all(bind=engine)  # Create banner tables
-    yield engine
-    Base.metadata.drop_all(bind=engine)
-    BannerBase.metadata.drop_all(bind=engine)
+    TestingSessionLocal = sessionmaker(
+        autocommit=False,
+        autoflush=False,
+        bind=engine
+    )
+    return engine
 
 
 @pytest.fixture(scope="function")
