@@ -885,27 +885,28 @@ class ProductAdmin(MarketAwareModelView, model=Product):
         "style",
         "is_active",
         "is_featured",
-        "attributes",
-        "main_image",
-        "additional_images"
+        "attributes"
+        # Note: main_image and additional_images are added via scaffold_form
     ]
 
     async def scaffold_form(self):
         """Override to add image upload fields programmatically"""
         form_class = await super().scaffold_form()
         
-        # Add main image upload field
-        form_class.main_image = FileField(
-            "Главное изображение",
+        # Add main image URL field (string field, not file upload)
+        # Users can paste image URLs directly
+        from wtforms import StringField
+        form_class.main_image = StringField(
+            "Главное изображение (URL)",
             validators=[OptionalValidator()],
-            description="Загрузите главное фото товара (JPEG/PNG)"
+            description="Вставьте URL главного изображения товара"
         )
         
-        # Add multiple additional images upload field
-        form_class.additional_images = MultipleFileField(
-            "Дополнительные изображения",
+        # Add additional images URL field (string field for JSON URLs)
+        form_class.additional_images = StringField(
+            "Дополнительные изображения (JSON)",
             validators=[OptionalValidator()],
-            description="Загрузите до 5 дополнительных фото (JPEG/PNG)"
+            description='JSON массив URL изображений, например: ["url1", "url2"]'
         )
         
         return form_class
