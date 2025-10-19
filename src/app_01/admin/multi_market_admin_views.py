@@ -873,10 +873,13 @@ class ProductAdmin(MarketAwareModelView, model=Product):
     form_columns = [
         "title",
         "slug",
+        "sku_code",  # Unique product SKU
         "description",
         "brand",
         "category",
         "subcategory",
+        "price",  # Product price
+        "stock_quantity",  # Available stock
         "season",
         "material",
         "style",

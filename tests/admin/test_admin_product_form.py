@@ -120,10 +120,11 @@ class TestAdminProductForm:
     def test_product_admin_form_columns(self):
         """Test that ProductAdmin has all required form columns"""
         expected_columns = [
-            "title", "slug", "description",
+            "title", "slug", "sku_code",  # SKU code added as direct product field
+            "description",
             "brand", "category", "subcategory",
+            "price", "stock_quantity",  # Now direct product fields
             "season", "material", "style",
-            # NOTE: price and stock_quantity are NOT included - they're SKU properties, not Product columns
             "is_active", "is_featured", "attributes",
             "main_image", "additional_images"  # Added image fields
         ]
