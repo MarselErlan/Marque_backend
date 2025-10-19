@@ -123,7 +123,7 @@ class TestAdminProductForm:
             "title", "slug", "description",
             "brand", "category", "subcategory",
             "season", "material", "style",
-            "price", "stock_quantity",  # Added price and stock fields
+            # NOTE: price and stock_quantity are NOT included - they're SKU properties, not Product columns
             "is_active", "is_featured", "attributes",
             "main_image", "additional_images"  # Added image fields
         ]
