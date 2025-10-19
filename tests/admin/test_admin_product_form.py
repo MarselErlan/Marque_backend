@@ -125,8 +125,8 @@ class TestAdminProductForm:
             "brand", "category", "subcategory",
             "price", "stock_quantity",  # Now direct product fields
             "season", "material", "style",
-            "is_active", "is_featured", "attributes",
-            "main_image", "additional_images"  # Added image fields
+            "is_active", "is_featured", "attributes"
+            # Note: main_image and additional_images are added dynamically via scaffold_form
         ]
         
         assert hasattr(ProductAdmin, 'form_columns'), "ProductAdmin should have form_columns"
@@ -193,7 +193,10 @@ class TestAdminProductForm:
         product = Product(
             title="Test Product Complete",
             slug="test-product-complete",
+            sku_code="TEST-COMPLETE-001",  # Required field
             description="Complete product with all fields",
+            price=99.99,  # Required field
+            stock_quantity=50,  # Required field
             brand_id=test_brand.id,
             category_id=test_category.id,
             subcategory_id=test_subcategory.id,
@@ -244,7 +247,10 @@ class TestAdminProductForm:
         product = Product(
             title="Test Product Minimal",
             slug="test-product-minimal",
+            sku_code="TEST-MINIMAL-001",  # Required field
             description="Product with minimal fields",
+            price=29.99,  # Required field
+            stock_quantity=10,  # Required field
             brand_id=test_brand.id,
             category_id=test_category.id,
             subcategory_id=test_subcategory.id,
@@ -360,10 +366,14 @@ class TestAdminProductFormIntegration:
         subcategory = subcategories[0]
         
         # Step 4: Create product
+        product_count = db.query(Product).count() + 1
         product = Product(
-            title=f"Admin Test Product {db.query(Product).count() + 1}",
-            slug=f"admin-test-product-{db.query(Product).count() + 1}",
+            title=f"Admin Test Product {product_count}",
+            slug=f"admin-test-product-{product_count}",
+            sku_code=f"ADMIN-TEST-{product_count:03d}",  # Required field
             description="Product created via admin panel test",
+            price=49.99,  # Required field
+            stock_quantity=25,  # Required field
             brand_id=brand.id,
             category_id=category.id,
             subcategory_id=subcategory.id,
