@@ -871,6 +871,7 @@ class ProductAdmin(MarketAwareModelView, model=Product):
     form_columns = [
         "title",
         "slug",
+        "sku_code",  # Base SKU code for this product
         "description",
         "brand",
         "category",
@@ -882,7 +883,7 @@ class ProductAdmin(MarketAwareModelView, model=Product):
         "is_featured",
         "attributes"
         # Note: main_image and additional_images are added via scaffold_form
-        # Note: SKU, price, stock managed through SKU variants table
+        # Note: Price, stock managed through SKU variants table
     ]
 
     async def scaffold_form(self):
@@ -1138,7 +1139,7 @@ class SKUAdmin(MarketAwareModelView, model=SKU):
     
     column_list = ["id", "product", "sku_code", "size", "color", "price", "stock", "is_active"]
     column_details_list = ["id", "product", "sku_code", "size", "color", "price", "original_price", "stock", "is_active"]
-    form_columns = ["product", "sku_code", "size", "color", "price", "original_price", "stock", "is_active"]
+    form_columns = ["product", "size", "color", "price", "original_price", "stock", "is_active"]
     
     column_searchable_list = ["sku_code", "size", "color", "product.title"]
     column_sortable_list = ["id", "sku_code", "price", "stock", "is_active"]
@@ -1147,7 +1148,7 @@ class SKUAdmin(MarketAwareModelView, model=SKU):
     column_labels = {
         "id": "ID", 
         "product": "Товар", 
-        "sku_code": "SKU код варианта", 
+        "sku_code": "SKU код (авто)", 
         "size": "Размер (RUS 40, 42, 44, ...)", 
         "color": "Цвет (Черный, Белый, ...)",
         "price": "Цена за этот вариант", 
@@ -1158,12 +1159,54 @@ class SKUAdmin(MarketAwareModelView, model=SKU):
     
     column_descriptions = {
         "product": "Выберите основной товар",
-        "sku_code": "Уникальный код варианта, например: NIKE-001-42-BLACK",
         "size": "Размер в русской системе: 40, 42, 44, 46 и т.д.",
         "color": "Название цвета на русском",
         "price": "Цена для этого конкретного размера/цвета",
         "stock": "Сколько единиц доступно для продажи"
     }
+    
+    async def insert_model(self, request: Request, data: dict) -> any:
+        """Auto-generate SKU code from product base SKU + size + color."""
+        product_id = data.get("product_id")
+        size = data.get("size", "").upper().replace(" ", "")
+        color = data.get("color", "").upper().replace(" ", "")
+        
+        # Get product to get base SKU code
+        db = self.get_db_session(request)
+        try:
+            from ..models import Product
+            product = db.query(Product).filter_by(id=product_id).first()
+            if product:
+                # Auto-generate SKU code: BASE-SIZE-COLOR
+                sku_code = f"{product.sku_code}-{size}-{color}"
+                data["sku_code"] = sku_code
+                logger.info(f"✅ Auto-generated SKU code: {sku_code}")
+        finally:
+            db.close()
+        
+        return await super().insert_model(request, data)
+    
+    async def update_model(self, request: Request, pk: any, data: dict) -> any:
+        """Update SKU code if size or color changed."""
+        product_id = data.get("product_id")
+        size = data.get("size", "").upper().replace(" ", "")
+        color = data.get("color", "").upper().replace(" ", "")
+        
+        if product_id and size and color:
+            # Get product to get base SKU code
+            db = self.get_db_session(request)
+            try:
+                from ..models import Product
+                product = db.query(Product).filter_by(id=product_id).first()
+                if product:
+                    # Auto-generate SKU code: BASE-SIZE-COLOR
+                    sku_code = f"{product.sku_code}-{size}-{color}"
+                    data["sku_code"] = sku_code
+                    logger.info(f"✅ Auto-generated SKU code: {sku_code}")
+            finally:
+                db.close()
+        
+        return await super().update_model(request, pk, data)
 
 
 class ProductAssetAdmin(MarketAwareModelView, model=ProductAsset):

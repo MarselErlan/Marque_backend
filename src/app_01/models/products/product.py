@@ -19,6 +19,7 @@ class Product(Base):
     style_id = Column(Integer, ForeignKey("product_styles.id"), nullable=True, index=True)
     title = Column(String(255), nullable=False, index=True)  # Added index for search performance
     slug = Column(String(255), unique=True, nullable=False, index=True)
+    sku_code = Column(String(50), unique=True, nullable=False, index=True)  # Base SKU code (e.g., "NIKE-001")
     description = Column(Text)
     
     # Image columns (Pillow-processed)

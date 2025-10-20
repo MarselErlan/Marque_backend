@@ -1,8 +1,8 @@
-"""remove_sku_price_stock_from_products
+"""add_sku_code_to_products
 
 Revision ID: 798a3b9aa862
 Revises: a04176727d8f
-Create Date: 2025-10-19 23:30:00.000000
+Create Date: 2025-10-19 23:45:00.000000
 
 """
 from alembic import op
@@ -17,23 +17,27 @@ depends_on = None
 
 
 def upgrade():
-    # Remove sku_code, price, and stock_quantity from products table
-    # These will be managed through the SKU variants table instead
+    # Add sku_code to products table (base SKU for product)
+    # SKU variants will auto-generate their codes as: {base_sku_code}-{size}-{color}
     
-    # Drop index first
-    op.drop_index('ix_products_sku_code', table_name='products')
+    # Add column as nullable first
+    op.add_column('products', sa.Column('sku_code', sa.String(length=50), nullable=True))
     
-    # Drop columns
-    op.drop_column('products', 'sku_code')
-    op.drop_column('products', 'price')
-    op.drop_column('products', 'stock_quantity')
+    # Set default values for existing products
+    op.execute("""
+        UPDATE products 
+        SET sku_code = 'SKU-' || id
+        WHERE sku_code IS NULL
+    """)
+    
+    # Make column non-nullable
+    op.alter_column('products', 'sku_code', nullable=False)
+    
+    # Create unique index
+    op.create_index('ix_products_sku_code', 'products', ['sku_code'], unique=True)
 
 
 def downgrade():
-    # Re-add the columns if needed (for rollback)
-    op.add_column('products', sa.Column('sku_code', sa.String(length=50), nullable=True))
-    op.add_column('products', sa.Column('price', sa.Float(), nullable=True))
-    op.add_column('products', sa.Column('stock_quantity', sa.Integer(), nullable=True))
-    
-    # Recreate index
-    op.create_index('ix_products_sku_code', 'products', ['sku_code'], unique=True)
+    # Remove sku_code if needed (for rollback)
+    op.drop_index('ix_products_sku_code', table_name='products')
+    op.drop_column('products', 'sku_code')
