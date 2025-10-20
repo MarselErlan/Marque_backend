@@ -1167,12 +1167,14 @@ class SKUAdmin(MarketAwareModelView, model=SKU):
     
     async def insert_model(self, request: Request, data: dict) -> any:
         """Auto-generate SKU code from product base SKU + size + color."""
+        logger.info(f"🔧 [SKU INSERT] RAW DATA: {data}")
+        
         # The form field is 'product' (relationship), but it gets converted to 'product_id' by SQLAdmin
         product_id = data.get("product_id") or data.get("product")
         size = data.get("size", "").upper().replace(" ", "")
         color = data.get("color", "").upper().replace(" ", "")
         
-        logger.info(f"🔧 [SKU INSERT] product_id={product_id}, size={size}, color={color}")
+        logger.info(f"🔧 [SKU INSERT] Extracted: product_id={product_id}, size='{size}', color='{color}'")
         
         if product_id and size and color:
             # Get product to get base SKU code
@@ -1184,15 +1186,16 @@ class SKUAdmin(MarketAwareModelView, model=SKU):
                     # Auto-generate SKU code: BASE-SIZE-COLOR
                     sku_code = f"{product.sku_code}-{size}-{color}"
                     data["sku_code"] = sku_code
-                    logger.info(f"✅ Auto-generated SKU code: {sku_code}")
+                    logger.info(f"✅ Auto-generated SKU code: {sku_code} (from product.sku_code={product.sku_code})")
                 else:
                     logger.error(f"❌ Product not found or missing sku_code for product_id={product_id}")
             except Exception as e:
                 logger.error(f"❌ Error generating SKU code: {e}")
+                logger.exception("Full error trace:")
             finally:
                 db.close()
         else:
-            logger.warning(f"⚠️ Missing data for SKU generation: product_id={product_id}, size={size}, color={color}")
+            logger.warning(f"⚠️ Missing data for SKU generation - product_id: {product_id} (type: {type(product_id)}), size: '{size}', color: '{color}'")
         
         return await super().insert_model(request, data)
     
