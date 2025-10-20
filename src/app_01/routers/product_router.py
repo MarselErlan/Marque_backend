@@ -341,12 +341,13 @@ def search_products(
         models.products.sku.SKU.is_active == True
     )
     
-    # Full-text search on title and description
+    # Full-text search on title, description, and SKU code
     search_term = f"%{query}%"
     search_query = search_query.filter(
         or_(
             models.products.product.Product.title.ilike(search_term),
-            models.products.product.Product.description.ilike(search_term)
+            models.products.product.Product.description.ilike(search_term),
+            models.products.product.Product.sku_code.ilike(search_term)
         )
     )
     
@@ -694,13 +695,14 @@ def get_products(
         joinedload(models.products.product.Product.reviews)
     )
 
-    # Search functionality - search in title, description, and brand name
+    # Search functionality - search in title, description, SKU code, and brand name
     if search:
         search_term = f"%{search}%"
         query = query.outerjoin(models.products.product.Product.brand).filter(
             or_(
                 models.products.product.Product.title.ilike(search_term),
                 models.products.product.Product.description.ilike(search_term),
+                models.products.product.Product.sku_code.ilike(search_term),
                 models.products.brand.Brand.name.ilike(search_term)
             )
         )
