@@ -1167,30 +1167,12 @@ class SKUAdmin(MarketAwareModelView, model=SKU):
     
     async def insert_model(self, request: Request, data: dict) -> any:
         """Auto-generate SKU code from product base SKU + size + color."""
-        product_id = data.get("product_id")
+        # The form field is 'product' (relationship), but it gets converted to 'product_id' by SQLAdmin
+        product_id = data.get("product_id") or data.get("product")
         size = data.get("size", "").upper().replace(" ", "")
         color = data.get("color", "").upper().replace(" ", "")
         
-        # Get product to get base SKU code
-        db = self.get_db_session(request)
-        try:
-            from ..models import Product
-            product = db.query(Product).filter_by(id=product_id).first()
-            if product:
-                # Auto-generate SKU code: BASE-SIZE-COLOR
-                sku_code = f"{product.sku_code}-{size}-{color}"
-                data["sku_code"] = sku_code
-                logger.info(f"✅ Auto-generated SKU code: {sku_code}")
-        finally:
-            db.close()
-        
-        return await super().insert_model(request, data)
-    
-    async def update_model(self, request: Request, pk: any, data: dict) -> any:
-        """Update SKU code if size or color changed."""
-        product_id = data.get("product_id")
-        size = data.get("size", "").upper().replace(" ", "")
-        color = data.get("color", "").upper().replace(" ", "")
+        logger.info(f"🔧 [SKU INSERT] product_id={product_id}, size={size}, color={color}")
         
         if product_id and size and color:
             # Get product to get base SKU code
@@ -1198,11 +1180,45 @@ class SKUAdmin(MarketAwareModelView, model=SKU):
             try:
                 from ..models import Product
                 product = db.query(Product).filter_by(id=product_id).first()
-                if product:
+                if product and product.sku_code:
                     # Auto-generate SKU code: BASE-SIZE-COLOR
                     sku_code = f"{product.sku_code}-{size}-{color}"
                     data["sku_code"] = sku_code
                     logger.info(f"✅ Auto-generated SKU code: {sku_code}")
+                else:
+                    logger.error(f"❌ Product not found or missing sku_code for product_id={product_id}")
+            except Exception as e:
+                logger.error(f"❌ Error generating SKU code: {e}")
+            finally:
+                db.close()
+        else:
+            logger.warning(f"⚠️ Missing data for SKU generation: product_id={product_id}, size={size}, color={color}")
+        
+        return await super().insert_model(request, data)
+    
+    async def update_model(self, request: Request, pk: any, data: dict) -> any:
+        """Update SKU code if size or color changed."""
+        product_id = data.get("product_id") or data.get("product")
+        size = data.get("size", "").upper().replace(" ", "")
+        color = data.get("color", "").upper().replace(" ", "")
+        
+        logger.info(f"🔧 [SKU UPDATE] pk={pk}, product_id={product_id}, size={size}, color={color}")
+        
+        if product_id and size and color:
+            # Get product to get base SKU code
+            db = self.get_db_session(request)
+            try:
+                from ..models import Product
+                product = db.query(Product).filter_by(id=product_id).first()
+                if product and product.sku_code:
+                    # Auto-generate SKU code: BASE-SIZE-COLOR
+                    sku_code = f"{product.sku_code}-{size}-{color}"
+                    data["sku_code"] = sku_code
+                    logger.info(f"✅ Auto-generated SKU code: {sku_code}")
+                else:
+                    logger.error(f"❌ Product not found or missing sku_code for product_id={product_id}")
+            except Exception as e:
+                logger.error(f"❌ Error generating SKU code: {e}")
             finally:
                 db.close()
         
