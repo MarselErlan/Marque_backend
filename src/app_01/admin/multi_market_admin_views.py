@@ -909,10 +909,10 @@ class ProductAdmin(MarketAwareModelView, model=Product):
         return form_class
 
     column_searchable_list = [
-        "title", "description", "brand.name", "category.name", "subcategory.name"
+        "sku_code", "title", "description", "brand.name", "category.name", "subcategory.name"
     ]
     
-    column_sortable_list = ["id", "title", "brand", "category", "is_active", "created_at"]
+    column_sortable_list = ["id", "sku_code", "title", "brand", "category", "is_active", "created_at"]
     
     column_filters = [
         "is_active", "is_featured", "brand", "category", "subcategory",
