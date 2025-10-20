@@ -303,7 +303,7 @@ def get_on_sale_products(
     return product_list
 
 
-@router.get("/products/search", response_model=ProductListResponse)
+@router.get("/products/search")
 def search_products(
     query: str = Query(..., min_length=1, max_length=200, description="Search query"),
     db: Session = Depends(get_db),
@@ -322,9 +322,28 @@ def search_products(
     Global product search with filters, sorting, and pagination.
     Returns products in the same format as subcategory pages.
     
+    **Smart SKU Redirect:** If the search query exactly matches a product's SKU code,
+    redirects directly to that product's detail page (since SKU codes are unique).
+    
     Search across ALL products (not limited to one subcategory).
     Results can be filtered by category, subcategory, brand, price, size, color.
     """
+    from fastapi.responses import RedirectResponse
+    
+    # 🎯 SMART REDIRECT: Check if query exactly matches a SKU code
+    # If yes, redirect directly to product detail page (SKU is unique!)
+    exact_sku_match = db.query(models.products.product.Product).filter(
+        models.products.product.Product.sku_code == query.strip(),
+        models.products.product.Product.is_active == True
+    ).first()
+    
+    if exact_sku_match:
+        # Redirect to product detail page
+        return RedirectResponse(
+            url=f"/api/v1/products/{exact_sku_match.slug}",
+            status_code=307  # Temporary redirect (preserve query params if any)
+        )
+    
     # Base query: all active products with SKUs
     search_query = db.query(models.products.product.Product).options(
         joinedload(models.products.product.Product.brand),
