@@ -276,18 +276,32 @@ async def update_user_profile(
         )
 
 @router.post("/logout", response_model=LogoutResponse)
-async def logout():
+async def logout(
+    current_user: VerifyTokenResponse = Depends(get_current_user_from_token)
+):
     """
-    Logout user (client should discard token)
+    Logout user
     
-    This endpoint is mainly for documentation purposes.
-    In JWT-based authentication, logout is handled client-side by discarding the token.
+    Sets user's is_active status to False in the database.
+    Client should also discard the token.
     """
-    logger.info("User logout requested")
-    return LogoutResponse(
-        success=True,
-        message="Logged out successfully. Please discard your token."
-    )
+    try:
+        logger.info(f"User logout request: user_id={current_user.user_id}, market={current_user.market}")
+        
+        # Call auth service to handle logout
+        auth_service.logout_user(current_user.user_id, current_user.market)
+        
+        logger.info(f"✅ User logged out successfully: user_id={current_user.user_id}")
+        return LogoutResponse(
+            success=True,
+            message="Logged out successfully. User is now inactive."
+        )
+    except Exception as e:
+        logger.error(f"Logout error for user {current_user.user_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Logout failed"
+        )
 
 @router.get("/verify-token", response_model=VerifyTokenResponse, responses={
     401: {"model": ErrorResponse},

@@ -219,14 +219,24 @@ class AuthService:
                     # Create new user
                     user = user_model.create_user(db, request.phone)
                     is_new_user = True
+                    logger.info(f"✅ New user created: ID={user.id}, Phone={request.phone}")
+                else:
+                    # Existing user - check if previously verified
+                    if user.is_verified:
+                        logger.info(f"🔄 Existing verified user logging back in: ID={user.id}, Phone={request.phone}")
+                    else:
+                        logger.info(f"📱 First-time verification for user: ID={user.id}, Phone={request.phone}")
                 
-                # Mark user as verified and update last login
+                # Mark user as verified and active, update last login
                 user.is_verified = True
+                user.is_active = True  # Set active when user logs in
                 user.update_last_login()
                 db.commit()
                 
                 # Create access token
                 access_token = self._create_access_token(user.id, market.value)
+                
+                logger.info(f"✅ User authenticated successfully: ID={user.id}, Active={user.is_active}, Verified={user.is_verified}")
                 
                 user_data = UserSchema(
                     id=str(user.id),
@@ -253,6 +263,44 @@ class AuthService:
         except Exception as e:
             logger.error(f"Failed to verify code: {e}")
             raise RuntimeError(f"Failed to verify code: {str(e)}")
+    
+    def logout_user(self, user_id: int, market: str) -> bool:
+        """
+        Logout user by setting is_active to False
+        
+        Args:
+            user_id: User ID
+            market: User market
+            
+        Returns:
+            True if successful
+            
+        Raises:
+            ValueError: If market is invalid or user not found
+        """
+        try:
+            market_enum = Market(market)
+            user_model = get_user_model(market_enum)
+            session_factory = db_manager.get_session_factory(market_enum)
+            
+            with session_factory() as db:
+                user = db.query(user_model).filter(user_model.id == user_id).first()
+                if not user:
+                    raise ValueError(f"User not found with ID: {user_id}")
+                
+                # Set user as inactive
+                user.is_active = False
+                db.commit()
+                
+                logger.info(f"✅ User logged out: ID={user_id}, Market={market}, is_active=False")
+                return True
+        
+        except ValueError as e:
+            logger.error(f"Logout error: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"Failed to logout user: {e}")
+            raise RuntimeError(f"Failed to logout user: {str(e)}")
     
     def get_user_profile(self, user_id: int, market: str) -> UserProfile:
         """
