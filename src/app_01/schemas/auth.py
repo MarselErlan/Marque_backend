@@ -14,6 +14,8 @@ class UserSchema(BaseModel):
     full_name: Optional[str] = None
     phone: Optional[str] = None
     email: Optional[str] = None
+    is_active: Optional[bool] = None
+    is_verified: Optional[bool] = None
 
 class MarketEnum(str, Enum):
     """Supported markets"""
@@ -98,6 +100,7 @@ class UserProfile(BaseModel):
     name: Optional[str] = Field(None, description="User display name")
     full_name: Optional[str] = Field(None, description="User full name")
     profile_image_url: Optional[str] = Field(None, description="Profile image URL")
+    is_active: bool = Field(..., description="User active status (logged in/out)")
     is_verified: bool = Field(..., description="Phone verification status")
     market: MarketEnum = Field(..., description="User market")
     language: str = Field(..., description="User language")

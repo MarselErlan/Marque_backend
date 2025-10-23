@@ -243,7 +243,9 @@ class AuthService:
                     name=user.display_name,
                     full_name=user.full_name,
                     phone=user.phone_number,
-                    email=user.email
+                    email=user.email,
+                    is_active=user.is_active,
+                    is_verified=user.is_verified
                 )
 
                 return VerifyCodeResponse(
@@ -334,6 +336,7 @@ class AuthService:
                     name=user.display_name,
                     full_name=user.full_name,
                     profile_image_url=user.profile_image_url,
+                    is_active=user.is_active,
                     is_verified=user.is_verified,
                     market=user.market,
                     language=user.language,
@@ -392,6 +395,7 @@ class AuthService:
                     name=user.display_name,
                     full_name=user.full_name,
                     profile_image_url=user.profile_image_url,
+                    is_active=user.is_active,
                     is_verified=user.is_verified,
                     market=user.market,
                     language=user.language,

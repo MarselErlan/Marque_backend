@@ -15,22 +15,26 @@ The authentication system now properly manages user state in the database:
 
    - ✅ Check if user exists in database
    - ✅ If new: Create user with `is_active=True`, `is_verified=True`
-   - ✅ If existing verified user: Update `access_token`, set `is_active=True`
+   - ✅ If existing verified user: Set `is_active=True`, generate new JWT token
    - ✅ If existing unverified user: Mark as verified, set active
-   - ✅ Save access token (in JWT)
-   - ✅ Update `last_login` timestamp
+   - ✅ Generate JWT token (NOT saved to database - stateless)
+   - ✅ Return token to client (client stores in localStorage)
+   - ✅ Update `last_login` timestamp in database
 
 2. **When user logs out**:
 
    - ✅ Set `is_active=False` in database
-   - ✅ Token remains (stateless JWT) but user is marked inactive
+   - ✅ Client discards token (localStorage.removeItem)
+   - ✅ Token technically valid until expiry, but `is_active=False` prevents use
+   - ✅ No token stored in database (JWT is stateless)
 
 3. **When user logs in again**:
    - ✅ Check if user exists and `is_verified=True`
    - ✅ Don't create new user
-   - ✅ Update `access_token` (new JWT)
-   - ✅ Set `is_active=True`
-   - ✅ Update `last_login`
+   - ✅ Generate NEW JWT token (not stored in DB)
+   - ✅ Set `is_active=True` in database
+   - ✅ Update `last_login` in database
+   - ✅ Return new token to client
 
 ---
 
