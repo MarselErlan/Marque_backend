@@ -52,9 +52,10 @@ def build_product_schema(product):
 
 def get_wishlist_by_user_id(user_id: int, db: Session) -> WishlistSchema:
     """Helper function to get wishlist by user_id"""
-    wishlist = db.query(models.users.wishlist.Wishlist).filter(models.users.wishlist.Wishlist.user_id == user_id).first()
+    from ..models import Wishlist, WishlistItem, Product
+    wishlist = db.query(Wishlist).filter(Wishlist.user_id == user_id).first()
     if not wishlist:
-        wishlist = models.users.wishlist.Wishlist(user_id=user_id)
+        wishlist = Wishlist(user_id=user_id)
         db.add(wishlist)
         db.commit()
         db.refresh(wishlist)
@@ -62,13 +63,13 @@ def get_wishlist_by_user_id(user_id: int, db: Session) -> WishlistSchema:
     wishlist_items = []
     for item in wishlist.items:
         # Load product with relationships
-        product = db.query(models.products.product.Product).options(
-            joinedload(models.products.product.Product.brand),
-            joinedload(models.products.product.Product.category),
-            joinedload(models.products.product.Product.subcategory),
-            joinedload(models.products.product.Product.skus),
-            joinedload(models.products.product.Product.assets)
-        ).filter(models.products.product.Product.id == item.product_id).first()
+        product = db.query(Product).options(
+            joinedload(Product.brand),
+            joinedload(Product.category),
+            joinedload(Product.subcategory),
+            joinedload(Product.skus),
+            joinedload(Product.assets)
+        ).filter(Product.id == item.product_id).first()
         
         if product:
             product_schema = build_product_schema(product)
@@ -89,31 +90,33 @@ def get_wishlist(request: GetWishlistRequest, db: Session = Depends(get_db)):
 def add_to_wishlist(request: AddToWishlistRequest, db: Session = Depends(get_db)):
     """Add product to user's wishlist"""
     # Verify user exists
-    user = db.query(models.users.user.User).filter(models.users.user.User.id == request.user_id).first()
+    from ..models import User, Product
+    user = db.query(User).filter(User.id == request.user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
     # Verify product exists
-    product = db.query(models.products.product.Product).filter(models.products.product.Product.id == request.product_id).first()
+    product = db.query(Product).filter(Product.id == request.product_id).first()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     
     # Get or create wishlist
-    wishlist = db.query(models.users.wishlist.Wishlist).filter(models.users.wishlist.Wishlist.user_id == request.user_id).first()
+    from ..models import Wishlist, WishlistItem
+    wishlist = db.query(Wishlist).filter(Wishlist.user_id == request.user_id).first()
     if not wishlist:
-        wishlist = models.users.wishlist.Wishlist(user_id=request.user_id)
+        wishlist = Wishlist(user_id=request.user_id)
         db.add(wishlist)
         db.commit()
         db.refresh(wishlist)
 
     # Check if item already in wishlist
-    wishlist_item = db.query(models.users.wishlist.WishlistItem).filter(
-        models.users.wishlist.WishlistItem.wishlist_id == wishlist.id,
-        models.users.wishlist.WishlistItem.product_id == request.product_id
+    wishlist_item = db.query(WishlistItem).filter(
+        WishlistItem.wishlist_id == wishlist.id,
+        WishlistItem.product_id == request.product_id
     ).first()
 
     if not wishlist_item:
-        wishlist_item = models.users.wishlist.WishlistItem(wishlist_id=wishlist.id, product_id=request.product_id)
+        wishlist_item = WishlistItem(wishlist_id=wishlist.id, product_id=request.product_id)
         db.add(wishlist_item)
         db.commit()
 
@@ -122,13 +125,14 @@ def add_to_wishlist(request: AddToWishlistRequest, db: Session = Depends(get_db)
 @router.post("/remove", response_model=WishlistSchema)
 def remove_from_wishlist(request: RemoveFromWishlistRequest, db: Session = Depends(get_db)):
     """Remove product from user's wishlist"""
-    wishlist = db.query(models.users.wishlist.Wishlist).filter(models.users.wishlist.Wishlist.user_id == request.user_id).first()
+    from ..models import Wishlist, WishlistItem
+    wishlist = db.query(Wishlist).filter(Wishlist.user_id == request.user_id).first()
     if not wishlist:
         raise HTTPException(status_code=404, detail="Wishlist not found")
 
-    wishlist_item = db.query(models.users.wishlist.WishlistItem).filter(
-        models.users.wishlist.WishlistItem.wishlist_id == wishlist.id,
-        models.users.wishlist.WishlistItem.product_id == request.product_id
+    wishlist_item = db.query(WishlistItem).filter(
+        WishlistItem.wishlist_id == wishlist.id,
+        WishlistItem.product_id == request.product_id
     ).first()
 
     if not wishlist_item:
@@ -142,13 +146,14 @@ def remove_from_wishlist(request: RemoveFromWishlistRequest, db: Session = Depen
 @router.post("/clear", response_model=WishlistSchema)
 def clear_wishlist(request: ClearWishlistRequest, db: Session = Depends(get_db)):
     """Clear all items from user's wishlist"""
-    wishlist = db.query(models.users.wishlist.Wishlist).filter(models.users.wishlist.Wishlist.user_id == request.user_id).first()
+    from ..models import Wishlist, WishlistItem
+    wishlist = db.query(Wishlist).filter(Wishlist.user_id == request.user_id).first()
     if not wishlist:
         raise HTTPException(status_code=404, detail="Wishlist not found")
 
     # Delete all wishlist items
-    db.query(models.users.wishlist.WishlistItem).filter(
-        models.users.wishlist.WishlistItem.wishlist_id == wishlist.id
+    db.query(WishlistItem).filter(
+        WishlistItem.wishlist_id == wishlist.id
     ).delete()
     db.commit()
 
