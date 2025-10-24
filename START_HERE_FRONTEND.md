@@ -58,19 +58,97 @@
 
 ---
 
+### 4. 🔐 **Session Management** (NEW!)
+
+**File**: [`SESSION_MANAGEMENT_EXPLAINED.md`](./SESSION_MANAGEMENT_EXPLAINED.md)
+
+**Best for**: Understanding how cart/wishlist/orders persist
+
+**What's inside**:
+
+- 🔑 How JWT tokens work
+- 💾 How data persists in database
+- 🔄 Cart/wishlist across login sessions
+- 🛡️ Security best practices
+- 🧪 Testing scenarios
+- ⏱️ **Time**: 20 minutes
+
+---
+
+### 5. 🎯 **Quick Session Reference**
+
+**File**: [`SESSION_QUICK_REFERENCE.md`](./SESSION_QUICK_REFERENCE.md)
+
+**Best for**: Quick answers about session management
+
+**What's inside**:
+
+- ✅ What's stored where
+- 🔄 Complete user journey
+- 📋 Implementation checklist
+- 🧪 Test commands
+- ⏱️ **Time**: 5 minutes
+
+---
+
+### 6. 🛒 **Cart/Wishlist Example**
+
+**File**: [`FRONTEND_CART_EXAMPLE.md`](./FRONTEND_CART_EXAMPLE.md)
+
+**Best for**: Copy-paste cart and wishlist implementation
+
+**What's inside**:
+
+- 🛒 Complete CartScreen code
+- ❤️ Complete WishlistScreen code
+- 🔧 API service functions
+- ✅ Data persistence examples
+- ⏱️ **Time**: 15 minutes
+
+---
+
+### 7. 🏗️ **Architecture Diagram**
+
+**File**: [`ARCHITECTURE_DIAGRAM.md`](./ARCHITECTURE_DIAGRAM.md)
+
+**Best for**: Visual learners who want to see the big picture
+
+**What's inside**:
+
+- 📊 Complete system architecture
+- 🔄 User flow diagrams
+- 🗝️ JWT token lifecycle
+- 🔗 Database relationships
+- ⏱️ **Time**: 10 minutes
+
+---
+
 ## 🎯 Recommended Path
 
 ### For Beginners:
 
-1. Read **FRONTEND_INTEGRATION_GUIDE.md** (understand concepts)
-2. Use **COPY_PASTE_FRONTEND_CODE.md** (implement)
-3. Keep **FRONTEND_QUICK_REFERENCE.md** open (reference)
+1. Read **SESSION_MANAGEMENT_EXPLAINED.md** (understand how it works) ⭐
+2. Read **FRONTEND_INTEGRATION_GUIDE.md** (understand concepts)
+3. Use **COPY_PASTE_FRONTEND_CODE.md** (implement)
+4. Copy from **FRONTEND_CART_EXAMPLE.md** (implement cart/wishlist)
+5. Keep **FRONTEND_QUICK_REFERENCE.md** open (reference)
 
 ### For Experienced Developers:
 
-1. Scan **FRONTEND_QUICK_REFERENCE.md** (understand APIs)
-2. Copy from **COPY_PASTE_FRONTEND_CODE.md** (implement quickly)
-3. Check **FRONTEND_INTEGRATION_GUIDE.md** if needed (deep dive)
+1. Scan **SESSION_QUICK_REFERENCE.md** (understand session management) ⭐
+2. Scan **FRONTEND_QUICK_REFERENCE.md** (understand APIs)
+3. Copy from **COPY_PASTE_FRONTEND_CODE.md** (implement quickly)
+4. Copy from **FRONTEND_CART_EXAMPLE.md** (implement cart/wishlist)
+5. Check **ARCHITECTURE_DIAGRAM.md** if needed (visual reference)
+
+### If You Have Questions About Data Persistence:
+
+1. **"Will cart/wishlist be lost after logout?"**
+   → Read **SESSION_MANAGEMENT_EXPLAINED.md** ✅
+2. **"Do I need session tokens?"**
+   → No! Read **SESSION_QUICK_REFERENCE.md** ✅
+3. **"How does order processing work?"**
+   → See **ARCHITECTURE_DIAGRAM.md** ✅
 
 ---
 
