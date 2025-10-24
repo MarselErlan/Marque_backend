@@ -40,7 +40,7 @@ def test_new_wishlist_api():
     
     # Test user and product IDs
     TEST_USER_ID = 19  # User from KG database
-    TEST_PRODUCT_ID = 1  # First product
+    TEST_PRODUCT_ID = 297  # First product
     
     print(f"Testing with User ID: {TEST_USER_ID}")
     print(f"Testing with Product ID: {TEST_PRODUCT_ID}")
