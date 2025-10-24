@@ -8,10 +8,15 @@ import json
 
 # Production API URL
 API_BASE_URL = "https://marquebackend-production.up.railway.app/api/v1"
-MARKET = "us"  # or 'kg'
+
+# ⚠️ IMPORTANT: Choose market based on your test user
+# If you get "user not found" error, try the other market
+MARKET = "us"  # Change to 'kg' if testing with KG phone number
 
 # Test credentials
-TEST_PHONE = "+13128059851"  # Replace with your test phone
+# US: Use +1 phone numbers (e.g., +13125551234)
+# KG: Use +996 phone numbers (e.g., +996700123456)
+TEST_PHONE = "+13125559876"  # ⚠️ Use a NEW phone number to create fresh user
 TEST_CODE = None  # Will be sent via SMS
 
 
