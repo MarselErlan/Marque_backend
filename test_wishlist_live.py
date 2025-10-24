@@ -16,7 +16,7 @@ MARKET = "us"  # Change to 'kg' if testing with KG phone number
 # Test credentials
 # US: Use +1 phone numbers (e.g., +13125551234)
 # KG: Use +996 phone numbers (e.g., +996700123456)
-TEST_PHONE = "+13125559876"  # ⚠️ Use a NEW phone number to create fresh user
+TEST_PHONE = "+13128059851"  # ⚠️ Use a NEW phone number to create fresh user
 TEST_CODE = None  # Will be sent via SMS
 
 
