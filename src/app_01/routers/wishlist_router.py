@@ -11,6 +11,7 @@ from ..schemas.wishlist import (
     ClearWishlistRequest
 )
 from ..schemas.product import ProductSchema
+from ..models import User, Product, Wishlist, WishlistItem
 
 router = APIRouter(prefix="/wishlist", tags=["wishlist"])
 
@@ -52,7 +53,11 @@ def build_product_schema(product):
 
 def get_wishlist_by_user_id(user_id: int, db: Session) -> WishlistSchema:
     """Helper function to get wishlist by user_id"""
-    from ..models import Wishlist, WishlistItem, Product
+    # First check if user exists
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
     wishlist = db.query(Wishlist).filter(Wishlist.user_id == user_id).first()
     if not wishlist:
         wishlist = Wishlist(user_id=user_id)
@@ -90,7 +95,6 @@ def get_wishlist(request: GetWishlistRequest, db: Session = Depends(get_db)):
 def add_to_wishlist(request: AddToWishlistRequest, db: Session = Depends(get_db)):
     """Add product to user's wishlist"""
     # Verify user exists
-    from ..models import User, Product
     user = db.query(User).filter(User.id == request.user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -101,7 +105,6 @@ def add_to_wishlist(request: AddToWishlistRequest, db: Session = Depends(get_db)
         raise HTTPException(status_code=404, detail="Product not found")
     
     # Get or create wishlist
-    from ..models import Wishlist, WishlistItem
     wishlist = db.query(Wishlist).filter(Wishlist.user_id == request.user_id).first()
     if not wishlist:
         wishlist = Wishlist(user_id=request.user_id)
@@ -125,7 +128,6 @@ def add_to_wishlist(request: AddToWishlistRequest, db: Session = Depends(get_db)
 @router.post("/remove", response_model=WishlistSchema)
 def remove_from_wishlist(request: RemoveFromWishlistRequest, db: Session = Depends(get_db)):
     """Remove product from user's wishlist"""
-    from ..models import Wishlist, WishlistItem
     wishlist = db.query(Wishlist).filter(Wishlist.user_id == request.user_id).first()
     if not wishlist:
         raise HTTPException(status_code=404, detail="Wishlist not found")
@@ -146,7 +148,6 @@ def remove_from_wishlist(request: RemoveFromWishlistRequest, db: Session = Depen
 @router.post("/clear", response_model=WishlistSchema)
 def clear_wishlist(request: ClearWishlistRequest, db: Session = Depends(get_db)):
     """Clear all items from user's wishlist"""
-    from ..models import Wishlist, WishlistItem
     wishlist = db.query(Wishlist).filter(Wishlist.user_id == request.user_id).first()
     if not wishlist:
         raise HTTPException(status_code=404, detail="Wishlist not found")
