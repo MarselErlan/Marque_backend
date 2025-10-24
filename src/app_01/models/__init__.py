@@ -1,5 +1,5 @@
 # Import from organized folders
-from .users import User, Interaction, PhoneVerification, UserAddress, UserPaymentMethod, UserNotification
+from .users import User, Interaction, PhoneVerification, UserAddress, UserPaymentMethod, UserNotification, Wishlist, WishlistItem
 from .products import (
     Product, SKU, ProductAsset, Review, ProductAttribute, Category, Subcategory, Brand,
     ProductFilter, ProductSeason, ProductMaterial, ProductStyle, ProductDiscount, ProductSearch
@@ -15,6 +15,8 @@ __all__ = [
     "UserAddress",
     "UserPaymentMethod",
     "UserNotification",
+    "Wishlist",
+    "WishlistItem",
     # Products
     "Product", 
     "SKU", 
