@@ -1,391 +1,404 @@
-# 🔗 Integration Testing Guide
+# 🧪 Integration Testing Guide - Cart & Wishlist APIs
 
-## Overview
-
-Integration tests verify that multiple components of the Marque e-commerce platform work together correctly. Unlike unit tests that test individual functions in isolation, integration tests test complete workflows and API endpoints.
-
----
-
-## 📁 Test Structure
-
-```
-tests/integration/
-├── __init__.py
-├── conftest.py                      # Integration test fixtures
-├── test_auth_flow.py                # Authentication workflows (14 tests)
-├── test_product_api.py              # Product API endpoints (17 tests)
-├── test_banner_api.py               # Banner API endpoints (11 tests)
-├── test_cart_wishlist_api.py        # Cart & wishlist APIs (14 tests)
-└── test_end_to_end_workflows.py     # Complete user journeys (27 tests)
-```
-
-**Total: 83 integration tests created**
+**Date:** October 25, 2025  
+**Purpose:** Test stateless Cart and Wishlist APIs
 
 ---
 
-## 🎯 What Integration Tests Cover
+## 📋 What Gets Tested
 
-### 1. **Authentication Flow** (14 tests)
+### ✅ **Wishlist API** (5 endpoints)
 
-- ✅ Health check endpoint
-- ✅ Supported markets endpoint
-- ✅ Sending verification codes (KG & US)
-- ✅ Verifying codes with validation
-- ✅ Getting user profile with/without auth
-- ✅ Token generation and validation
-- ✅ Logout functionality
-- ✅ Multi-market user workflows
+1. Get Wishlist - `POST /wishlist/get`
+2. Add to Wishlist - `POST /wishlist/add`
+3. Get Wishlist (verify item added) - `POST /wishlist/get`
+4. Remove from Wishlist - `POST /wishlist/remove`
+5. Clear Wishlist - `POST /wishlist/clear`
 
-### 2. **Product API** (17 tests)
+### ✅ **Cart API - Stateless** (5 endpoints)
 
-- ✅ Product listing endpoint
-- ✅ Product search with query validation
-- ✅ Filtering by category, brand
-- ✅ Search with multiple filters
-- ✅ Product detail by ID
-- ✅ Pagination handling
-- ✅ Sort options (newest, popular, price, relevance)
-- ✅ Database relationships (brand, category)
+1. Get Cart - `POST /cart/get`
+2. Add to Cart - `POST /cart/add`
+3. Update Cart Item - `POST /cart/update`
+4. Remove from Cart - `POST /cart/remove`
+5. Clear Cart - `POST /cart/clear`
 
-### 3. **Banner API** (11 tests)
+### ✅ **Cart API - Legacy JWT** (6 endpoints - Optional)
 
-- ✅ Banner listing endpoint
-- ✅ Get banner by ID
-- ✅ Filter by type (sale/model)
-- ✅ Filter by active status
-- ✅ Admin operations (create, update, delete)
-- ✅ Authentication requirements
-- ✅ Database integrity
+1. Get Cart - `GET /cart/` (JWT)
+2. Add to Cart - `POST /cart/items` (JWT)
+3. Get Cart Items - `GET /cart/items` (JWT)
+4. Update Cart Item - `PUT /cart/items/{id}` (JWT)
+5. Delete Cart Item - `DELETE /cart/items/{id}` (JWT)
+6. Clear Cart - `DELETE /cart/` (JWT)
 
-### 4. **Cart & Wishlist** (14 tests)
+### ✅ **Error Handling** (3 scenarios)
 
-- ✅ Cart operations require authentication
-- ✅ Wishlist operations require authentication
-- ✅ Adding/removing items
-- ✅ Updating quantities
-- ✅ Clearing cart/wishlist
-- ✅ Authenticated vs non-authenticated access
-
-### 5. **End-to-End Workflows** (27 tests)
-
-- ✅ Complete user journey (browse → search → view)
-- ✅ Guest user workflows
-- ✅ Authenticated user workflows
-- ✅ Search and filter combinations
-- ✅ Market-specific functionality (KG/US)
-- ✅ Error handling
-- ✅ Database integrity checks
-- ✅ Concurrent operations
-- ✅ Pagination consistency
-- ✅ Performance benchmarks
+1. Invalid user_id → 404
+2. Invalid product_id → 404
+3. Missing required field → 422
 
 ---
 
-## 🧪 Running Integration Tests
+## 🚀 Quick Start
 
-### Run All Integration Tests:
+### Step 1: Install Requirements
 
 ```bash
-pytest tests/integration/ -v
+pip install requests
 ```
 
-### Run Specific Test File:
+### Step 2: Configure Test Data
 
-```bash
-# Auth tests
-pytest tests/integration/test_auth_flow.py -v
+Open `test_cart_wishlist_integration.py` and update:
 
-# Product tests
-pytest tests/integration/test_product_api.py -v
-
-# Banner tests
-pytest tests/integration/test_banner_api.py -v
-
-# Cart & wishlist tests
-pytest tests/integration/test_cart_wishlist_api.py -v
-
-# End-to-end workflows
-pytest tests/integration/test_end_to_end_workflows.py -v
+```python
+TEST_USER_ID = 19       # Your test user ID
+TEST_PRODUCT_ID = 1     # A valid product ID in your database
+TEST_SKU_ID = 1         # A valid SKU ID in your database
 ```
 
-### Run by Marker:
+### Step 3: Run Tests
 
 ```bash
-# Only integration tests
-pytest -m integration -v
-
-# Slow tests
-pytest -m slow -v
-```
-
-### Run Specific Test Class:
-
-```bash
-pytest tests/integration/test_product_api.py::TestProductSearchAPI -v
-```
-
-### With Coverage:
-
-```bash
-pytest tests/integration/ --cov=src/app_01 --cov-report=html
+cd /Users/macbookpro/M4_Projects/Prodaction/Marque
+python3 test_cart_wishlist_integration.py
 ```
 
 ---
 
-## 🔧 Test Fixtures
+## 📝 Interactive Prompts
 
-### Available Fixtures (in `conftest.py`):
+The test script will ask you:
 
-#### Database Fixtures:
+### 1. **Server Selection**
 
-- `test_db` - In-memory test database
-- `api_client` - FastAPI test client
+```
+Use local server? [y/N]:
+```
 
-#### Sample Data:
+- `y` → Test against `http://localhost:8000`
+- `N` → Test against production (Railway)
 
-- `sample_kg_user` - KG market user
-- `sample_us_user` - US market user
-- `sample_product` - Product with brand & category
-- `sample_banner` - Active sale banner
-- `sample_brand` - Nike brand
-- `sample_category` - Shoes category
+### 2. **Test User ID**
 
-#### Authentication:
+```
+Enter test user_id (default: 19):
+```
 
-- `auth_token` - Valid JWT token
-- `auth_headers` - Authorization headers
+Enter a valid user_id from your database
+
+### 3. **Test Product ID**
+
+```
+Enter test product_id (default: 1):
+```
+
+Enter a valid product_id
+
+### 4. **Test SKU ID**
+
+```
+Enter test sku_id (default: 1):
+```
+
+Enter a valid sku_id
+
+### 5. **JWT Tests (Optional)**
+
+```
+Test legacy JWT endpoints? (requires SMS verification) [y/N]:
+```
+
+- `y` → Will prompt for phone number and SMS code
+- `N` → Skip JWT tests
 
 ---
 
-## 📝 Test Examples
+## 📊 Example Output
 
-### Example 1: Testing API Endpoint
-
-```python
-@pytest.mark.integration
-def test_get_products_endpoint(api_client):
-    """Test that products endpoint exists and works"""
-    response = api_client.get("/api/v1/products")
-
-    assert response.status_code != 404
-    if response.status_code == 200:
-        data = response.json()
-        assert isinstance(data, list)
 ```
+======================================================================
+  🧪 CART & WISHLIST INTEGRATION TESTS
+======================================================================
 
-### Example 2: Testing With Authentication
+📍 Testing against: https://marquebackend-production.up.railway.app/api/v1
+👤 Test User ID: 19
+📦 Test Product ID: 1
+🏷️  Test SKU ID: 1
 
-```python
-@pytest.mark.integration
-def test_get_cart_with_auth(api_client, auth_headers):
-    """Test getting cart with authentication"""
-    response = api_client.get("/api/v1/cart", headers=auth_headers)
+======================================================================
+  WISHLIST API TESTS (Stateless)
+======================================================================
 
-    assert response.status_code in [200, 404]
-```
+🧪 TEST: 1. Get Wishlist (should be empty or existing)
+----------------------------------------------------------------------
 
-### Example 3: Testing Database Operations
+📤 Request: POST https://marquebackend-production.up.railway.app/api/v1/wishlist/get
+📦 Body: {
+  "user_id": 19
+}
 
-```python
-@pytest.mark.integration
-def test_product_in_database(test_db, sample_product):
-    """Test that product is created in database"""
-    from src.app_01.models.products.product import Product
+📥 Response: 200
+📄 Data: {
+  "id": 1,
+  "user_id": 19,
+  "items": []
+}
 
-    product = test_db.query(Product).filter_by(
-        id=sample_product.id
-    ).first()
+✅ SUCCESS: Get wishlist works!
+📊 Initial wishlist has 0 items
 
-    assert product is not None
-    assert product.title == "Running Shoes"
-```
+🧪 TEST: 2. Add Product to Wishlist
+----------------------------------------------------------------------
 
-### Example 4: Testing Complete Workflow
+📤 Request: POST https://marquebackend-production.up.railway.app/api/v1/wishlist/add
+📦 Body: {
+  "user_id": 19,
+  "product_id": 1
+}
 
-```python
-@pytest.mark.integration
-def test_complete_shopping_flow(api_client, auth_headers, sample_product):
-    """Test complete shopping workflow"""
-    # 1. Browse products
-    response = api_client.get("/api/v1/products")
-    assert response.status_code == 200
+📥 Response: 200
+📄 Data: {
+  "id": 1,
+  "user_id": 19,
+  "items": [
+    {
+      "id": 1,
+      "product": {
+        "id": "1",
+        "name": "Product Name",
+        "price": 29.99
+      }
+    }
+  ]
+}
 
-    # 2. Search for specific product
-    response = api_client.get("/api/v1/products/search?q=shoes")
-    assert response.status_code == 200
+✅ SUCCESS: Add to wishlist works!
+📊 Wishlist now has 1 items
 
-    # 3. Add to cart
-    response = api_client.post(
-        "/api/v1/cart/items",
-        headers=auth_headers,
-        json={
-            "product_id": sample_product.id,
-            "quantity": 1
-        }
-    )
-    assert response.status_code in [200, 201]
-```
+[... more tests ...]
 
----
+======================================================================
+  TEST SUMMARY
+======================================================================
 
-## 🎭 Test Categories
+✅ PASSED    - wishlist
+✅ PASSED    - cart_stateless
+✅ PASSED    - cart_jwt
+✅ PASSED    - error_handling
 
-### By Component:
+======================================================================
+  TOTAL: 4/4 test suites passed
+======================================================================
 
-- **API Tests** - Test HTTP endpoints
-- **Database Tests** - Test data persistence
-- **Auth Tests** - Test authentication/authorization
-- **Workflow Tests** - Test complete user journeys
-
-### By Speed:
-
-- **Fast** - Tests without external dependencies (< 1s)
-- **Slow** - Tests with database/network calls (marked with `@pytest.mark.slow`)
-
-### By Reliability:
-
-- **Deterministic** - Always produce same result
-- **Flaky** - May fail intermittently (should be fixed or removed)
-
----
-
-## 🚀 Integration Test Patterns
-
-### 1. **Arrange-Act-Assert (AAA)**
-
-```python
-def test_example(api_client):
-    # Arrange
-    data = {"key": "value"}
-
-    # Act
-    response = api_client.post("/endpoint", json=data)
-
-    # Assert
-    assert response.status_code == 200
-```
-
-### 2. **Happy Path Testing**
-
-```python
-def test_successful_search(api_client):
-    """Test successful product search"""
-    response = api_client.get("/api/v1/products/search?q=shoes")
-
-    assert response.status_code == 200
-    assert "results" in response.json()
-```
-
-### 3. **Error Path Testing**
-
-```python
-def test_search_without_query(api_client):
-    """Test search fails without query"""
-    response = api_client.get("/api/v1/products/search")
-
-    assert response.status_code == 422
-```
-
-### 4. **Authorization Testing**
-
-```python
-def test_protected_endpoint_without_auth(api_client):
-    """Test protected endpoint requires auth"""
-    response = api_client.get("/api/v1/cart")
-
-    assert response.status_code in [401, 403]
+🎉 All tests passed! APIs are working correctly!
 ```
 
 ---
 
-## 📊 Test Coverage Goals
+## 🔍 What Each Test Does
 
-### Current Status:
+### Wishlist Tests
 
-- **83 integration tests created**
-- **Test coverage areas:**
-  - Auth: 14 tests
-  - Products: 17 tests
-  - Banners: 11 tests
-  - Cart/Wishlist: 14 tests
-  - E2E Workflows: 27 tests
+```python
+# Test 1: Get empty wishlist
+POST /wishlist/get
+Body: {"user_id": 19}
+Expected: 200 OK, empty items array
 
-### Target Coverage:
+# Test 2: Add product to wishlist
+POST /wishlist/add
+Body: {"user_id": 19, "product_id": 1}
+Expected: 200 OK, wishlist with 1 item
 
-- ✅ All public API endpoints tested
-- ✅ Happy paths covered
-- ✅ Error cases handled
-- ✅ Authentication verified
-- ✅ Database relationships checked
-- ⏳ Performance benchmarks (in progress)
+# Test 3: Verify item added
+POST /wishlist/get
+Body: {"user_id": 19}
+Expected: 200 OK, wishlist with 1 item
+
+# Test 4: Remove product
+POST /wishlist/remove
+Body: {"user_id": 19, "product_id": 1}
+Expected: 200 OK, empty wishlist
+
+# Test 5: Clear wishlist
+POST /wishlist/clear
+Body: {"user_id": 19}
+Expected: 200 OK, empty wishlist
+```
+
+### Cart Tests (Stateless)
+
+```python
+# Test 1: Get empty cart
+POST /cart/get
+Body: {"user_id": 19}
+Expected: 200 OK, empty items array
+
+# Test 2: Add SKU to cart
+POST /cart/add
+Body: {"user_id": 19, "sku_id": 1, "quantity": 2}
+Expected: 200 OK, cart with 1 item, quantity 2
+
+# Test 3: Verify item added
+POST /cart/get
+Body: {"user_id": 19}
+Expected: 200 OK, cart with 1 item
+
+# Test 4: Update quantity
+POST /cart/update
+Body: {"user_id": 19, "cart_item_id": 1, "quantity": 5}
+Expected: 200 OK, cart item quantity updated to 5
+
+# Test 5: Remove item
+POST /cart/remove
+Body: {"user_id": 19, "cart_item_id": 1}
+Expected: 200 OK, empty cart
+
+# Test 6: Clear cart
+POST /cart/clear
+Body: {"user_id": 19}
+Expected: 200 OK, empty cart
+```
+
+### Error Handling Tests
+
+```python
+# Test 1: Invalid user_id
+POST /wishlist/get
+Body: {"user_id": 999999}
+Expected: 404 Not Found
+
+# Test 2: Invalid product_id
+POST /wishlist/add
+Body: {"user_id": 19, "product_id": 999999}
+Expected: 404 Not Found
+
+# Test 3: Missing user_id
+POST /cart/add
+Body: {"sku_id": 1, "quantity": 1}
+Expected: 422 Unprocessable Entity
+```
 
 ---
 
-## 🐛 Debugging Integration Tests
+## 🐛 Troubleshooting
 
-### View Full Error Details:
+### Issue 1: Connection Error
+
+```
+Failed to connect to server
+```
+
+**Solution:**
+
+- Check if backend is running
+- Verify BASE_URL is correct
+- Check network connection
 
 ```bash
-pytest tests/integration/ -v --tb=long
+# Test connection
+curl https://marquebackend-production.up.railway.app/health
 ```
 
-### Stop on First Failure:
+### Issue 2: 404 User Not Found
 
-```bash
-pytest tests/integration/ -x
+```
+❌ ERROR: User not found
 ```
 
-### Run Specific Failed Test:
+**Solution:**
 
-```bash
-pytest tests/integration/test_product_api.py::TestProductSearchAPI::test_search_with_valid_query -v
+- Use a valid user_id from your database
+- Check database has test user
+
+```sql
+-- Check users in database
+SELECT id, phone_number FROM users LIMIT 5;
 ```
 
-### Print Debug Output:
+### Issue 3: 404 Product Not Found
 
-```python
-def test_example(api_client):
-    response = api_client.get("/api/v1/products")
-    print(f"Status: {response.status_code}")
-    print(f"Body: {response.json()}")
-    assert response.status_code == 200
+```
+❌ ERROR: Product not found
 ```
 
-Then run with `-s` flag:
+**Solution:**
 
-```bash
-pytest tests/integration/ -v -s
+- Use a valid product_id
+- Check database has products
+
+```sql
+-- Check products in database
+SELECT id, title FROM products LIMIT 5;
+```
+
+### Issue 4: 404 SKU Not Found
+
+```
+❌ ERROR: SKU not found
+```
+
+**Solution:**
+
+- Use a valid sku_id
+- Check database has SKUs
+
+```sql
+-- Check SKUs in database
+SELECT id, product_id FROM skus LIMIT 5;
 ```
 
 ---
 
-## 💡 Best Practices
+## 📈 Advanced Testing
 
-### ✅ Do's:
+### Test Against Local Server
 
-1. **Test complete workflows** - Not just individual functions
-2. **Use realistic data** - Sample data should mirror production
-3. **Test error cases** - Not just happy paths
-4. **Keep tests independent** - Each test should run in isolation
-5. **Use fixtures** - Don't duplicate setup code
-6. **Test with authentication** - Verify security
-7. **Check response structure** - Not just status codes
+```bash
+# Start local server first
+cd /Users/macbookpro/M4_Projects/Prodaction/Marque
+python3 -m uvicorn src.app_01.main:app --reload --port 8000
 
-### ❌ Don'ts:
+# In another terminal, run tests
+python3 test_cart_wishlist_integration.py
+# Choose "y" when asked "Use local server?"
+```
 
-1. **Don't test implementation details** - Test behavior
-2. **Don't make external API calls** - Mock them
-3. **Don't depend on test order** - Tests should be independent
-4. **Don't ignore slow tests** - Mark them and run separately
-5. **Don't test everything** - Focus on critical paths
+### Test with Custom Data
+
+Edit `test_cart_wishlist_integration.py`:
+
+```python
+# Use specific test data
+TEST_USER_ID = 42
+TEST_PRODUCT_ID = 123
+TEST_SKU_ID = 456
+```
+
+### Test Multiple Users
+
+Run the script multiple times with different user_ids:
+
+```bash
+# User 1
+python3 test_cart_wishlist_integration.py
+# Enter: 19
+
+# User 2
+python3 test_cart_wishlist_integration.py
+# Enter: 20
+```
 
 ---
 
 ## 🔄 Continuous Integration
 
-### GitHub Actions Example:
+### Add to CI/CD Pipeline
 
 ```yaml
+# .github/workflows/test.yml
 name: Integration Tests
 
 on: [push, pull_request]
@@ -393,70 +406,67 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
-
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: "3.11"
-
+          python-version: "3.9"
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install pytest pytest-cov
-
+        run: pip install requests
       - name: Run integration tests
-        run: |
-          pytest tests/integration/ -v --cov
+        run: python3 test_cart_wishlist_integration.py
+        env:
+          TEST_USER_ID: 19
+          TEST_PRODUCT_ID: 1
+          TEST_SKU_ID: 1
 ```
 
 ---
 
-## 📈 Performance Testing
+## 📋 Checklist
 
-### Benchmark Tests:
+Before running tests:
 
-```python
-@pytest.mark.slow
-@pytest.mark.integration
-def test_search_performance(api_client):
-    """Test search response time"""
-    import time
+- [ ] Backend is deployed and running
+- [ ] Database has test data (users, products, SKUs)
+- [ ] You have valid test user_id, product_id, sku_id
+- [ ] Python 3.x is installed
+- [ ] `requests` library is installed
 
-    start = time.time()
-    response = api_client.get("/api/v1/products/search?q=test")
-    end = time.time()
+After tests pass:
 
-    # Should respond within 2 seconds
-    assert (end - start) < 2.0
-    assert response.status_code == 200
-```
+- [ ] All wishlist endpoints work ✅
+- [ ] All cart stateless endpoints work ✅
+- [ ] Legacy JWT endpoints work (if tested) ✅
+- [ ] Error handling is correct ✅
+- [ ] Ready for production! 🚀
 
 ---
 
-## 🎯 Summary
+## 📞 Support
 
-Integration tests ensure your application components work together correctly:
+If tests fail:
 
-✅ **83 comprehensive integration tests**  
-✅ **Cover all major features** (auth, products, banners, cart, wishlist)  
-✅ **Test complete workflows** (guest browsing, authenticated shopping)  
-✅ **Verify API endpoints** (requests, responses, errors)  
-✅ **Check database operations** (CRUD, relationships)  
-✅ **Test authentication** (protected routes, tokens)  
-✅ **Include performance tests** (response times)
+1. Check error messages in console
+2. Verify test data (user_id, product_id, sku_id) exists
+3. Check backend logs
+4. Review BACKEND_API_AUDIT_REPORT.md
+5. Review CART_API_UPDATED_TO_STATELESS.md
 
 ---
 
-## 📚 Additional Resources
+## ✅ Success Criteria
 
-- **Unit Tests**: `tests/unit/` - Test individual functions
-- **Test Documentation**: `tests/README.md` - General testing guide
-- **API Documentation**: `API_DOCUMENTATION.md` - API endpoints
-- **Product Search Guide**: `PRODUCT_SEARCH_GUIDE.md` - Search feature docs
+Tests are successful when:
+
+- ✅ All test suites pass (4/4 or 3/3 without JWT)
+- ✅ No 500 errors
+- ✅ 404 errors only for invalid data
+- ✅ 422 errors only for missing fields
+- ✅ Cart and wishlist operations complete correctly
 
 ---
 
-**Integration testing ensures your application works as a cohesive system!** 🚀
+**Created:** October 25, 2025  
+**Status:** ✅ Ready to test!
