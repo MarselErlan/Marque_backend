@@ -140,6 +140,7 @@ def sample_products_in_category(test_db: Session, sample_categories_with_subcate
             subcategory_id=tshirt_subcategory.id,
             title=f"Футболка тестовая {i}",
             slug=f"test-tshirt-{i}",
+            sku_code=f"BASE-TEST-TSHIRT-{i}",
             description=f"Тестовая футболка номер {i}",
             is_active=True,
             is_featured=False
@@ -181,6 +182,7 @@ def sample_products_in_subcategory(test_db: Session, sample_categories_with_subc
             subcategory_id=tshirt_subcategory.id,
             title=f"Футболка {i}",
             slug=f"tshirt-{i}",
+            sku_code=f"BASE-TSHIRT-{i}",
             description=f"Описание футболки {i}",
             is_active=True,
             sold_count=i * 10,
@@ -247,6 +249,7 @@ def many_products_for_pagination(test_db: Session, sample_categories_with_subcat
             subcategory_id=tshirt_subcategory.id,
             title=f"Продукт {i:03d}",
             slug=f"product-{i:03d}",
+            sku_code=f"BASE-PROD-{i:03d}",
             description=f"Описание продукта {i}",
             is_active=True,
             sold_count=i,
@@ -289,6 +292,7 @@ def sample_product_with_details(test_db: Session, sample_categories_with_subcate
         subcategory_id=tshirt_subcategory.id,
         title="Футболка спорт. из хлопка",
         slug="sport-cotton-tshirt",
+        sku_code="BASE-SPORT-COTTON-TSHIRT",
         description="Спортивная футболка из качественного хлопка. Удобная и практичная для повседневной носки.",
         is_active=True,
         sold_count=456,
@@ -436,6 +440,7 @@ def sample_product_with_similar(test_db: Session, sample_product_with_details, s
             subcategory_id=main_product.subcategory_id,
             title=f"Похожая футболка {i+1}",
             slug=f"similar-tshirt-{i+1}",
+            sku_code=f"BASE-SIMILAR-{i+1}",
             description=f"Похожий товар номер {i+1}",
             is_active=True,
             sold_count=100 + i,
@@ -476,6 +481,7 @@ def inactive_product(test_db: Session, sample_categories_with_subcategories, sam
         subcategory_id=subcategories[0].id,
         title="Неактивный товар",
         slug="inactive-product",
+        sku_code="BASE-INACTIVE-PROD",
         description="Этот товар неактивен",
         is_active=False
     )
@@ -536,6 +542,7 @@ def sample_products_in_subcategory(test_db: Session, sample_categories_with_subc
             subcategory_id=tshirt_subcategory.id,
             title=f"T-Shirt {i+1}",
             slug=f"t-shirt-{i+1}",
+            sku_code=f"BASE-TSHIRT-{i+1}",
             description=f"Description {i+1}",
             is_active=True,
             rating_avg=4.0 + (i * 0.1),
@@ -577,6 +584,7 @@ def sample_many_products_in_subcategory(test_db: Session, sample_categories_with
             subcategory_id=tshirt_subcategory.id,
             title=f"Product {i+1}",
             slug=f"product-{i+1}",
+            sku_code=f"BASE-PROD-{i+1}",
             description=f"Description {i+1}",
             is_active=True
         )
@@ -633,6 +641,7 @@ def sample_products_active_and_inactive(test_db: Session, sample_categories_with
             subcategory_id=tshirt_subcategory.id,
             title=f"Product {i+1}",
             slug=f"product-active-{i+1}",
+            sku_code=f"BASE-PROD-ACT-{i+1}",
             is_active=(i < 3)  # First 3 are active, last 2 are inactive
         )
         test_db.add(product)
@@ -670,6 +679,7 @@ def sample_products_with_and_without_skus(test_db: Session, sample_categories_wi
             subcategory_id=tshirt_subcategory.id,
             title=f"Product {i+1}",
             slug=f"product-sku-{i+1}",
+            sku_code=f"BASE-PROD-SKU-{i+1}",
             is_active=True
         )
         test_db.add(product)
@@ -710,6 +720,7 @@ def sample_products_various_prices(test_db: Session, sample_categories_with_subc
             subcategory_id=tshirt_subcategory.id,
             title=f"Product Price {price}",
             slug=f"product-price-{price}",
+            sku_code=f"BASE-PRICE-{price}",
             is_active=True
         )
         test_db.add(product)
@@ -749,6 +760,7 @@ def sample_products_different_dates(test_db: Session, sample_categories_with_sub
             subcategory_id=tshirt_subcategory.id,
             title=f"Product {i+1}",
             slug=f"product-date-{i+1}",
+            sku_code=f"BASE-DATE-{i+1}",
             is_active=True,
             created_at=datetime.utcnow() - timedelta(days=i)
         )
@@ -789,6 +801,7 @@ def sample_products_different_popularity(test_db: Session, sample_categories_wit
             subcategory_id=tshirt_subcategory.id,
             title=f"Product Popularity {sold_count}",
             slug=f"product-popularity-{idx+1}",
+            sku_code=f"BASE-POP-{idx+1}",
             is_active=True,
             sold_count=sold_count
         )
@@ -829,6 +842,7 @@ def sample_products_different_ratings(test_db: Session, sample_categories_with_s
             subcategory_id=tshirt_subcategory.id,
             title=f"Product Rating {rating}",
             slug=f"product-rating-{idx+1}",
+            sku_code=f"BASE-RATE-{idx+1}",
             is_active=True,
             rating_avg=rating,
             rating_count=10
@@ -870,6 +884,7 @@ def sample_products_various_sizes(test_db: Session, sample_categories_with_subca
             subcategory_id=tshirt_subcategory.id,
             title=f"Product Size {size}",
             slug=f"product-size-{size.lower()}",
+            sku_code=f"BASE-SIZE-{size}",
             is_active=True
         )
         test_db.add(product)
@@ -909,6 +924,7 @@ def sample_products_various_colors(test_db: Session, sample_categories_with_subc
             subcategory_id=tshirt_subcategory.id,
             title=f"Product Color {color}",
             slug=f"product-color-{color}",
+            sku_code=f"BASE-COLOR-{color}",
             is_active=True
         )
         test_db.add(product)
@@ -958,6 +974,7 @@ def sample_products_multiple_brands(test_db: Session, sample_categories_with_sub
                 subcategory_id=tshirt_subcategory.id,
                 title=f"{brand.name} Product {i+1}",
                 slug=f"{brand.slug}-product-{i+1}",
+                sku_code=f"BASE-{brand.slug.upper()}-{i+1}",
                 is_active=True
             )
             test_db.add(product)
@@ -1006,6 +1023,7 @@ def sample_products_for_filtering(test_db: Session, sample_categories_with_subca
             subcategory_id=tshirt_subcategory.id,
             title=f"Filter Test Product {i+1}",
             slug=f"filter-test-{i+1}",
+            sku_code=f"BASE-FILTER-{i+1}",
             is_active=True
         )
         test_db.add(product)
@@ -1043,6 +1061,7 @@ def sample_many_products_for_filtering(test_db: Session, sample_categories_with_
             subcategory_id=tshirt_subcategory.id,
             title=f"Many Filter Product {i+1}",
             slug=f"many-filter-{i+1}",
+            sku_code=f"BASE-MANY-FILTER-{i+1}",
             is_active=True
         )
         test_db.add(product)
@@ -1088,6 +1107,7 @@ def sample_products_for_search(test_db: Session, sample_categories_with_subcateg
             subcategory_id=tshirt_subcategory.id,
             title=title,
             slug=f"search-product-{idx+1}",
+            sku_code=f"BASE-SEARCH-{idx+1}",
             is_active=True
         )
         test_db.add(product)

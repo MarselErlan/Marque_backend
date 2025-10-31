@@ -114,7 +114,7 @@ def get_popular_searches(
     **Returns:** Most searched terms sorted by count
     """
     searches = ProductSearch.get_popular_searches(db, limit)
-    return [SearchTermResponse.from_orm(s) for s in searches]
+    return [SearchTermResponse.model_validate(s) for s in searches]
 
 
 @router.get("/recent", response_model=List[SearchTermResponse])
@@ -135,7 +135,7 @@ def get_recent_searches(
     **Returns:** Recent searches sorted by timestamp
     """
     searches = ProductSearch.get_recent_searches(db, limit)
-    return [SearchTermResponse.from_orm(s) for s in searches]
+    return [SearchTermResponse.model_validate(s) for s in searches]
 
 
 @router.get("/trending", response_model=List[SearchTermResponse])
@@ -159,7 +159,7 @@ def get_trending_searches(
     **Returns:** Trending searches in specified period
     """
     searches = ProductSearch.get_trending_searches(db, days, limit)
-    return [SearchTermResponse.from_orm(s) for s in searches]
+    return [SearchTermResponse.model_validate(s) for s in searches]
 
 
 # ========================
@@ -191,7 +191,7 @@ def get_zero_result_searches(
     **Returns:** Failed searches sorted by popularity
     """
     searches = ProductSearch.get_zero_result_searches(db, limit)
-    return [SearchTermResponse.from_orm(s) for s in searches]
+    return [SearchTermResponse.model_validate(s) for s in searches]
 
 
 # ========================
@@ -311,15 +311,15 @@ def get_search_insights(db: Session = Depends(get_db)):
     """
     return {
         "popular_searches": [
-            SearchTermResponse.from_orm(s)
+            SearchTermResponse.model_validate(s)
             for s in ProductSearch.get_popular_searches(db, 5)
         ],
         "zero_result_searches": [
-            SearchTermResponse.from_orm(s)
+            SearchTermResponse.model_validate(s)
             for s in ProductSearch.get_zero_result_searches(db, 5)
         ],
         "trending_searches": [
-            SearchTermResponse.from_orm(s)
+            SearchTermResponse.model_validate(s)
             for s in ProductSearch.get_trending_searches(db, 7, 5)
         ],
         "recommendations": generate_recommendations(db)
@@ -388,19 +388,20 @@ def clear_old_searches(
     
     **Returns:** Number of deleted records
     """
-    from datetime import datetime, timedelta
+    from datetime import datetime, timedelta, timezone
     
-    cutoff_date = datetime.now() - timedelta(days=days)
+    # Use timezone-aware datetime for PostgreSQL compatibility
+    cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
     
-    deleted = db.query(ProductSearch).filter(
+    deleted_count = db.query(ProductSearch).filter(
         ProductSearch.last_searched < cutoff_date
-    ).delete()
+    ).delete(synchronize_session=False)
     
     db.commit()
     
     return {
         "success": True,
-        "message": f"Deleted {deleted} search records older than {days} days",
-        "deleted_count": deleted
+        "message": f"Deleted {deleted_count} search records older than {days} days",
+        "deleted_count": deleted_count
     }
 

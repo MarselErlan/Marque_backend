@@ -23,7 +23,7 @@ def setup_dashboard_data(db_session: Session):
     db_session.add(subcategory)
     db_session.commit()
 
-    product = Product(title="Test Product", slug="test-product", brand_id=brand.id, category_id=category.id, subcategory_id=subcategory.id, is_active=True)
+    product = Product(title="Test Product", slug="test-product", sku_code="BASE-TEST-PRODUCT", brand_id=brand.id, category_id=category.id, subcategory_id=subcategory.id, is_active=True)
     db_session.add(product)
     db_session.commit()
     

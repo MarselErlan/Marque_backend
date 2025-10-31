@@ -168,7 +168,7 @@ def get_sizes(
     else:
         sizes = ProductAttribute.get_sizes(db)
     
-    return [AttributeResponse.from_orm(s) for s in sizes]
+    return [AttributeResponse.model_validate(s) for s in sizes]
 
 
 @router.get("/attributes/colors", response_model=List[AttributeResponse])
@@ -189,7 +189,7 @@ def get_colors(
     else:
         colors = ProductAttribute.get_colors(db)
     
-    return [AttributeResponse.from_orm(c) for c in colors]
+    return [AttributeResponse.model_validate(c) for c in colors]
 
 
 @router.get("/attributes/brands", response_model=List[AttributeResponse])
@@ -210,7 +210,7 @@ def get_attribute_brands(
     else:
         brands = ProductAttribute.get_brands(db)
     
-    return [AttributeResponse.from_orm(b) for b in brands]
+    return [AttributeResponse.model_validate(b) for b in brands]
 
 
 @router.get("/attributes/most-used/{attribute_type}", response_model=List[AttributeResponse])
@@ -234,7 +234,7 @@ def get_most_used_attributes(
     **Returns:** Most used attributes sorted by popularity
     """
     attrs = ProductAttribute.get_most_used_attributes(db, attribute_type, limit)
-    return [AttributeResponse.from_orm(a) for a in attrs]
+    return [AttributeResponse.model_validate(a) for a in attrs]
 
 
 # ========================
@@ -264,7 +264,7 @@ def get_filters_by_type(
     **Returns:** List of filter options
     """
     filters = ProductFilter.get_filters_by_type(db, filter_type)
-    return [FilterResponse.from_orm(f) for f in filters]
+    return [FilterResponse.model_validate(f) for f in filters]
 
 
 @router.get("/filters/popular/{filter_type}", response_model=List[FilterResponse])
@@ -288,7 +288,7 @@ def get_popular_filters(
     **Returns:** Most used filters
     """
     filters = ProductFilter.get_popular_filters(db, filter_type, limit)
-    return [FilterResponse.from_orm(f) for f in filters]
+    return [FilterResponse.model_validate(f) for f in filters]
 
 
 @router.get("/filters", response_model=dict)
@@ -332,7 +332,7 @@ def get_seasons(
     else:
         seasons = ProductSeason.get_all_active(db)
     
-    return [SeasonResponse.from_orm(s) for s in seasons]
+    return [SeasonResponse.model_validate(s) for s in seasons]
 
 
 @router.get("/seasons/popular", response_model=List[SeasonResponse])
@@ -353,7 +353,7 @@ def get_popular_seasons(
     **Returns:** Seasons sorted by product count
     """
     seasons = ProductSeason.get_popular_seasons(db, limit)
-    return [SeasonResponse.from_orm(s) for s in seasons]
+    return [SeasonResponse.model_validate(s) for s in seasons]
 
 
 @router.get("/seasons/{slug}", response_model=SeasonResponse)
@@ -377,7 +377,7 @@ def get_season_by_slug(
     if not season:
         raise HTTPException(status_code=404, detail="Season not found")
     
-    return SeasonResponse.from_orm(season)
+    return SeasonResponse.model_validate(season)
 
 
 # ========================
@@ -407,7 +407,7 @@ def get_materials(
     else:
         materials = ProductMaterial.get_all_active(db)
     
-    return [MaterialResponse.from_orm(m) for m in materials]
+    return [MaterialResponse.model_validate(m) for m in materials]
 
 
 @router.get("/materials/popular", response_model=List[MaterialResponse])
@@ -428,7 +428,7 @@ def get_popular_materials(
     **Returns:** Materials sorted by product count
     """
     materials = ProductMaterial.get_popular_materials(db, limit)
-    return [MaterialResponse.from_orm(m) for m in materials]
+    return [MaterialResponse.model_validate(m) for m in materials]
 
 
 @router.get("/materials/{slug}", response_model=MaterialResponse)
@@ -452,7 +452,7 @@ def get_material_by_slug(
     if not material:
         raise HTTPException(status_code=404, detail="Material not found")
     
-    return MaterialResponse.from_orm(material)
+    return MaterialResponse.model_validate(material)
 
 
 # ========================
@@ -482,7 +482,7 @@ def get_styles(
     else:
         styles = ProductStyle.get_all_active(db)
     
-    return [StyleResponse.from_orm(s) for s in styles]
+    return [StyleResponse.model_validate(s) for s in styles]
 
 
 @router.get("/styles/popular", response_model=List[StyleResponse])
@@ -503,7 +503,7 @@ def get_popular_styles(
     **Returns:** Styles sorted by product count
     """
     styles = ProductStyle.get_popular_styles(db, limit)
-    return [StyleResponse.from_orm(s) for s in styles]
+    return [StyleResponse.model_validate(s) for s in styles]
 
 
 @router.get("/styles/{slug}", response_model=StyleResponse)
@@ -527,7 +527,7 @@ def get_style_by_slug(
     if not style:
         raise HTTPException(status_code=404, detail="Style not found")
     
-    return StyleResponse.from_orm(style)
+    return StyleResponse.model_validate(style)
 
 
 # ========================

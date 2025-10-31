@@ -125,6 +125,7 @@ class TestSubcategoryModel:
         p1 = Product(
             title=f"Active Product {unique_id}",
             slug=f"active-{unique_id}",
+            sku_code=f"BASE-ACTIVE-{unique_id}",
             brand_id=brand.id,
             category_id=category.id,
             subcategory_id=subcategory.id,
@@ -133,6 +134,7 @@ class TestSubcategoryModel:
         p2 = Product(
             title=f"Inactive Product {unique_id}",
             slug=f"inactive-{unique_id}",
+            sku_code=f"BASE-INACTIVE-{unique_id}",
             brand_id=brand.id,
             category_id=category.id,
             subcategory_id=subcategory.id,

@@ -122,6 +122,7 @@ def sample_product_for_admin(admin_test_db: Session):
     product = Product(
         title=f"Test Product {unique_id}",
         slug=f"test-product-{unique_id}",
+        sku_code=f"BASE-TEST-PROD-{unique_id}",
         description="Test product description",
         brand_id=brand.id,
         category_id=category.id,

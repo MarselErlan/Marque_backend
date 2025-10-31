@@ -245,7 +245,8 @@ class AuthService:
                     phone=user.phone_number,
                     email=user.email,
                     is_active=user.is_active,
-                    is_verified=user.is_verified
+                    is_verified=user.is_verified,
+                    market=MarketEnum(market.value)  # Add market to user schema
                 )
 
                 return VerifyCodeResponse(

@@ -141,6 +141,7 @@ class TestMultiMarketAdminIntegration:
                     product = Product(
                         title=f"{market} Test Product",
                         slug=f"{market.lower()}-test-product",
+                        sku_code=f"{market.upper()}-SKU-TEST-001",
                         description=f"Test product for {market} market",
                         category_id=category.id,
                         subcategory_id=subcategory.id,

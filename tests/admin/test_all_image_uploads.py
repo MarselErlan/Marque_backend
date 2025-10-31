@@ -211,6 +211,7 @@ def test_product_image_upload(db_session: Session):
         subcategory_id=subcategory.id,
         title="Test Product",
         slug="test-product",
+        sku_code="BASE-TEST-PRODUCT-IMG",
         description="Test product description",
         main_image=main_url,
         additional_images=additional_urls
@@ -299,6 +300,7 @@ def test_complete_catalog_with_images(db_session: Session):
         subcategory_id=subcategory.id,
         title="Nike T-Shirt",
         slug="nike-tshirt",
+        sku_code="BASE-NIKE-TSHIRT",
         main_image=main_url
     )
     db_session.add(product)

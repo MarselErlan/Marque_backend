@@ -239,9 +239,9 @@ def get_product_gallery(
     return ProductGalleryResponse(
         product_id=product_id,
         product_name=product.title,
-        primary_image=ProductAssetResponse.from_orm(primary_image) if primary_image else None,
-        all_images=[ProductAssetResponse.from_orm(img) for img in all_images],
-        videos=[ProductAssetResponse.from_orm(vid) for vid in videos],
+        primary_image=ProductAssetResponse.model_validate(primary_image) if primary_image else None,
+        all_images=[ProductAssetResponse.model_validate(img) for img in all_images],
+        videos=[ProductAssetResponse.model_validate(vid) for vid in videos],
         total_assets=len(all_images) + len(videos)
     )
 
@@ -263,10 +263,13 @@ def set_primary_image(
     if not asset:
         raise HTTPException(status_code=404, detail="Asset not found")
     
-    if asset.type != 'image':
+    # Check if asset is an image
+    if asset.type.lower() != 'image':
         raise HTTPException(status_code=400, detail="Only images can be set as primary")
     
+    # Set as primary (this method handles unsetting others and commits)
     asset.set_as_primary(db)
+    db.refresh(asset)  # Refresh to ensure state is current
     
     return {
         "success": True,
@@ -315,7 +318,7 @@ def update_product_asset(
     db.commit()
     db.refresh(asset)
     
-    return ProductAssetResponse.from_orm(asset)
+    return ProductAssetResponse.model_validate(asset)
 
 
 @router.delete("/{asset_id}")
@@ -349,6 +352,7 @@ def delete_product_asset(
         # Delete from database
         db.delete(asset)
         db.commit()
+        db.flush()  # Ensure deletion is processed
         
         return {
             "success": True,
@@ -358,6 +362,7 @@ def delete_product_asset(
         # Soft delete (deactivate)
         asset.is_active = False
         db.commit()
+        db.refresh(asset)  # Refresh to ensure state is current
         
         return {
             "success": True,
@@ -382,6 +387,7 @@ def restore_product_asset(
     
     asset.is_active = True
     db.commit()
+    db.refresh(asset)  # Refresh to ensure state is current
     
     return {
         "success": True,

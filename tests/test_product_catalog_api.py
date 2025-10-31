@@ -24,9 +24,13 @@ from src.app_01.models import (
     ProductStyle, ProductDiscount, ProductSearch
 )
 
-# Test database - SQLite for local testing (production uses PostgreSQL)
-SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///./test_product_catalog.db"
-engine = create_engine(SQLALCHEMY_TEST_DATABASE_URL, connect_args={"check_same_thread": False})
+# Test database - Use in-memory SQLite for better test isolation
+from sqlalchemy.pool import StaticPool
+engine = create_engine(
+    "sqlite:///:memory:",
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool
+)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
@@ -39,128 +43,150 @@ def override_get_db():
         db.close()
 
 
-app.dependency_overrides[get_db] = override_get_db
+# Set up dependency override - ensure it's done fresh for each test file
+if get_db not in app.dependency_overrides:
+    app.dependency_overrides[get_db] = override_get_db
 client = TestClient(app)
 
 
 @pytest.fixture(scope="function", autouse=True)
 def setup_database():
     """Create tables before each test, drop after"""
+    # Ensure our dependency override is set (may have been overwritten by other test files)
+    app.dependency_overrides[get_db] = override_get_db
+    Base.metadata.drop_all(bind=engine)  # Clean up first
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)
 
 
 @pytest.fixture
-def sample_attributes():
+def sample_attributes(setup_database):
     """Create sample product attributes"""
+    # Use the same engine to ensure data visibility
     db = TestingSessionLocal()
     
-    # Sizes
-    sizes = [
-        ProductAttribute(attribute_type="size", attribute_value="S", display_name="Small", usage_count=10, is_featured=True),
-        ProductAttribute(attribute_type="size", attribute_value="M", display_name="Medium", usage_count=20),
-        ProductAttribute(attribute_type="size", attribute_value="L", display_name="Large", usage_count=15),
-    ]
-    
-    # Colors
-    colors = [
-        ProductAttribute(attribute_type="color", attribute_value="red", display_name="Red", usage_count=25, is_featured=True),
-        ProductAttribute(attribute_type="color", attribute_value="blue", display_name="Blue", usage_count=18),
-        ProductAttribute(attribute_type="color", attribute_value="black", display_name="Black", usage_count=30),
-    ]
-    
-    # Brands
-    brands = [
-        ProductAttribute(attribute_type="brand", attribute_value="nike", display_name="Nike", usage_count=50, is_featured=True),
-        ProductAttribute(attribute_type="brand", attribute_value="adidas", display_name="Adidas", usage_count=40),
-    ]
-    
-    for attr in sizes + colors + brands:
-        db.add(attr)
-    
-    db.commit()
-    db.close()
+    try:
+        # Sizes
+        sizes = [
+            ProductAttribute(attribute_type="size", attribute_value="S", display_name="Small", usage_count=10, is_featured=True, is_active=True),
+            ProductAttribute(attribute_type="size", attribute_value="M", display_name="Medium", usage_count=20, is_active=True),
+            ProductAttribute(attribute_type="size", attribute_value="L", display_name="Large", usage_count=15, is_active=True),
+        ]
+        
+        # Colors
+        colors = [
+            ProductAttribute(attribute_type="color", attribute_value="red", display_name="Red", usage_count=25, is_featured=True, is_active=True),
+            ProductAttribute(attribute_type="color", attribute_value="blue", display_name="Blue", usage_count=18, is_active=True),
+            ProductAttribute(attribute_type="color", attribute_value="black", display_name="Black", usage_count=30, is_active=True),
+        ]
+        
+        # Brands
+        brands = [
+            ProductAttribute(attribute_type="brand", attribute_value="nike", display_name="Nike", usage_count=50, is_featured=True, is_active=True),
+            ProductAttribute(attribute_type="brand", attribute_value="adidas", display_name="Adidas", usage_count=40, is_active=True),
+        ]
+        
+        for attr in sizes + colors + brands:
+            db.add(attr)
+        
+        db.commit()
+        db.flush()  # Ensure data is persisted to the database
+    finally:
+        db.close()
     
     return {"sizes": len(sizes), "colors": len(colors), "brands": len(brands)}
 
 
 @pytest.fixture
-def sample_seasons():
+def sample_seasons(setup_database):
     """Create sample seasons"""
     db = TestingSessionLocal()
     
-    seasons = [
-        ProductSeason(name="Лето", slug="summer", product_count=50, is_featured=True, is_active=True),
-        ProductSeason(name="Зима", slug="winter", product_count=30, is_featured=False, is_active=True),
-        ProductSeason(name="Мульти", slug="multi", product_count=40, is_featured=True, is_active=True),
-    ]
-    
-    for season in seasons:
-        db.add(season)
-    
-    db.commit()
-    db.close()
+    try:
+        seasons = [
+            ProductSeason(name="Весна", slug="spring", product_count=20, is_featured=False, is_active=True),
+            ProductSeason(name="Лето", slug="summer", product_count=50, is_featured=True, is_active=True),
+            ProductSeason(name="Зима", slug="winter", product_count=30, is_featured=False, is_active=True),
+            ProductSeason(name="Мульти", slug="multi", product_count=40, is_featured=True, is_active=True),
+        ]
+        
+        for season in seasons:
+            db.add(season)
+        
+        db.commit()
+        db.flush()  # Ensure data is persisted
+    finally:
+        db.close()
     
     return len(seasons)
 
 
 @pytest.fixture
-def sample_materials():
+def sample_materials(setup_database):
     """Create sample materials"""
     db = TestingSessionLocal()
     
-    materials = [
-        ProductMaterial(name="Хлопок", slug="cotton", product_count=60, is_featured=True, is_active=True),
-        ProductMaterial(name="Полиэстер", slug="polyester", product_count=45, is_featured=False, is_active=True),
-        ProductMaterial(name="Шерсть", slug="wool", product_count=20, is_featured=True, is_active=True),
-    ]
-    
-    for material in materials:
-        db.add(material)
-    
-    db.commit()
-    db.close()
+    try:
+        materials = [
+            ProductMaterial(name="Хлопок", slug="cotton", product_count=60, is_featured=True, is_active=True),
+            ProductMaterial(name="Полиэстер", slug="polyester", product_count=45, is_featured=False, is_active=True),
+            ProductMaterial(name="Шерсть", slug="wool", product_count=20, is_featured=True, is_active=True),
+        ]
+        
+        for material in materials:
+            db.add(material)
+        
+        db.commit()
+        db.flush()  # Ensure data is persisted
+    finally:
+        db.close()
     
     return len(materials)
 
 
 @pytest.fixture
-def sample_styles():
+def sample_styles(setup_database):
     """Create sample styles"""
     db = TestingSessionLocal()
     
-    styles = [
-        ProductStyle(name="Спортивный", slug="sport", product_count=70, is_featured=True, is_active=True),
-        ProductStyle(name="Классический", slug="classic", product_count=50, is_featured=False, is_active=True),
-        ProductStyle(name="Повседневный", slug="casual", product_count=65, is_featured=True, is_active=True),
-    ]
-    
-    for style in styles:
-        db.add(style)
-    
-    db.commit()
-    db.close()
+    try:
+        styles = [
+            ProductStyle(name="Спортивный", slug="sport", product_count=70, is_featured=True, is_active=True),
+            ProductStyle(name="Классический", slug="classic", product_count=50, is_featured=False, is_active=True),
+            ProductStyle(name="Повседневный", slug="casual", product_count=65, is_featured=True, is_active=True),
+        ]
+        
+        for style in styles:
+            db.add(style)
+        
+        db.commit()
+        db.flush()  # Ensure data is persisted
+    finally:
+        db.close()
     
     return len(styles)
 
 
 @pytest.fixture
-def sample_filters():
+def sample_filters(setup_database):
     """Create sample filters"""
     db = TestingSessionLocal()
     
-    filters = [
-        ProductFilter(filter_type="size", filter_value="XL", display_name="Extra Large", usage_count=15),
-        ProductFilter(filter_type="color", filter_value="green", display_name="Green", usage_count=12),
-        ProductFilter(filter_type="price_range", filter_value="0-1000", display_name="Under 1000", usage_count=50),
-    ]
-    
-    for f in filters:
-        db.add(f)
-    
-    db.commit()
-    db.close()
+    try:
+        filters = [
+            ProductFilter(filter_type="size", filter_value="XL", display_name="Extra Large", usage_count=15),
+            ProductFilter(filter_type="color", filter_value="green", display_name="Green", usage_count=12),
+            ProductFilter(filter_type="price_range", filter_value="0-1000", display_name="Under 1000", usage_count=50),
+        ]
+        
+        for f in filters:
+            db.add(f)
+        
+        db.commit()
+        db.flush()  # Ensure data is persisted
+    finally:
+        db.close()
     
     return len(filters)
 

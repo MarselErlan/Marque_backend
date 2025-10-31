@@ -150,6 +150,7 @@ def sample_product(test_db, sample_brand, sample_category, sample_subcategory):
     product = Product(
         title="Running Shoes",
         slug="running-shoes-test",
+        sku_code="BASE-RUNNING-SHOES-TEST",
         description="Great running shoes",
         brand_id=sample_brand.id,
         category_id=sample_category.id,

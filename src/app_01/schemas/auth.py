@@ -4,9 +4,14 @@ Request and response models for phone number authentication
 """
 
 from pydantic import BaseModel, validator, Field
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from datetime import datetime
 from enum import Enum
+
+class MarketEnum(str, Enum):
+    """Supported markets"""
+    KG = "kg"
+    US = "us"
 
 class UserSchema(BaseModel):
     id: str
@@ -16,11 +21,7 @@ class UserSchema(BaseModel):
     email: Optional[str] = None
     is_active: Optional[bool] = None
     is_verified: Optional[bool] = None
-
-class MarketEnum(str, Enum):
-    """Supported markets"""
-    KG = "kg"
-    US = "us"
+    market: Optional[MarketEnum] = None  # User's market
 
 class PhoneLoginRequest(BaseModel):
     """Phone number login request"""

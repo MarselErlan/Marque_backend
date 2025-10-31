@@ -333,8 +333,9 @@ class ProductSearch(Base):
     @classmethod
     def get_trending_searches(cls, session, days=7, limit=10):
         """Get trending searches from last N days"""
-        from datetime import datetime, timedelta
-        since = datetime.now() - timedelta(days=days)
+        from datetime import datetime, timedelta, timezone
+        # Use timezone-aware datetime for PostgreSQL compatibility
+        since = datetime.now(timezone.utc) - timedelta(days=days)
         return session.query(cls).filter(
             cls.last_searched >= since
         ).order_by(cls.search_count.desc()).limit(limit).all()
@@ -342,11 +343,13 @@ class ProductSearch(Base):
     @classmethod
     def record_search(cls, session, search_term, result_count=0):
         """Record a search term with result count"""
+        from datetime import datetime, timezone
         search = session.query(cls).filter(cls.search_term == search_term).first()
         if search:
             search.search_count += 1
             search.result_count = result_count  # Update with latest count
-            search.last_searched = func.now()
+            # Use timezone-aware datetime for PostgreSQL compatibility
+            search.last_searched = datetime.now(timezone.utc)
         else:
             search = cls(search_term=search_term, search_count=1, result_count=result_count)
             session.add(search)
