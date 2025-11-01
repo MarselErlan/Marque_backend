@@ -16,6 +16,7 @@ class SKU(Base):
     original_price = Column(Float, nullable=True)
     stock = Column(Integer, default=0)
     is_active = Column(Boolean, default=True)
+    variant_image = Column(String(500), nullable=True)  # Image for this specific variant (e.g., black color photo)
 
     # Relationships
     product = relationship("Product", back_populates="skus")

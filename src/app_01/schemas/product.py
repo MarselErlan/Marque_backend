@@ -24,7 +24,7 @@ class ProductSchema(BaseModel):
     features: Optional[List[str]] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class ProductSearchResponse(BaseModel):
     """Response model for product search with pagination"""
@@ -46,7 +46,7 @@ class BrandSchema(BaseModel):
     slug: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class CategoryBreadcrumbSchema(BaseModel):
@@ -56,7 +56,7 @@ class CategoryBreadcrumbSchema(BaseModel):
     slug: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class SubcategoryBreadcrumbSchema(BaseModel):
@@ -66,7 +66,7 @@ class SubcategoryBreadcrumbSchema(BaseModel):
     slug: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ProductImageSchema(BaseModel):
@@ -78,7 +78,7 @@ class ProductImageSchema(BaseModel):
     order: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class SKUDetailSchema(BaseModel):
@@ -90,9 +90,10 @@ class SKUDetailSchema(BaseModel):
     price: float
     original_price: Optional[float] = None
     stock: int
+    variant_image: Optional[str] = None  # Image specific to this variant (e.g., black color photo)
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ReviewSchema(BaseModel):
@@ -103,7 +104,7 @@ class ReviewSchema(BaseModel):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class BreadcrumbSchema(BaseModel):
@@ -122,7 +123,7 @@ class SimilarProductSchema(BaseModel):
     rating_avg: float = 0.0
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ProductDetailSchema(BaseModel):
@@ -169,7 +170,7 @@ class ProductDetailSchema(BaseModel):
     similar_products: List[SimilarProductSchema] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # Product Listing Schemas
@@ -199,7 +200,7 @@ class ProductListItemSchema(BaseModel):
     brand_slug: str
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ProductListResponse(BaseModel):

@@ -1253,9 +1253,10 @@ class SKUAdmin(MarketAwareModelView, model=SKU):
     icon = "fa-solid fa-tags"
     category = "🛍️ Товары"
     
-    column_list = ["id", "product", "sku_code", "size", "color", "price", "stock", "is_active"]
-    column_details_list = ["id", "product", "sku_code", "size", "color", "price", "original_price", "stock", "is_active"]
+    column_list = ["id", "product", "sku_code", "size", "color", "variant_image_preview", "price", "stock", "is_active"]
+    column_details_list = ["id", "product", "sku_code", "size", "color", "variant_image", "price", "original_price", "stock", "is_active"]
     form_columns = ["product", "size", "color", "price", "original_price", "stock", "is_active"]
+    # Note: variant_image is added via scaffold_form
     
     column_searchable_list = ["sku_code", "size", "color", "product.title"]
     column_sortable_list = ["id", "sku_code", "price", "stock", "is_active"]
@@ -1270,7 +1271,9 @@ class SKUAdmin(MarketAwareModelView, model=SKU):
         "price": "Цена за этот вариант", 
         "original_price": "Оригинальная цена (для скидок)", 
         "stock": "Количество на складе",
-        "is_active": "Активен"
+        "is_active": "Активен",
+        "variant_image": "Фото варианта",
+        "variant_image_preview": "Фото"
     }
     
     column_descriptions = {
@@ -1278,12 +1281,91 @@ class SKUAdmin(MarketAwareModelView, model=SKU):
         "size": "Размер в русской системе: 40, 42, 44, 46 и т.д.",
         "color": "Название цвета на русском",
         "price": "Цена для этого конкретного размера/цвета",
-        "stock": "Сколько единиц доступно для продажи"
+        "stock": "Сколько единиц доступно для продажи",
+        "variant_image": "Фото этого варианта (например, черная футболка). При выборе варианта на сайте, это фото станет основным."
     }
     
+    column_formatters = {
+        "variant_image_preview": lambda m, a: f'<img src="{m.variant_image}" width="60" style="border-radius: 4px;">' if m.variant_image else "Нет фото"
+    }
+    
+    async def scaffold_form(self):
+        """Override to add image upload field programmatically"""
+        form_class = await super().scaffold_form()
+        
+        # Add variant image upload field
+        form_class.variant_image = FileField(
+            "Фото варианта",
+            validators=[OptionalValidator()],
+            description="Загрузите фото для этого варианта (например, черная футболка). JPEG/PNG",
+            render_kw={"accept": "image/jpeg,image/png,image/jpg"}
+        )
+        
+        return form_class
+    
+    async def _save_single_image(self, file_data, image_type: str = "variant"):
+        """Save a single uploaded image and return its URL"""
+        from fastapi import UploadFile
+        
+        if not file_data:
+            logger.warning(f"⚠️ [SKU {image_type.upper()}] file_data is None")
+            return None
+        
+        if not hasattr(file_data, "filename"):
+            logger.warning(f"⚠️ [SKU {image_type.upper()}] file_data has no filename attribute")
+            return None
+            
+        if not file_data.filename:
+            logger.warning(f"⚠️ [SKU {image_type.upper()}] filename is empty")
+            return None
+            
+        logger.info(f"📁 [SKU {image_type.upper()}] Processing file: {file_data.filename}")
+        
+        try:
+            # Re-read file bytes for processing
+            await file_data.seek(0)
+            file_bytes = await file_data.read()
+            logger.info(f"📊 [SKU {image_type.upper()}] Read {len(file_bytes)} bytes from uploaded file")
+            
+            # Validate with Pillow
+            img = Image.open(io.BytesIO(file_bytes))
+            img.verify()
+            logger.info(f"✅ [SKU {image_type.upper()}] Pillow validation passed - Image format: {img.format}")
+            
+            upload_file = UploadFile(filename=file_data.filename, file=io.BytesIO(file_bytes))
+            
+            logger.info(f"💾 [SKU {image_type.upper()}] Calling image_uploader.save_image...")
+            url = await image_uploader.save_image(
+                file=upload_file, category="product"
+            )
+            logger.info(f"✅ [SKU {image_type.upper()}] Image uploaded successfully to: {url}")
+            return url
+        except Exception as e:
+            logger.error(f"❌ [SKU {image_type.upper()}] Failed to save image: {type(e).__name__}: {e}")
+            import traceback
+            logger.error(f"📋 [SKU {image_type.upper()}] Traceback: {traceback.format_exc()}")
+            return None
+    
     async def insert_model(self, request: Request, data: dict) -> any:
-        """Auto-generate SKU code from product base SKU + size + color."""
+        """Auto-generate SKU code from product base SKU + size + color, and handle image upload."""
         logger.info(f"🔧 [SKU INSERT] RAW DATA: {data}")
+        
+        # Extract variant image file
+        variant_image_file = data.pop("variant_image", None)
+        logger.info(f"🖼️ [SKU INSERT] Extracted variant_image_file: {variant_image_file} (type: {type(variant_image_file)})")
+        
+        # Save variant image if provided
+        variant_image_url = None
+        if variant_image_file and hasattr(variant_image_file, "filename") and variant_image_file.filename:
+            logger.info("🖼️ [SKU INSERT] Processing variant image...")
+            variant_image_url = await self._save_single_image(variant_image_file, "variant")
+            logger.info(f"🖼️ [SKU INSERT] Variant image URL: {variant_image_url}")
+        else:
+            logger.info("ℹ️ [SKU INSERT] No variant image file provided")
+        
+        # Add image URL to data
+        if variant_image_url:
+            data["variant_image"] = variant_image_url
         
         # The form field is 'product' (relationship), but it gets converted to 'product_id' by SQLAdmin
         product_id = data.get("product_id") or data.get("product")
@@ -1316,7 +1398,24 @@ class SKUAdmin(MarketAwareModelView, model=SKU):
         return await super().insert_model(request, data)
     
     async def update_model(self, request: Request, pk: any, data: dict) -> any:
-        """Update SKU code if size or color changed."""
+        """Update SKU code if size or color changed, and handle image upload."""
+        logger.info(f"🔧 [SKU UPDATE] pk={pk}, data keys: {list(data.keys())}")
+        
+        # Extract variant image file
+        variant_image_file = data.pop("variant_image", None)
+        logger.info(f"🖼️ [SKU UPDATE] Extracted variant_image_file: {variant_image_file} (type: {type(variant_image_file)})")
+        
+        # Save variant image if provided (and it's a new file, not existing URL string)
+        if variant_image_file and not isinstance(variant_image_file, str):
+            if hasattr(variant_image_file, "filename") and variant_image_file.filename:
+                logger.info("🖼️ [SKU UPDATE] Processing NEW variant image upload...")
+                variant_image_url = await self._save_single_image(variant_image_file, "variant")
+                if variant_image_url:
+                    data["variant_image"] = variant_image_url
+                    logger.info(f"🖼️ [SKU UPDATE] Variant image URL: {variant_image_url}")
+        else:
+            logger.info("ℹ️ [SKU UPDATE] No new variant image provided (keeping existing)")
+        
         product_id = data.get("product_id") or data.get("product")
         size = data.get("size", "").upper().replace(" ", "")
         color = data.get("color", "").upper().replace(" ", "")
