@@ -18,6 +18,7 @@ from .routers.wishlist_router import router as wishlist_router
 from .routers.banner_router import router as banner_router
 from .routers.upload_router import router as upload_router
 from .routers.profile_router import router as profile_router  # NEW: Profile management
+from .routers.order_router import router as order_router  # NEW: Order creation and management
 # NEW: Enhanced model APIs
 from .routers.product_asset_router import router as product_asset_router
 from .routers.product_catalog_router import router as product_catalog_router
@@ -433,6 +434,7 @@ app.include_router(wishlist_router, prefix="/api/v1")
 app.include_router(banner_router, prefix="/api/v1")
 app.include_router(upload_router, prefix="/api/v1")  # Image upload endpoints
 app.include_router(profile_router, prefix="/api/v1")  # Profile management (addresses, payments, orders, notifications)
+app.include_router(order_router, prefix="/api/v1")  # Order creation and management
 
 # NEW: Enhanced APIs for improved models
 app.include_router(product_asset_router)  # Product images/videos management

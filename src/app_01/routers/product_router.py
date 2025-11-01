@@ -598,7 +598,8 @@ def get_product_detail(slug: str, db: Session = Depends(get_db)):
             color=sku.color,
             price=sku.price,
             original_price=sku.original_price,
-            stock=sku.stock
+            stock=sku.stock,
+            variant_image=sku.variant_image  # Include variant image
         )
         for sku in product.skus
     ]
