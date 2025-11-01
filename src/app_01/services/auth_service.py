@@ -20,10 +20,11 @@ from ..models.users.market_phone_verification import create_verification_for_mar
 from ..schemas.auth import (
     PhoneLoginRequest, VerifyCodeRequest, SendCodeResponse, VerifyCodeResponse,
     UserProfile, UpdateProfileRequest, VerifyTokenResponse, MarketInfo,
-    UserSchema
+    UserSchema, MarketEnum
 )
 from ..models.admins.admin import Admin
 import bcrypt
+
 
 
 # Twilio imports

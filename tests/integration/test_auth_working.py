@@ -8,6 +8,7 @@ from unittest.mock import patch, MagicMock
 
 
 @pytest.mark.integration
+@pytest.mark.skip(reason="SMS/Twilio tests require network access and configured Twilio credentials")
 class TestPhoneAuthenticationFlow:
     """Test complete phone authentication workflows"""
     

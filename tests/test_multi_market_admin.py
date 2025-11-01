@@ -835,6 +835,12 @@ class TestEnhancedMarketAwareFeatures:
             mock_db.add = Mock()
             mock_db.commit = Mock()
             mock_db.close = Mock()
+            mock_db.rollback = Mock()
+            
+            # Ensure request.state._db is not set so it uses the mocked db
+            if hasattr(mock_request_with_admin_session, 'state'):
+                if hasattr(mock_request_with_admin_session.state, '_db'):
+                    delattr(mock_request_with_admin_session.state, '_db')
             
             # Call log_admin_action
             enhanced_product_admin.log_admin_action(
@@ -944,9 +950,10 @@ class TestDashboardEnhancements:
                 return query_mock
             
             def query_side_effect(model):
-                if model == Order:
+                # Use type comparison to avoid SQLAlchemy's __eq__ triggering SQL expression
+                if type(model) == type and (model is Order or (hasattr(model, '__name__') and model.__name__ == 'Order')):
                     return create_query_mock(return_value_for_all=[])
-                elif model in (Product, SKU, User):
+                elif type(model) == type and any(model is cls or (hasattr(model, '__name__') and model.__name__ == cls.__name__) for cls in [Product, SKU, User]):
                     query_mock = create_query_mock()
                     # Special handling for Product.id.in_(subquery) pattern
                     subquery_mock = Mock()
@@ -997,9 +1004,10 @@ class TestDashboardEnhancements:
             mock_kg_order_query.filter.return_value.order_by.return_value.limit.return_value.all.return_value = []
             mock_kg_order_query.filter.return_value.count.return_value = 5
             def kg_query_side_effect(model):
-                if model == Order:
+                # Use type comparison to avoid SQLAlchemy's __eq__ triggering SQL expression
+                if type(model) == type and (model is Order or (hasattr(model, '__name__') and model.__name__ == 'Order')):
                     return mock_kg_order_query
-                elif model in (Product, SKU, User):
+                elif type(model) == type and any(model is cls or (hasattr(model, '__name__') and model.__name__ == cls.__name__) for cls in [Product, SKU, User]):
                     query_mock = create_query_mock(return_value_for_scalar=5)
                     # Special handling for Product.id.in_(subquery) pattern
                     subquery_mock = Mock()
@@ -1013,9 +1021,10 @@ class TestDashboardEnhancements:
             # Mock US database (comparison market)
             mock_us_db = Mock()
             def us_query_side_effect(model):
-                if model == Order:
+                # Use type comparison to avoid SQLAlchemy's __eq__ triggering SQL expression
+                if type(model) == type and (model is Order or (hasattr(model, '__name__') and model.__name__ == 'Order')):
                     return create_query_mock(return_value_for_scalar=3, return_value_for_all=[])
-                elif model in (Product, SKU, User):
+                elif type(model) == type and any(model is cls or (hasattr(model, '__name__') and model.__name__ == cls.__name__) for cls in [Product, SKU, User]):
                     query_mock = create_query_mock(return_value_for_scalar=3)
                     # Special handling for Product.id.in_(subquery) pattern
                     subquery_mock = Mock()

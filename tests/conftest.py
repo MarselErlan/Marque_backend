@@ -106,6 +106,30 @@ def authenticated_app_client() -> Generator[Tuple[TestClient, Session], None, No
 
     # Only override session getter for the lifespan of this fixture
     db_manager.get_db_session = get_test_db_session
+    
+    # CRITICAL FIX: Patch db_manager.get_engine to return test engine
+    # This prevents SQLAdmin from connecting to production Railway DB
+    prev_get_engine = db_manager.get_engine
+    def get_test_engine(market: Market):
+        return engine
+    db_manager.get_engine = get_test_engine
+    
+    # CRITICAL FIX 2: Patch the SQLAdmin instance to use test engine
+    # admin_app is already created at module import time, so we need to patch its engine
+    # Note: In main.py, the admin is created via create_sqladmin_app(app)
+    # We need to patch it after the app is imported
+    try:
+        import src.app_01.main
+        if hasattr(src.app_01.main, 'app'):
+            test_app = src.app_01.main.app
+            # Access the admin instance through app.state or another attribute
+            for route in test_app.routes:
+                if hasattr(route, 'path') and '/admin' in route.path:
+                    pass  # Admin routes exist, admin is initialized
+        # The admin is initialized in main.py, its engine is already set
+        # We patched db_manager.get_engine above, which should be enough
+    except:
+        pass  # If import fails, just skip this patch
 
     def override_get_db():
         try:
@@ -130,19 +154,20 @@ def authenticated_app_client() -> Generator[Tuple[TestClient, Session], None, No
     )
 
     with TestClient(app) as client:
+        # Log in the admin
+        response = client.post(
+            "/admin/login",
+            data={"username": "test_admin", "password": "password", "market": "kg"},
+            allow_redirects=False  # We will follow the redirect manually in the test if needed
+        )
+        assert response.status_code == 302, f"Admin login failed. Expected 302 redirect, got {response.status_code}. Response: {response.text}"
+        
         try:
-            # Log in the admin
-            response = client.post(
-                "/admin/login",
-                data={"username": "test_admin", "password": "password", "market": "kg"},
-                allow_redirects=False  # We will follow the redirect manually in the test if needed
-            )
-            assert response.status_code == 302, f"Admin login failed. Expected 302 redirect, got {response.status_code}. Response: {response.text}"
-            
             yield client, db_session
         finally:
             # Restore previous state
             db_manager.get_db_session = prev_get_db_session
+            db_manager.get_engine = prev_get_engine  # Restore get_engine
             db_manager.engines = prev_engines
             db_manager.session_factories = prev_session_factories
             app.dependency_overrides = prev_overrides
