@@ -1,0 +1,139 @@
+{% extends "sqladmin/layout.html" %}
+
+{% block brand %}
+{{ super() }}
+
+{# Market Indicator Badge in Sidebar #}
+<div class="market-indicator-container" style="
+    padding: 12px 16px;
+    margin: 16px 12px;
+    background: linear-gradient(135deg, 
+        {% if request.session.get('admin_market') == 'us' %}
+            #4285f4 0%, #2962ff 100%
+        {% else %}
+            #34a853 0%, #0f9d58 100%
+        {% endif %}
+    );
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    border: 2px solid rgba(255,255,255,0.2);
+">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="
+                font-size: 24px;
+                line-height: 1;
+                filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+            ">
+                {% if request.session.get('admin_market') == 'us' %}
+                    🇺🇸
+                {% else %}
+                    🇰🇬
+                {% endif %}
+            </span>
+            <div>
+                <div style="
+                    color: white;
+                    font-weight: 700;
+                    font-size: 14px;
+                    letter-spacing: 0.3px;
+                    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+                    margin-bottom: 2px;
+                ">
+                    {% if request.session.get('admin_market') == 'us' %}
+                        UNITED STATES
+                    {% else %}
+                        KYRGYZSTAN
+                    {% endif %}
+                </div>
+                <div style="
+                    color: rgba(255,255,255,0.95);
+                    font-size: 11px;
+                    font-weight: 500;
+                    text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+                ">
+                    {% if request.session.get('admin_market') == 'us' %}
+                        $ USD • English
+                    {% else %}
+                        сом KGS • Русский
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div style="
+            background: rgba(255,255,255,0.25);
+            padding: 4px 8px;
+            border-radius: 6px;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(4px);
+        ">
+            {{ request.session.get('admin_market', 'kg')|upper }} DB
+        </div>
+    </div>
+    
+    {# Connection Status Indicator #}
+    <div style="
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid rgba(255,255,255,0.2);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    ">
+        <div style="
+            width: 8px;
+            height: 8px;
+            background: #4caf50;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(76,175,80,0.8);
+            animation: pulse 2s infinite;
+        "></div>
+        <span style="
+            color: rgba(255,255,255,0.95);
+            font-size: 11px;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+        ">
+            Connected
+        </span>
+    </div>
+</div>
+
+{# Add pulsing animation for connection indicator #}
+<style>
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.1);
+    }
+}
+
+.market-indicator-container:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+}
+</style>
+{% endblock %}
+
+{% block tail_js %}
+{{ super() }}
+<script>
+// Log current market for debugging
+console.log('📊 Current Market:', '{{ request.session.get("admin_market", "kg")|upper }}');
+console.log('🌍 Market Config:', {
+    market: '{{ request.session.get("admin_market", "kg") }}',
+    currency: '{% if request.session.get("admin_market") == "us" %}${% else %}сом{% endif %}',
+    country: '{% if request.session.get("admin_market") == "us" %}United States{% else %}Kyrgyzstan{% endif %}'
+});
+</script>
+{% endblock %}
+

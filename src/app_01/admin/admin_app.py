@@ -41,6 +41,10 @@ def create_sqladmin_app(app: FastAPI) -> Admin:
     # Use KG market engine as default for admin (can be switched later)
     engine = db_manager.get_engine(Market.KG)
     
+    # Get templates directory path
+    import os
+    templates_dir = os.path.join(os.path.dirname(__file__), "templates")
+    
     # Initialize SQLAdmin with multi-market authentication
     authentication_backend = MultiMarketAuthenticationBackend(secret_key="your-secret-key-here")
     admin = Admin(
@@ -49,6 +53,7 @@ def create_sqladmin_app(app: FastAPI) -> Admin:
         authentication_backend=authentication_backend,
         title="Marque - Multi-Market Admin",
         base_url="/admin",
+        templates_dir=templates_dir,  # ✅ Use custom templates
         # Explicitly set middlewares list to empty to avoid conflicts
         middlewares=[]
     )
