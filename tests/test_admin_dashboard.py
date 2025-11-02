@@ -9,7 +9,7 @@ from src.app_01.models import Order, User, Product, OrderStatus, Brand, Category
 
 def setup_dashboard_data(db_session: Session):
     """Populate the database with sample data for dashboard analytics."""
-    user = User(full_name="Test User", phone_number="+996555111222")
+    user = User(full_name="Test User", phone_number="+996555111222", market="kg")
     brand = Brand(name="Test Brand", slug="test-brand")
     db_session.add_all([brand, user])
     db_session.commit()

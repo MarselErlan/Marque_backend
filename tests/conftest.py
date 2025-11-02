@@ -245,7 +245,7 @@ def sample_user_kg_data():
         "phone_number": "+996555123456",
         "full_name": "Test User KG",
         "email": "test.kg@example.com",
-        "market": "KG"
+        "market": "kg"
     }
 
 
@@ -256,7 +256,7 @@ def sample_user_us_data():
         "phone_number": "+12125551234",
         "full_name": "Test User US",
         "email": "test.us@example.com",
-        "market": "US"
+        "market": "us"
     }
 
 
@@ -316,7 +316,7 @@ def mock_jwt_token():
     payload = {
         "user_id": "1",
         "phone_number": "+996555123456",
-        "market": "KG",
+        "market": "kg",
         "exp": datetime.utcnow() + timedelta(hours=1)
     }
     

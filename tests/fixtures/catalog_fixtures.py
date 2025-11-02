@@ -392,7 +392,8 @@ def sample_product_with_reviews(test_db: Session, sample_product_with_details):
         phone_number="+996555999888",
         full_name="Test Reviewer",
         is_verified=True,
-        is_active=True
+        is_active=True,
+        market="kg"
     )
     test_db.add(user)
     test_db.commit()

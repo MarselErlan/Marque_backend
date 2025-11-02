@@ -217,10 +217,10 @@ class AuthService:
                 is_new_user = False
                 
                 if not user:
-                    # Create new user
-                    user = user_model.create_user(db, request.phone)
+                    # Create new user with market
+                    user = user_model.create_user(db, request.phone, market=market.value)
                     is_new_user = True
-                    logger.info(f"✅ New user created: ID={user.id}, Phone={request.phone}")
+                    logger.info(f"✅ New user created: ID={user.id}, Phone={request.phone}, Market={market.value}")
                 else:
                     # Existing user - check if previously verified
                     if user.is_verified:
@@ -231,8 +231,11 @@ class AuthService:
                 # Mark user as verified and active, update last login
                 user.is_verified = True
                 user.is_active = True  # Set active when user logs in
+                user.market = market.value  # ✅ Set user's market based on phone number
                 user.update_last_login()
                 db.commit()
+                
+                logger.info(f"✅ User market set to: {market.value} (Phone: {request.phone})")
                 
                 # Create access token
                 access_token = self._create_access_token(user.id, market.value)

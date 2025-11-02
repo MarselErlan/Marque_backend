@@ -65,12 +65,13 @@ class User(Base):
         return session.query(cls).filter(cls.phone_number == phone_number).first()
 
     @classmethod
-    def create_user(cls, session, phone_number, full_name=None):
+    def create_user(cls, session, phone_number, full_name=None, market=None):
         """Create new user with phone number"""
         user = cls(
             phone_number=phone_number,
             full_name=full_name,
-            is_verified=False
+            is_verified=False,
+            market=market  # Set market during creation
         )
         session.add(user)
         session.commit()

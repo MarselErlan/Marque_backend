@@ -188,9 +188,26 @@ async def create_order(
     try:
         user_id = current_user.user_id
         
-        # ✅ FIX: Use the user's market from token instead of defaulting to KG
-        user_market = Market(current_user.market.value) if current_user.market else Market.KG
+        # ✅ NEW LOGIC: Get user's market from database (not token)
+        # First, get user from their market's database to find their market setting
+        user_market_from_token = Market(current_user.market.value) if current_user.market else Market.KG
         from ..db.market_db import db_manager
+        from ..models.users.user import User
+        
+        # Get user to check their stored market
+        temp_session_factory = db_manager.get_session_factory(user_market_from_token)
+        temp_db = temp_session_factory()
+        user = temp_db.query(User).filter(User.id == user_id).first()
+        temp_db.close()
+        
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        
+        # ✅ Use the market stored in user's database record
+        user_market = Market(user.market) if user.market else Market.KG
         SessionLocal = db_manager.get_session_factory(user_market)
         db = SessionLocal()
         
@@ -362,9 +379,25 @@ async def get_user_orders(
     offset: int = 0
 ):
     """Get all orders for the current user"""
-    # ✅ FIX: Use the user's market from token
-    user_market = Market(current_user.market.value) if current_user.market else Market.KG
+    # ✅ NEW LOGIC: Get user's market from database
+    user_market_from_token = Market(current_user.market.value) if current_user.market else Market.KG
     from ..db.market_db import db_manager
+    from ..models.users.user import User
+    
+    # Get user to check their stored market
+    temp_session_factory = db_manager.get_session_factory(user_market_from_token)
+    temp_db = temp_session_factory()
+    user = temp_db.query(User).filter(User.id == current_user.user_id).first()
+    temp_db.close()
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    # ✅ Use the market stored in user's database record
+    user_market = Market(user.market) if user.market else Market.KG
     SessionLocal = db_manager.get_session_factory(user_market)
     db = SessionLocal()
     
@@ -428,9 +461,25 @@ async def get_order_detail(
     current_user: VerifyTokenResponse = Depends(get_current_user_from_token)
 ):
     """Get order details by ID"""
-    # ✅ FIX: Use the user's market from token
-    user_market = Market(current_user.market.value) if current_user.market else Market.KG
+    # ✅ NEW LOGIC: Get user's market from database
+    user_market_from_token = Market(current_user.market.value) if current_user.market else Market.KG
     from ..db.market_db import db_manager
+    from ..models.users.user import User
+    
+    # Get user to check their stored market
+    temp_session_factory = db_manager.get_session_factory(user_market_from_token)
+    temp_db = temp_session_factory()
+    user = temp_db.query(User).filter(User.id == current_user.user_id).first()
+    temp_db.close()
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    # ✅ Use the market stored in user's database record
+    user_market = Market(user.market) if user.market else Market.KG
     SessionLocal = db_manager.get_session_factory(user_market)
     db = SessionLocal()
     

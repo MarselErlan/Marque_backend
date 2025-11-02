@@ -74,7 +74,8 @@ def sample_kg_user(test_db):
         full_name="Test User KG",
         email="test.kg@example.com",
         is_verified=True,
-        is_active=True
+        is_active=True,
+        market="kg"
     )
     test_db.add(user)
     test_db.commit()
@@ -91,7 +92,8 @@ def sample_us_user(test_db):
         full_name="Test User US",
         email="test.us@example.com",
         is_verified=True,
-        is_active=True
+        is_active=True,
+        market="us"
     )
     test_db.add(user)
     test_db.commit()

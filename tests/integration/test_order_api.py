@@ -32,7 +32,8 @@ def authenticated_user(db_session: Session):
         phone_number="+996505231255",
         full_name="Test User",
         is_active=True,
-        is_verified=True
+        is_verified=True,
+        market="kg"  # ✅ Set market based on phone number
     )
     db_session.add(user)
     db_session.commit()
