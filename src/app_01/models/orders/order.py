@@ -35,6 +35,9 @@ class Order(Base):
     delivery_city = Column(String(100), nullable=True)
     delivery_notes = Column(String(500), nullable=True)
     
+    # Payment information
+    payment_method = Column(String(50), nullable=True)  # e.g., 'card', 'cash', 'online'
+    
     # Financial information
     subtotal = Column(Float, nullable=False)
     shipping_cost = Column(Float, default=0.0)
