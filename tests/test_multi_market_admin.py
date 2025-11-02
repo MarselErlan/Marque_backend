@@ -50,6 +50,7 @@ class TestMultiMarketAuthenticationBackend:
         admin.username = "testadmin"
         admin.is_active = True
         admin.is_super_admin = False
+        admin.market = "kg"  # ✅ Add market attribute for new logic
         admin.hashed_password = bcrypt.hashpw("testpass".encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         admin.last_login = None
         return admin
@@ -306,8 +307,15 @@ class TestMultiMarketAuthenticationBackend:
             mock_db_manager.get_db_session.assert_called_once_with(Market.KG)
     
     @pytest.mark.asyncio
-    async def test_authenticate_valid_session_us(self, auth_backend, mock_request, mock_admin):
+    async def test_authenticate_valid_session_us(self, auth_backend, mock_request):
         """Test authentication with valid US session"""
+        # Create US admin with correct market
+        mock_admin_us = Mock(spec=Admin)
+        mock_admin_us.id = 1
+        mock_admin_us.username = "testadmin"
+        mock_admin_us.is_active = True
+        mock_admin_us.market = "us"  # ✅ US market
+        
         # Set up session data
         mock_request.session = {
             "token": "test-token",
@@ -317,7 +325,7 @@ class TestMultiMarketAuthenticationBackend:
         
         # Mock database session
         mock_db = Mock(spec=Session)
-        mock_db.query.return_value.filter.return_value.first.return_value = mock_admin
+        mock_db.query.return_value.filter.return_value.first.return_value = mock_admin_us
         mock_db.close = Mock()
         
         # Mock db_manager
@@ -545,6 +553,7 @@ class TestIntegrationScenarios:
         admin.username = "kg_admin"
         admin.is_active = True
         admin.is_super_admin = False
+        admin.market = "kg"  # ✅ Add market attribute
         admin.hashed_password = bcrypt.hashpw("kgpass".encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         return admin
     
@@ -556,6 +565,7 @@ class TestIntegrationScenarios:
         admin.username = "us_admin"
         admin.is_active = True
         admin.is_super_admin = False
+        admin.market = "us"  # ✅ Add market attribute
         admin.hashed_password = bcrypt.hashpw("uspass".encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         return admin
     

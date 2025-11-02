@@ -22,6 +22,7 @@ class Admin(Base):
     # Admin configuration
     admin_role = Column(String(50), nullable=False, default="order_management")  # order_management, website_content, super_admin
     permissions = Column(String(500), nullable=True)  # JSON string of permissions
+    market = Column(String(10), nullable=True, default="kg")  # Admin's assigned market (kg or us)
     is_active = Column(Boolean, default=True)
     is_super_admin = Column(Boolean, default=False)
     

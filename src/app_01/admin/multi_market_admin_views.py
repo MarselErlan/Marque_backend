@@ -134,10 +134,11 @@ class MultiMarketAuthenticationBackend(AuthenticationBackend):
             logger.info(f"   Database: {market.value}")
             logger.info(f"   Super Admin: {admin.is_super_admin}")
             
-            # Update last login
+            # Update last login and market (store selected market in database)
             admin.last_login = datetime.utcnow()
+            admin.market = market.value  # ✅ Save selected market to database
             db.commit()
-            logger.debug(f"   ✅ Updated last_login timestamp")
+            logger.debug(f"   ✅ Updated last_login timestamp and market={market.value}")
             
             # Create session with market info
             token = secrets.token_urlsafe(32)
@@ -176,45 +177,66 @@ class MultiMarketAuthenticationBackend(AuthenticationBackend):
         return True
     
     async def authenticate(self, request: Request) -> bool:
-        """Check if user is authenticated - checks the correct database"""
+        """Check if user is authenticated - uses admin's database market as source of truth"""
         logger.debug("🔍 Checking authentication status...")
         
         token = request.session.get("token")
         admin_id = request.session.get("admin_id")
-        admin_market = request.session.get("admin_market", "kg")
+        session_market = request.session.get("admin_market", "kg")
         
-        logger.debug(f"   Session data: token={'✓' if token else '✗'}, admin_id={admin_id}, market={admin_market}")
+        logger.debug(f"   Session data: token={'✓' if token else '✗'}, admin_id={admin_id}, session_market={session_market}")
         
         if not token or not admin_id:
             logger.debug("   ❌ No token or admin_id in session")
             return False
         
-        # Get the market from session
+        # NEW LOGIC: Get admin's market from database (single source of truth)
+        # First, try the session market to find the admin
         try:
-            market = Market.KG if admin_market == "kg" else Market.US
-            logger.debug(f"   📊 Using {market.value.upper()} database")
-        except:
-            market = Market.KG
-            logger.warning(f"   ⚠️  Error determining market, defaulting to KG")
-        
-        # Check admin exists and is active in the correct database
-        db = next(db_manager.get_db_session(market))
-        try:
-            admin = db.query(Admin).filter(Admin.id == admin_id).first()
-            if not admin:
-                logger.warning(f"   ❌ Admin ID {admin_id} not found in {market.value} database")
-                return False
-            if not admin.is_active:
-                logger.warning(f"   ❌ Admin {admin.username} is inactive")
+            temp_market = Market.KG if session_market == "kg" else Market.US
+            temp_db = next(db_manager.get_db_session(temp_market))
+            temp_admin = temp_db.query(Admin).filter(Admin.id == admin_id).first()
+            temp_db.close()
+            
+            if not temp_admin:
+                # Try the other market
+                temp_market = Market.US if session_market == "kg" else Market.KG
+                temp_db = next(db_manager.get_db_session(temp_market))
+                temp_admin = temp_db.query(Admin).filter(Admin.id == admin_id).first()
+                temp_db.close()
+                
+                if not temp_admin:
+                    logger.warning(f"   ❌ Admin ID {admin_id} not found in either database")
+                    return False
+            
+            # Use the market stored in admin's database record (source of truth)
+            admin_db_market = Market(temp_admin.market) if temp_admin.market else Market.KG
+            logger.debug(f"   📊 Admin's database market: {admin_db_market.value.upper()}")
+            
+            # Update session if market changed
+            if session_market != admin_db_market.value:
+                logger.info(f"   🔄 Updating session market: {session_market} → {admin_db_market.value}")
+                request.session["admin_market"] = admin_db_market.value
+                market_config = MarketConfig.get_config(admin_db_market)
+                request.session.update({
+                    "market_currency": market_config["currency"],
+                    "market_country": market_config["country"],
+                    "market_language": market_config["language"]
+                })
+            
+            # Verify admin is active
+            if not temp_admin.is_active:
+                logger.warning(f"   ❌ Admin {temp_admin.username} is inactive")
                 return False
             
-            logger.debug(f"   ✅ Authentication valid for {admin.username} (ID: {admin_id}) in {market.value.upper()}")
+            logger.debug(f"   ✅ Authentication valid for {temp_admin.username} (ID: {admin_id}) in {admin_db_market.value.upper()}")
             return True
+            
         except Exception as e:
             logger.error(f"   ❌ Authentication check error: {type(e).__name__}: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
             return False
-        finally:
-            db.close()
 
 
 class MarketSelectionView(BaseView):
