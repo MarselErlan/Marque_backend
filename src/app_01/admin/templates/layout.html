@@ -1,5 +1,11 @@
 {% extends "sqladmin/layout.html" %}
 
+{% block head_css %}
+{{ super() }}
+<!-- Custom Market Indicator CSS -->
+<link rel="stylesheet" href="/admin/custom/custom-admin.css">
+{% endblock %}
+
 {% block brand %}
 {{ super() }}
 
@@ -126,14 +132,25 @@
 
 {% block tail_js %}
 {{ super() }}
+<!-- Market Indicator Script -->
 <script>
-// Log current market for debugging
-console.log('📊 Current Market:', '{{ request.session.get("admin_market", "kg")|upper }}');
-console.log('🌍 Market Config:', {
+// Set market info globally for the indicator script
+window.ADMIN_MARKET = '{{ request.session.get("admin_market", "kg") }}';
+window.ADMIN_MARKET_INFO = {
     market: '{{ request.session.get("admin_market", "kg") }}',
     currency: '{% if request.session.get("admin_market") == "us" %}${% else %}сом{% endif %}',
-    country: '{% if request.session.get("admin_market") == "us" %}United States{% else %}Kyrgyzstan{% endif %}'
-});
+    country: '{% if request.session.get("admin_market") == "us" %}United States{% else %}Kyrgyzstan{% endif %}',
+    currency_code: '{% if request.session.get("admin_market") == "us" %}USD{% else %}KGS{% endif %}',
+    language: '{% if request.session.get("admin_market") == "us" %}English{% else %}Русский{% endif %}'
+};
+
+// Store in localStorage for persistence
+localStorage.setItem('admin_market', window.ADMIN_MARKET);
+
+// Log current market for debugging
+console.log('📊 Current Market:', window.ADMIN_MARKET.toUpperCase());
+console.log('🌍 Market Info:', window.ADMIN_MARKET_INFO);
 </script>
+<script src="/admin/custom/custom-admin.js"></script>
 {% endblock %}
 

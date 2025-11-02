@@ -1,0 +1,113 @@
+/* Market Indicator Badge - Custom CSS for Admin Panel */
+
+/* Market indicator container injected via JavaScript */
+.market-indicator-badge {
+    padding: 12px 16px;
+    margin: 16px 12px;
+    background: linear-gradient(135deg, #34a853 0%, #0f9d58 100%);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    border: 2px solid rgba(255,255,255,0.2);
+    transition: all 0.2s ease;
+}
+
+.market-indicator-badge.market-us {
+    background: linear-gradient(135deg, #4285f4 0%, #2962ff 100%);
+}
+
+.market-indicator-badge.market-kg {
+    background: linear-gradient(135deg, #34a853 0%, #0f9d58 100%);
+}
+
+.market-indicator-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.market-indicator-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.market-indicator-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.market-indicator-flag {
+    font-size: 24px;
+    line-height: 1;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+}
+
+.market-indicator-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.market-indicator-name {
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.3px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    margin-bottom: 2px;
+}
+
+.market-indicator-details {
+    color: rgba(255,255,255,0.95);
+    font-size: 11px;
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+.market-indicator-label {
+    background: rgba(255,255,255,0.25);
+    padding: 4px 8px;
+    border-radius: 6px;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    backdrop-filter: blur(4px);
+}
+
+.market-indicator-status {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.market-indicator-dot {
+    width: 8px;
+    height: 8px;
+    background: #4caf50;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(76,175,80,0.8);
+    animation: market-pulse 2s infinite;
+}
+
+.market-indicator-status-text {
+    color: rgba(255,255,255,0.95);
+    font-size: 11px;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+@keyframes market-pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.1);
+    }
+}
+

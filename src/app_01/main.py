@@ -124,6 +124,12 @@ try:
     app.mount("/demo-images", StaticFiles(directory=str(demo_images_dir)), name="demo-images")
     logger.info(f"✅ Demo images directory mounted from: {demo_images_dir}")
     
+    # Mount custom admin static files (CSS/JS for market indicator)
+    custom_admin_static_dir = pathlib.Path(__file__).parent / "admin" / "static"
+    custom_admin_static_dir.mkdir(parents=True, exist_ok=True)
+    app.mount("/admin/custom", StaticFiles(directory=str(custom_admin_static_dir)), name="custom-admin")
+    logger.info(f"✅ Custom admin static files mounted from: {custom_admin_static_dir}")
+    
 except Exception as static_error:
     logger.error(f"❌ Failed to mount static files: {static_error}")
     import traceback
