@@ -169,8 +169,7 @@ def validate_and_get_sku(sku_id: int, db: Session) -> SKU:
 @router.post("/create", response_model=OrderResponse)
 async def create_order(
     request: CreateOrderRequest,
-    current_user: VerifyTokenResponse = Depends(get_current_user_from_token),
-    db: Session = Depends(get_db)
+    current_user: VerifyTokenResponse = Depends(get_current_user_from_token)
 ):
     """
     Create a new order from cart or provided items
@@ -188,6 +187,12 @@ async def create_order(
     """
     try:
         user_id = current_user.user_id
+        
+        # ✅ FIX: Use the user's market from token instead of defaulting to KG
+        user_market = Market(current_user.market.value) if current_user.market else Market.KG
+        from ..db.market_db import db_manager
+        SessionLocal = db_manager.get_session_factory(user_market)
+        db = SessionLocal()
         
         # Step 1: Get items to order
         items_to_order = []
@@ -345,39 +350,105 @@ async def create_order(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to create order: {str(e)}"
         )
+    finally:
+        db.close()
 
 
 @router.get("", response_model=List[OrderResponse])
 async def get_user_orders(
     current_user: VerifyTokenResponse = Depends(get_current_user_from_token),
-    db: Session = Depends(get_db),
     status_filter: Optional[str] = None,
     limit: int = 20,
     offset: int = 0
 ):
     """Get all orders for the current user"""
-    query = db.query(Order).options(
-        joinedload(Order.order_items)
-    ).filter(
-        Order.user_id == current_user.user_id
-    )
+    # ✅ FIX: Use the user's market from token
+    user_market = Market(current_user.market.value) if current_user.market else Market.KG
+    from ..db.market_db import db_manager
+    SessionLocal = db_manager.get_session_factory(user_market)
+    db = SessionLocal()
     
-    # Filter by status if provided
-    if status_filter:
-        try:
-            order_status = OrderStatus[status_filter.upper()]
-            query = query.filter(Order.status == order_status)
-        except KeyError:
-            pass  # Ignore invalid status
+    try:
+        query = db.query(Order).options(
+            joinedload(Order.order_items)
+        ).filter(
+            Order.user_id == current_user.user_id
+        )
+        
+        # Filter by status if provided
+        if status_filter:
+            try:
+                order_status = OrderStatus[status_filter.upper()]
+                query = query.filter(Order.status == order_status)
+            except KeyError:
+                pass  # Ignore invalid status
+        
+        # Order by most recent first
+        query = query.order_by(Order.order_date.desc())
+        
+        # Pagination
+        orders = query.offset(offset).limit(limit).all()
+        
+        return [
+            OrderResponse(
+                id=order.id,
+                order_number=order.order_number,
+                status=order.status.value,
+                customer_name=order.customer_name,
+                customer_phone=order.customer_phone,
+                delivery_address=order.delivery_address,
+                subtotal=order.subtotal,
+                shipping_cost=order.shipping_cost,
+                total_amount=order.total_amount,
+                currency=order.currency,
+                order_date=order.order_date,
+                items=[
+                    OrderItemResponse(
+                        id=item.id,
+                        product_name=item.product_name,
+                        sku_code=item.sku_code,
+                        size=item.size,
+                        color=item.color,
+                        unit_price=item.unit_price,
+                        quantity=item.quantity,
+                        total_price=item.total_price
+                    )
+                    for item in order.order_items
+                ]
+            )
+            for order in orders
+        ]
+    finally:
+        db.close()
+
+
+@router.get("/{order_id}", response_model=OrderResponse)
+async def get_order_detail(
+    order_id: int,
+    current_user: VerifyTokenResponse = Depends(get_current_user_from_token)
+):
+    """Get order details by ID"""
+    # ✅ FIX: Use the user's market from token
+    user_market = Market(current_user.market.value) if current_user.market else Market.KG
+    from ..db.market_db import db_manager
+    SessionLocal = db_manager.get_session_factory(user_market)
+    db = SessionLocal()
     
-    # Order by most recent first
-    query = query.order_by(Order.order_date.desc())
+    try:
+        order = db.query(Order).options(
+            joinedload(Order.order_items)
+        ).filter(
+            Order.id == order_id,
+            Order.user_id == current_user.user_id
+        ).first()
     
-    # Pagination
-    orders = query.offset(offset).limit(limit).all()
-    
-    return [
-        OrderResponse(
+        if not order:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Order not found"
+            )
+        
+        return OrderResponse(
             id=order.id,
             order_number=order.order_number,
             status=order.status.value,
@@ -403,54 +474,6 @@ async def get_user_orders(
                 for item in order.order_items
             ]
         )
-        for order in orders
-    ]
-
-
-@router.get("/{order_id}", response_model=OrderResponse)
-async def get_order_detail(
-    order_id: int,
-    current_user: VerifyTokenResponse = Depends(get_current_user_from_token),
-    db: Session = Depends(get_db)
-):
-    """Get order details by ID"""
-    order = db.query(Order).options(
-        joinedload(Order.order_items)
-    ).filter(
-        Order.id == order_id,
-        Order.user_id == current_user.user_id
-    ).first()
-    
-    if not order:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Order not found"
-        )
-    
-    return OrderResponse(
-        id=order.id,
-        order_number=order.order_number,
-        status=order.status.value,
-        customer_name=order.customer_name,
-        customer_phone=order.customer_phone,
-        delivery_address=order.delivery_address,
-        subtotal=order.subtotal,
-        shipping_cost=order.shipping_cost,
-        total_amount=order.total_amount,
-        currency=order.currency,
-        order_date=order.order_date,
-        items=[
-            OrderItemResponse(
-                id=item.id,
-                product_name=item.product_name,
-                sku_code=item.sku_code,
-                size=item.size,
-                color=item.color,
-                unit_price=item.unit_price,
-                quantity=item.quantity,
-                total_price=item.total_price
-            )
-            for item in order.order_items
-        ]
-    )
+    finally:
+        db.close()
 
