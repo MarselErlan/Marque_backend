@@ -18,8 +18,42 @@ sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..'
 
 from src.app_01.core.config import settings
 from src.app_01.db import Base
-from src.app_01.models.users import user
-from src.app_01.models.products import product, brand, category
+
+# Import ALL models so Alembic can detect them
+# Users
+from src.app_01.models.users.user import User
+from src.app_01.models.users.interaction import Interaction
+from src.app_01.models.users.phone_verification import PhoneVerification
+from src.app_01.models.users.user_address import UserAddress
+from src.app_01.models.users.user_payment_method import UserPaymentMethod
+from src.app_01.models.users.user_notification import UserNotification
+from src.app_01.models.users.wishlist import Wishlist, WishlistItem
+
+# Products
+from src.app_01.models.products.product import Product
+from src.app_01.models.products.brand import Brand
+from src.app_01.models.products.category import Category, Subcategory
+from src.app_01.models.products.sku import SKU
+from src.app_01.models.products.product_asset import ProductAsset
+from src.app_01.models.products.review import Review
+from src.app_01.models.products.product_attribute import ProductAttribute
+from src.app_01.models.products.product_filter import ProductFilter, ProductSeason, ProductMaterial, ProductStyle, ProductDiscount, ProductSearch
+
+# Orders
+from src.app_01.models.orders.cart_order import CartOrder
+from src.app_01.models.orders.order import Order, OrderStatus
+from src.app_01.models.orders.order_item import OrderItem
+from src.app_01.models.orders.order_status_history import OrderStatusHistory
+from src.app_01.models.orders.cart import Cart, CartItem
+
+# Admins
+from src.app_01.models.admins.admin import Admin
+from src.app_01.models.admins.admin_log import AdminLog
+from src.app_01.models.admins.order_management.order_admin_stats import OrderAdminStats
+from src.app_01.models.admins.order_management.order_management_admin import OrderManagementAdmin
+
+# Banners
+from src.app_01.models.banners.banner import Banner
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
