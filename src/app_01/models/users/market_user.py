@@ -136,17 +136,20 @@ class UserKG(KGBase):
         return session.query(cls).filter(cls.phone_number == phone_number).first()
 
     @classmethod
-    def create_user(cls, session, phone_number, full_name=None):
+    def create_user(cls, session, phone_number, full_name=None, market=None):
         """Create new user for KG market"""
         # Validate phone number for KG market
         if not MarketUser.validate_phone_number(phone_number, Market.KG):
             raise ValueError(f"Invalid KG phone number format: {phone_number}")
         
+        # Use provided market or default to "kg"
+        user_market = market if market is not None else "kg"
+        
         user = cls(
             phone_number=phone_number,
             full_name=full_name,
             is_verified=False,
-            market="kg",
+            market=user_market,
             language="ru",
             country="Kyrgyzstan"
         )
@@ -242,17 +245,20 @@ class UserUS(USBase):
         return session.query(cls).filter(cls.phone_number == phone_number).first()
 
     @classmethod
-    def create_user(cls, session, phone_number, full_name=None):
+    def create_user(cls, session, phone_number, full_name=None, market=None):
         """Create new user for US market"""
         # Validate phone number for US market
         if not MarketUser.validate_phone_number(phone_number, Market.US):
             raise ValueError(f"Invalid US phone number format: {phone_number}")
         
+        # Use provided market or default to "us"
+        user_market = market if market is not None else "us"
+        
         user = cls(
             phone_number=phone_number,
             full_name=full_name,
             is_verified=False,
-            market="us",
+            market=user_market,
             language="en",
             country="United States"
         )

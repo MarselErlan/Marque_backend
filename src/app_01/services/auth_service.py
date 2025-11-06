@@ -217,7 +217,7 @@ class AuthService:
                 is_new_user = False
                 
                 if not user:
-                    # Create new user with market
+                    # Create new user with explicit market parameter
                     user = user_model.create_user(db, request.phone, market=market.value)
                     is_new_user = True
                     logger.info(f"✅ New user created: ID={user.id}, Phone={request.phone}, Market={market.value}")
